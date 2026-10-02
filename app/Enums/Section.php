@@ -49,4 +49,19 @@ enum Section: string
     {
         return route($this->routeName());
     }
+
+    /**
+     * The color dot class of the section in the admin panel.
+     */
+    public function adminDotClass(): string
+    {
+        return match ($this) {
+            self::Home => 'bg-section-home',
+            self::Posts => 'bg-section-posts',
+            self::Watched => 'bg-section-watched',
+            self::Goals => 'bg-section-goals',
+            self::Projects => 'bg-section-projects',
+            self::About => 'bg-section-about',
+        };
+    }
 }

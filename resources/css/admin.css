@@ -1,0 +1,90 @@
+/*
+ * Admin panel: a calm "back office" next to the notebook.
+ * Neutral zinc surfaces, one ink-blue accent, section colors only as small dots.
+ * Kept apart from site.css so neither design leaks into the other.
+ */
+@import 'tailwindcss' source(none);
+
+@source '../views/components/admin';
+@source '../views/layouts/admin.blade.php';
+@source '../views/pages/admin';
+@source '../../app/Enums';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: var(--font-nunito-sans), ui-sans-serif, system-ui, sans-serif;
+    --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+    --font-display: var(--font-fraunces), Georgia, serif;
+
+    /* Ink blue of the notebook's home tab: buttons, links, focus rings */
+    --color-accent: #26386b;
+    --color-accent-hover: #1d2b54;
+    --color-accent-on: #ffffff;
+    --color-accent-soft: #e8ecf7;
+
+    /* Section dots, the same colors as the notebook tabs */
+    --color-section-home: #26386b;
+    --color-section-posts: #d9694a;
+    --color-section-watched: #f2577a;
+    --color-section-goals: #9cc424;
+    --color-section-projects: #f0b429;
+    --color-section-about: #a08ce0;
+}
+
+@layer theme {
+    .dark {
+        --color-accent: #93aaff;
+        --color-accent-hover: #b0c1ff;
+        --color-accent-on: #111827;
+        --color-accent-soft: #1e2540;
+
+        --color-section-home: #93aaff;
+        --color-section-posts: #ff8f6b;
+        --color-section-watched: #ff6b8e;
+        --color-section-goals: #c8f25a;
+        --color-section-projects: #ffcb52;
+        --color-section-about: #bba8ff;
+    }
+}
+
+@layer base {
+    html {
+        @apply bg-zinc-50 font-sans text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+        color-scheme: light;
+    }
+
+    html.dark {
+        color-scheme: dark;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-accent;
+    }
+
+    dialog::backdrop {
+        @apply bg-zinc-950/40 backdrop-blur-[2px];
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+/* Shared look of text-like controls (input, select, textarea) */
+@utility control {
+    @apply block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-xs transition placeholder:text-zinc-400;
+    @apply focus:border-accent focus:ring-2 focus:ring-accent/20 focus:outline-none;
+    @apply disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-500;
+    @apply aria-invalid:border-red-500 aria-invalid:focus:ring-red-500/20;
+    @apply dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:disabled:bg-zinc-800;
+}

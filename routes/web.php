@@ -28,7 +28,11 @@ if (! app()->isProduction()) {
 }
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::view('/', 'dashboard')->name('dashboard');
+    Route::livewire('/', 'pages::admin.dashboard')->name('dashboard');
+
+    if (! app()->isProduction()) {
+        Route::livewire('stil', 'pages::admin.styleguide')->name('styleguide');
+    }
 });
 
 require __DIR__.'/settings.php';
