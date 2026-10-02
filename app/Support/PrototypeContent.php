@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Enums\GoalVisibility;
 use App\Enums\SeriesStatus;
 use App\Enums\WatchableType;
 use Carbon\CarbonImmutable;
@@ -12,7 +13,11 @@ use Illuminate\Support\Str;
  * Each method mirrors what a real query will return later, so the views
  * and components can be wired to models without changing their shape.
  *
+ * @phpstan-type Chain array{slug: string, title: string, visibility: GoalVisibility, streak: int, bestStreak: int, days: list<'done'|'missed'|'excused'>, parent: ?string}
+ * @phpstan-type YearlyGoal array{slug: string, title: string, type: 'numeric'|'milestones'|'binary', visibility: GoalVisibility, current: ?int, target: ?int, unit: ?string, milestones: list<array{title: string, done: bool}>, achievedAt: ?CarbonImmutable, parent: ?string, linkUrl: ?string}
+ * @phpstan-type LongTermGoal array{slug: string, title: string, why: string, visibility: GoalVisibility, since: int}
  * @phpstan-type ReviewBlock array{type: 'paragraph'|'spoiler'|'quote', text: string, by?: string}
+ * @phpstan-type RawWatchedEntry array{type: WatchableType, slug: string, title: string, originalTitle: ?string, year: int, creator: string, genres: list<string>, runtimeMinutes: ?int, overview: ?string, cast: list<array{name: string, role: string}>, watchedAt: CarbonImmutable, place: string, rating: ?float, isFavorite: bool, isRewatch: bool, status: ?SeriesStatus, season: ?int, episode: ?int, episodeCount: ?int, posterFile: string, posterColors: array{0: string, 1: string}, accent: string, review: ?list<ReviewBlock>}
  * @phpstan-type WatchedEntry array{type: WatchableType, slug: string, title: string, originalTitle: ?string, year: int, creator: string, genres: list<string>, runtimeMinutes: ?int, overview: ?string, cast: list<array{name: string, role: string}>, watchedAt: CarbonImmutable, place: string, rating: ?float, isFavorite: bool, isRewatch: bool, status: ?SeriesStatus, season: ?int, episode: ?int, episodeCount: ?int, posterFile: string, posterColors: array{0: string, 1: string}, accent: string, review: ?list<ReviewBlock>, posterUrl: ?string, hasReview: bool, reviewExcerpt: ?string, url: string}
  */
 class PrototypeContent
@@ -92,7 +97,7 @@ class PrototypeContent
     {
         $entries = array_map(function (array $entry): array {
             $posterPath = '/images/prototype/posters/'.$entry['posterFile'];
-            $firstParagraph = collect($entry['review'] ?? [])->firstWhere('type', 'paragraph');
+            $firstParagraph = array_find($entry['review'] ?? [], fn (array $block): bool => $block['type'] === 'paragraph');
 
             return [
                 ...$entry,
@@ -109,7 +114,7 @@ class PrototypeContent
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return list<RawWatchedEntry>
      */
     private static function rawWatchedEntries(): array
     {
@@ -844,29 +849,263 @@ class PrototypeContent
     }
 
     /**
-     * Daily chains with the last 14 days, oldest first.
+     * Chains for the home page: the last 14 days of every visible chain.
      *
-     * @return list<array{title: string, streak: int, days: list<'done'|'missed'|'excused'>}>
+     * @return list<Chain>
      */
     public static function activeChains(): array
     {
-        return [
+        return array_map(
+            fn (array $chain): array => [...$chain, 'days' => array_slice($chain['days'], -14)],
+            self::chains(),
+        );
+    }
+
+    /**
+     * Daily chains with the last 21 days, oldest first. Hidden chains are left out,
+     * the way a visibility scope will do it later.
+     *
+     * @return list<Chain>
+     */
+    public static function chains(): array
+    {
+        return self::visibleOnly([
             [
+                'slug' => 'her-gun-kod',
                 'title' => 'Her gün 30 dk kod',
+                'visibility' => GoalVisibility::Public,
                 'streak' => 23,
-                'days' => ['done', 'done', 'done', 'done', 'done', 'excused', 'done', 'done', 'done', 'done', 'done', 'done', 'done', 'done'],
+                'bestStreak' => 58,
+                'days' => self::days('xxxxxxxxxxxxexxxxxxxx'),
+                'parent' => 'kendi-urunum',
             ],
             [
+                'slug' => 'spor',
                 'title' => 'Spor',
+                'visibility' => GoalVisibility::Public,
                 'streak' => 6,
-                'days' => ['done', 'done', 'missed', 'done', 'done', 'done', 'missed', 'done', 'done', 'done', 'done', 'done', 'done', 'done'],
+                'bestStreak' => 19,
+                'days' => self::days('xxxxx-xxx-xxxx-xxxxxx'),
+                'parent' => 'formda-50',
             ],
             [
-                'title' => 'Almanca okuma',
+                'slug' => 'almanca-okuma',
+                'title' => 'Her gün 10 sayfa Almanca',
+                'visibility' => GoalVisibility::Public,
                 'streak' => 2,
-                'days' => ['done', 'missed', 'missed', 'done', 'done', 'done', 'done', 'done', 'missed', 'done', 'done', 'missed', 'done', 'done'],
+                'bestStreak' => 12,
+                'days' => self::days('xxx-xxxxxx--xxxxxx-xx'),
+                'parent' => 'almanca-c1',
+            ],
+            [
+                'slug' => 'gizli-zincir-1',
+                'title' => 'Ekransız sabahlar',
+                'visibility' => GoalVisibility::Censored,
+                'streak' => 41,
+                'bestStreak' => 41,
+                'days' => self::days('xxxxxxxxxxxxxxxxxxxxx'),
+                'parent' => null,
+            ],
+            [
+                'slug' => 'gizli-zincir-2',
+                'title' => 'Tamamen gizli bir alışkanlık',
+                'visibility' => GoalVisibility::Hidden,
+                'streak' => 9,
+                'bestStreak' => 9,
+                'days' => self::days('xxxxxxxxxxxxxxxxxxxxx'),
+                'parent' => null,
+            ],
+        ]);
+    }
+
+    /**
+     * Goals for the current year, in three shapes: numeric, milestones and yes/no.
+     *
+     * @return list<YearlyGoal>
+     */
+    public static function yearlyGoals(): array
+    {
+        $goal = self::yearlyGoal(...);
+
+        return self::visibleOnly([
+            $goal([
+                'slug' => 'comon-yayinla',
+                'title' => "CoMon'u herkese açık yayınla",
+                'type' => 'milestones',
+                'visibility' => GoalVisibility::Public,
+                'milestones' => [
+                    ['title' => 'Kapalı beta', 'done' => true],
+                    ['title' => 'Hane üyeleri ve davet sistemi', 'done' => true],
+                    ['title' => 'Sayaç okumaları için grafikler', 'done' => true],
+                    ['title' => 'Mobil uyum', 'done' => false],
+                    ['title' => 'Herkese açık yayın', 'done' => false],
+                ],
+                'parent' => 'kendi-urunum',
+                'linkUrl' => route('projects.index'),
+            ]),
+            $goal([
+                'slug' => '12-kitap',
+                'title' => '12 kitap oku',
+                'type' => 'numeric',
+                'visibility' => GoalVisibility::Public,
+                'current' => 10,
+                'target' => 12,
+                'unit' => 'kitap',
+            ]),
+            $goal([
+                'slug' => '500-km',
+                'title' => '500 km koş',
+                'type' => 'numeric',
+                'visibility' => GoalVisibility::Public,
+                'current' => 362,
+                'target' => 500,
+                'unit' => 'km',
+                'parent' => 'formda-50',
+            ]),
+            $goal([
+                'slug' => '24-yazi',
+                'title' => '24 blog yazısı yayınla',
+                'type' => 'numeric',
+                'visibility' => GoalVisibility::Public,
+                'current' => 9,
+                'target' => 24,
+                'unit' => 'yazı',
+                'parent' => 'turkce-icerik',
+            ]),
+            $goal([
+                'slug' => 'almanca-c1',
+                'title' => 'Almanca C1 sınavını geç',
+                'type' => 'binary',
+                'visibility' => GoalVisibility::Public,
+                'parent' => 'almanca',
+            ]),
+            $goal([
+                'slug' => 'meetup-konusmasi',
+                'title' => "Bir Laravel meetup'ında konuşma yap",
+                'type' => 'binary',
+                'visibility' => GoalVisibility::Public,
+                'achievedAt' => CarbonImmutable::parse('2026-06-12'),
+                'parent' => 'turkce-icerik',
+            ]),
+            $goal([
+                'slug' => 'gizli-yillik-1',
+                'title' => 'Kimseye söylemediğim bir hedef',
+                'type' => 'numeric',
+                'visibility' => GoalVisibility::Censored,
+                'current' => 3,
+                'target' => 10,
+                'unit' => '',
+            ]),
+        ]);
+    }
+
+    /**
+     * Fills in the optional fields of a yearly goal.
+     *
+     * @param  array{slug: string, title: string, type: 'numeric'|'milestones'|'binary', visibility: GoalVisibility, current?: int, target?: int, unit?: string, milestones?: list<array{title: string, done: bool}>, achievedAt?: CarbonImmutable, parent?: string, linkUrl?: string}  $attributes
+     * @return YearlyGoal
+     */
+    private static function yearlyGoal(array $attributes): array
+    {
+        return [
+            'current' => null,
+            'target' => null,
+            'unit' => null,
+            'milestones' => [],
+            'achievedAt' => null,
+            'parent' => null,
+            'linkUrl' => null,
+            ...$attributes,
+        ];
+    }
+
+    /**
+     * Long-term goals: no progress bar, a reason and a story instead.
+     *
+     * @return list<LongTermGoal>
+     */
+    public static function longTermGoals(): array
+    {
+        return self::visibleOnly([
+            [
+                'slug' => 'kendi-urunum',
+                'title' => 'Kendi ürünümü çıkarmak',
+                'why' => 'Başkasının fikrini değil, kendi fikrimi büyütmek istiyorum. İnsanların gerçekten kullandığı küçük ama dürüst bir ürün.',
+                'visibility' => GoalVisibility::Public,
+                'since' => 2024,
+            ],
+            [
+                'slug' => 'almanca',
+                'title' => 'Almancayı Türkçe kadar rahat konuşmak',
+                'why' => 'Bir toplantıda kelime aramadan, esprimi çevirmeden konuşabildiğim gün burası gerçekten evim olacak.',
+                'visibility' => GoalVisibility::Public,
+                'since' => 2016,
+            ],
+            [
+                'slug' => 'formda-50',
+                'title' => '50 yaşına formda girmek',
+                'why' => 'Masa başında geçen bir meslekte vücudumu ihmal etmemek. Yaşlandıkça da dağ yürüyüşüne çıkabilen biri olmak.',
+                'visibility' => GoalVisibility::Public,
+                'since' => 2025,
+            ],
+            [
+                'slug' => 'turkce-icerik',
+                'title' => 'Türkçe teknik içerik üreten biri olmak',
+                'why' => 'Ben öğrenirken Türkçe kaynak çok azdı. Benden sonra gelenler için o eksikliği biraz kapatmak istiyorum.',
+                'visibility' => GoalVisibility::Public,
+                'since' => 2026,
+            ],
+            [
+                'slug' => 'gizli-uzun-1',
+                'title' => 'Çok kişisel bir hedef',
+                'why' => 'Bunun nedenini sadece ben biliyorum ve şimdilik öyle kalsın.',
+                'visibility' => GoalVisibility::Censored,
+                'since' => 2023,
+            ],
+        ]);
+    }
+
+    /**
+     * Last years' goals, kept honestly: the ones that did not happen are scribbled over, not deleted.
+     *
+     * @return array<int, list<array{title: string, achieved: bool}>>
+     */
+    public static function pastYearGoals(): array
+    {
+        return [
+            2025 => [
+                ['title' => 'Fachinformatiker sınavını geç', 'achieved' => true],
+                ['title' => '10 kitap oku', 'achieved' => true],
+                ['title' => 'Yarı maraton koş', 'achieved' => false],
+                ['title' => 'Her ay bir yan proje bitir', 'achieved' => false],
+                ['title' => 'İlk açık kaynak katkımı yap', 'achieved' => true],
             ],
         ];
+    }
+
+    /**
+     * @template T of array{visibility: GoalVisibility}
+     *
+     * @param  list<T>  $goals
+     * @return list<T>
+     */
+    private static function visibleOnly(array $goals): array
+    {
+        return array_values(array_filter($goals, fn (array $goal): bool => $goal['visibility']->isVisible()));
+    }
+
+    /**
+     * Turns a compact day string into chain days: x = done, - = missed, e = excused.
+     *
+     * @return list<'done'|'missed'|'excused'>
+     */
+    private static function days(string $pattern): array
+    {
+        return array_map(fn (string $day): string => match ($day) {
+            'x' => 'done',
+            'e' => 'excused',
+            default => 'missed',
+        }, str_split($pattern));
     }
 
     /**

@@ -96,7 +96,14 @@
                     @foreach ($chains as $chain)
                         <li>
                             <div class="flex items-baseline justify-between gap-3">
-                                <span class="font-semibold">{{ $chain['title'] }}</span>
+                                <span class="font-semibold">
+                                    @if ($chain['title'])
+                                        {{ $chain['title'] }}
+                                    @else
+                                        <span aria-hidden="true">🔒</span>
+                                        <x-site.censored :length="$chain['titleLength']" label="sansürlü zincir" />
+                                    @endif
+                                </span>
                                 <span class="shrink-0 font-mono text-sm font-semibold text-section-ink">🔥 {{ $chain['streak'] }} gün</span>
                             </div>
                             <x-site.chain :days="$chain['days']" class="mt-2" />

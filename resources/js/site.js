@@ -89,10 +89,10 @@ function initLamps() {
 }
 
 /**
- * `.draw` strokes and `.reveal` groups animate once, the first time they scroll into view.
+ * `.draw` strokes, `.reveal` groups and `.press` stamps animate once, the first time they scroll into view.
  */
 function initDrawings() {
-    const drawings = document.querySelectorAll('.draw, .reveal');
+    const drawings = document.querySelectorAll('.draw, .reveal, .press');
 
     if (!('IntersectionObserver' in window)) {
         drawings.forEach((drawing) => drawing.classList.add('is-drawn'));

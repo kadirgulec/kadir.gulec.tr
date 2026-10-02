@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\GoalCensor;
 use App\Support\PrototypeContent;
 use Illuminate\View\View;
 
@@ -16,7 +17,7 @@ class HomeController extends Controller
             'latestPost' => PrototypeContent::latestPost(),
             'lastWatched' => PrototypeContent::lastWatched(),
             'currentlyWatching' => PrototypeContent::currentlyWatching(),
-            'chains' => PrototypeContent::activeChains(),
+            'chains' => array_map(GoalCensor::apply(...), PrototypeContent::activeChains()),
             'featuredProject' => PrototypeContent::featuredProject(),
         ]);
     }
