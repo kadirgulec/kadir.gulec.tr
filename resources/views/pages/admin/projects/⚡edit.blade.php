@@ -1,9 +1,11 @@
 <?php
 
 use App\Actions\Projects\SaveProject;
+use App\Enums\GoalKind;
 use App\Enums\ProjectStatus;
 use App\Enums\Section;
 use App\Livewire\Forms\ProjectForm;
+use App\Models\Goal;
 use App\Models\Project;
 use App\Models\ProjectImage;
 use App\Models\Technology;
@@ -164,6 +166,16 @@ new #[Layout('layouts::admin')] class extends Component {
     }
 
     /**
+     * @return array<int, string>
+     */
+    #[Computed]
+    public function goalOptions(): array
+    {
+        return Goal::query()->ofKind(GoalKind::Yearly)->orderByDesc('year')->orderBy('sort_order')->get()
+            ->mapWithKeys(fn (Goal $goal): array => [$goal->id => $goal->year.' · '.$goal->title])->all();
+    }
+
+    /**
      * @return list<string>
      */
     #[Computed]
@@ -216,6 +228,7 @@ new #[Layout('layouts::admin')] class extends Component {
                     <x-admin.input wire:model="form.started_year" type="number" label="Başlangıç yılı" min="1990" />
                     <x-admin.input wire:model="form.demo_url" type="url" label="Demo adresi" placeholder="https://" mono />
                     <x-admin.input wire:model="form.repo_url" type="url" label="GitHub adresi" placeholder="https://github.com/…" mono />
+                    <x-admin.select wire:model="form.goal_id" label="Bağlı yıllık hedef" placeholder="Yok" :options="$this->goalOptions" description="Detayda '↑ hedef' etiketi, hedef kartında 'projeye git' linki." class="sm:col-span-2" />
                     <x-admin.combobox wire:model="form.technologyNames" :options="$this->technologyOptions" label="Teknolojiler" description="Sırası kartlardaki sıradır. Yeni bir ad yazarsan oluşturulur." class="sm:col-span-2" />
                 </div>
             </x-admin.card>

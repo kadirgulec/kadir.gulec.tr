@@ -13,6 +13,7 @@ use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -58,6 +59,16 @@ class Project extends Model
             $project->devlog()->delete();
             app(ImageStore::class)->delete($project->cover_path);
         });
+    }
+
+    /**
+     * The yearly goal this project serves.
+     *
+     * @return BelongsTo<Goal, $this>
+     */
+    public function goal(): BelongsTo
+    {
+        return $this->belongsTo(Goal::class);
     }
 
     /**

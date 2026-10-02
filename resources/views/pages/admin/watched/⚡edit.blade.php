@@ -182,6 +182,7 @@ new #[Layout('layouts::admin')] class extends Component {
     $watchable = $form->watchable;
     $ratingOptions = collect(WatchableForm::ratingSteps())->mapWithKeys(fn ($step) => [$step => str_replace('.', ',', $step)])->all();
     $seasons = $watchable->seasons()->get()->keyBy('id');
+    $viewings = $watchable->viewings()->get();
 @endphp
 
 <div class="space-y-6">
@@ -240,7 +241,6 @@ new #[Layout('layouts::admin')] class extends Component {
                         <x-admin.button icon="plus" wire:click="addViewing">Günlüğe ekle</x-admin.button>
                     </div>
 
-                    @php($viewings = $watchable->viewings()->get())
                     @if ($viewings->isNotEmpty())
                         <ul class="divide-y divide-zinc-100 rounded-lg border border-zinc-200 text-sm dark:divide-zinc-800 dark:border-zinc-700">
                             @foreach ($viewings as $viewing)

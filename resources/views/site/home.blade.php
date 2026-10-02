@@ -95,6 +95,7 @@
             @endif
 
             {{-- Chains --}}
+            @if ($chains)
             <x-site.note :section="Section::Goals" tilt="1" tape="right" label="zincirler" :more-href="route('goals.index')" more-label="tüm hedefler →">
                 <ul class="flex flex-col gap-5">
                     @foreach ($chains as $chain)
@@ -120,6 +121,7 @@
                     bantlı halka = mazeretli gün
                 </p>
             </x-site.note>
+            @endif
 
             {{-- Currently watching --}}
             @if ($currentlyWatching)

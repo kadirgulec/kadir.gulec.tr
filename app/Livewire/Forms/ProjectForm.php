@@ -3,6 +3,7 @@
 namespace App\Livewire\Forms;
 
 use App\Actions\Projects\SaveProject;
+use App\Enums\GoalKind;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Models\Technology;
@@ -51,6 +52,9 @@ class ProjectForm extends Form
 
     public bool $removeCover = false;
 
+    /** The yearly goal the project serves, or "". */
+    public string $goal_id = '';
+
     public function setProject(Project $project): void
     {
         $this->project = $project;
@@ -65,6 +69,7 @@ class ProjectForm extends Form
         $this->meta_description = (string) $project->meta_description;
         $this->is_featured = $project->is_featured;
         $this->published_at = $project->published_at?->format('Y-m-d\TH:i') ?? '';
+        $this->goal_id = (string) ($project->goal_id ?? '');
         $this->technologyNames = array_values($project->technologies->map(fn (Technology $technology): string => $technology->name)->all());
     }
 
@@ -88,6 +93,7 @@ class ProjectForm extends Form
             'technologyNames' => ['array', 'max:20'],
             'technologyNames.*' => ['string', 'max:40'],
             'cover' => ['nullable', 'image', 'max:10240'],
+            'goal_id' => ['nullable', Rule::exists('goals', 'id')->where('kind', GoalKind::Yearly->value)],
         ];
     }
 
@@ -100,6 +106,7 @@ class ProjectForm extends Form
             'technologyNames' => 'teknolojiler',
             'technologyNames.*' => 'teknoloji',
             'cover' => 'kapak görseli',
+            'goal_id' => 'bağlı hedef',
         ];
     }
 
@@ -121,6 +128,7 @@ class ProjectForm extends Form
                 'meta_description' => $this->meta_description !== '' ? $this->meta_description : null,
                 'is_featured' => $this->is_featured,
                 'published_at' => $this->published_at !== '' ? CarbonImmutable::parse($this->published_at) : null,
+                'goal_id' => $this->goal_id !== '' ? (int) $this->goal_id : null,
             ],
             $this->technologyNames,
             $this->cover?->getRealPath() ?: null,

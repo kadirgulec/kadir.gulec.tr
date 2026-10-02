@@ -3,7 +3,7 @@
 <x-layouts::site :section="Section::Goals" :title="$goal['title']">
     <a href="{{ route('goals.index') }}#uzun-vade" class="font-hand text-xl text-ink-soft hover:text-section-ink">← Uzun vade</a>
 
-    <p class="mt-8 font-mono text-xs tracking-widest text-ink-faint uppercase">uzun vadeli hedef · başlangıç: {{ $goal['since'] }}</p>
+    <p class="mt-8 font-mono text-xs tracking-widest text-ink-faint uppercase">uzun vadeli hedef @if ($goal['since']) · başlangıç: {{ $goal['since'] }} @endif</p>
 
     <h1 class="mt-3 max-w-3xl font-display text-4xl leading-tight font-extrabold tracking-tight text-balance sm:text-5xl">{{ $goal['title'] }}</h1>
 
@@ -13,8 +13,12 @@
     <div class="relative mt-10 max-w-xl rotate-[-1deg] bg-paper-deep p-6 pt-8 shadow-[2px_10px_18px_-10px_rgb(60_40_20/0.5)] dark:shadow-[2px_10px_18px_-8px_rgb(0_0_0/0.9)]">
         <x-site.push-pin class="absolute -top-3 left-1/2 -translate-x-1/2" />
         <p class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">neden önemli?</p>
-        <p class="mt-2 font-hand text-2xl leading-snug">{{ $goal['why'] }}</p>
+        <div class="mt-2 font-hand text-2xl leading-snug [&_p+p]:mt-3">{{ $goal['why'] }}</div>
     </div>
+
+    @if ($goal['imageUrl'])
+        <img src="{{ $goal['imageUrl'] }}" alt="" class="mt-10 max-w-xl rotate-[1deg] bg-[#fffdf7] p-2.5 shadow-[0_8px_18px_-8px_rgb(60_40_20/0.5)] dark:bg-[#2e2a25]" loading="lazy" />
+    @endif
 
     {{-- Small steps serving this goal --}}
     <section class="mt-16" aria-labelledby="bagli-hedefler">

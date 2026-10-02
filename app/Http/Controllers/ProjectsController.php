@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Goal;
+use App\Support\Content\GoalContent;
 use App\Support\Content\ProjectContent;
 use Illuminate\View\View;
 
 class ProjectsController extends Controller
 {
-    public function __construct(private ProjectContent $projects) {}
+    public function __construct(private ProjectContent $projects, private GoalContent $goals) {}
 
     /**
      * The featured project first, then the others in Kadir's order.
@@ -35,8 +37,7 @@ class ProjectsController extends Controller
 
         return view('site.projects.show', [
             'project' => $project,
-            // Goals still come from the prototype data; the link returns with the goals table.
-            'goal' => null,
+            'goal' => $this->goals->chip($project['goalId'] ? Goal::query()->find($project['goalId']) : null, onGoalsPage: false),
         ]);
     }
 }

@@ -27,6 +27,7 @@
         </script>
 
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        <meta name="theme-color" content="#26386b">
 
         @fonts(['nunito-sans', 'jetbrains-mono', 'fraunces'])
 

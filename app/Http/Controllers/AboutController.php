@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\GoalVisibility;
 use App\Enums\ToolboxGroup;
 use App\Models\Technology;
+use App\Support\Content\GoalContent;
 use App\Support\Content\PostContent;
 use App\Support\Content\ProjectContent;
 use App\Support\Content\WatchedContent;
-use App\Support\PrototypeContent;
 use Illuminate\View\View;
 
 class AboutController extends Controller
@@ -16,24 +15,17 @@ class AboutController extends Controller
     /**
      * The story, a "now" list fed by the other sections, the toolbox and contact details.
      */
-    public function __invoke(ProjectContent $projects, PostContent $posts, WatchedContent $watched): View
+    public function __invoke(ProjectContent $projects, PostContent $posts, WatchedContent $watched, GoalContent $goals): View
     {
-        $publicChains = array_values(array_filter(
-            PrototypeContent::chains(),
-            fn (array $chain): bool => $chain['visibility'] === GoalVisibility::Public,
-        ));
-
-        $books = array_find(PrototypeContent::yearlyGoals(), fn (array $goal): bool => $goal['slug'] === '12-kitap');
-
         return view('site.about', [
-            'stops' => PrototypeContent::lifeStops(),
+            'stops' => config('about.stops'),
             'toolbox' => $this->toolbox(),
             'now' => [
                 'project' => $projects->featured(),
                 'series' => $watched->currentlyWatching()[0] ?? null,
-                'chain' => $publicChains[0] ?? null,
+                'chain' => $goals->firstPublicChain(),
                 'post' => $posts->latest(),
-                'books' => $books,
+                'books' => $goals->readingGoal(),
             ],
         ]);
     }

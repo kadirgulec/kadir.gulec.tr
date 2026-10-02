@@ -40,6 +40,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::livewire('yazilar/{post}', 'pages::admin.posts.edit')->name('posts.edit');
     });
 
+    Route::middleware('can:'.Permission::ManageGoals->value)->group(function () {
+        Route::livewire('hedefler', 'pages::admin.goals.index')->name('goals.index');
+        Route::livewire('hedefler/yeni/{kind}', 'pages::admin.goals.edit')->whereIn('kind', ['zincir', 'yillik', 'uzun-vade'])->name('goals.create');
+        Route::livewire('hedefler/{goal}', 'pages::admin.goals.edit')->name('goals.edit');
+    });
+
     Route::middleware('can:'.Permission::ManageWatched->value)->group(function () {
         Route::livewire('izlediklerim', 'pages::admin.watched.index')->name('watched.index');
         Route::livewire('izlediklerim/ekle', 'pages::admin.watched.create')->name('watched.create');

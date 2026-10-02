@@ -34,6 +34,10 @@
         <p class="font-hand text-xl text-section-ink">1 · her gün</p>
         <h2 id="zincirler" class="font-display text-3xl font-semibold">Zincirler</h2>
 
+        @unless ($chains)
+            <p class="mt-6 font-hand text-2xl text-section-ink">Şu an süren bir zincir yok.</p>
+        @endunless
+
         <div class="mt-6 grid gap-6 sm:grid-cols-2">
             @foreach ($chains as $chain)
                 <article id="hedef-{{ $chain['slug'] }}" class="relative min-w-0 scroll-mt-8 rounded-sm bg-paper-deep p-5 {{ $cardShadow }}">
@@ -80,6 +84,10 @@
         <p class="font-hand text-xl text-section-ink">2 · bu yıl</p>
         <h2 id="bu-yil" class="font-display text-3xl font-semibold">{{ $today->year }} hedefleri</h2>
 
+        @unless ($yearlyGoals)
+            <p class="mt-6 font-hand text-2xl text-section-ink">Bu yılın hedefleri henüz deftere yazılmadı.</p>
+        @endunless
+
         <div class="mt-6 grid items-start gap-6 md:grid-cols-2">
             @foreach ($yearlyGoals as $goal)
                 <article id="hedef-{{ $goal['slug'] }}" class="relative scroll-mt-8 overflow-hidden rounded-sm bg-paper-deep p-5 {{ $cardShadow }}">
@@ -113,7 +121,20 @@
                                 class="mt-4 mb-6"
                             />
 
-                            <p class="font-hand text-xl {{ $paceColors[$goal['pace']->value] }}">{{ $goal['pace']->label() }}</p>
+                            @if ($goal['pace'])
+                                <p class="font-hand text-xl {{ $paceColors[$goal['pace']->value] }}">{{ $goal['pace']->label() }}</p>
+                            @endif
+
+                            @if ($goal['progressNotes'])
+                                <details class="mt-3 text-sm">
+                                    <summary class="cursor-pointer font-hand text-lg text-section-ink">notlar ({{ count($goal['progressNotes']) }})</summary>
+                                    <ul class="mt-2 flex flex-col gap-1">
+                                        @foreach ($goal['progressNotes'] as $note)
+                                            <li class="flex gap-3"><span class="w-12 shrink-0 font-mono text-xs text-ink-faint">{{ $note['date']->format('d.m') }}</span><span>{{ $note['note'] }}</span></li>
+                                        @endforeach
+                                    </ul>
+                                </details>
+                            @endif
                             @break
 
                         @case('milestones')
@@ -161,6 +182,7 @@
         </div>
 
         {{-- Past years: kept honestly --}}
+        @if ($pastYearGoals)
         <div class="mt-12">
             <h3 class="font-display text-xl font-semibold">Geçmiş yıllar</h3>
             <p class="font-hand text-lg text-ink-faint">tutmayanlar silinmez, sadece üstleri karalanır</p>
@@ -173,7 +195,12 @@
                         @foreach ($goals as $pastGoal)
                             <li class="flex items-center gap-3">
                                 <x-site.checkbox :checked="$pastGoal['achieved']" class="size-5 text-ink-faint" />
-                                @if ($pastGoal['achieved'])
+                                @if ($pastGoal['title'] === null)
+                                    <x-site.censored :length="$pastGoal['titleLength']" label="sansürlü hedef" />
+                                    @unless ($pastGoal['achieved'])
+                                        <span class="font-hand text-lg text-ink-faint">olmadı</span>
+                                    @endunless
+                                @elseif ($pastGoal['achieved'])
                                     <span>{{ $pastGoal['title'] }}</span>
                                 @else
                                     <span class="scribbled-out text-ink-faint">{{ $pastGoal['title'] }}</span>
@@ -185,6 +212,7 @@
                 </div>
             @endforeach
         </div>
+        @endif
     </section>
 
     <p class="my-16 text-center font-hand text-2xl text-ink-faint" aria-hidden="true">↓ daha da uzaklaşalım ↓</p>
@@ -195,6 +223,10 @@
         <h2 id="uzun-vade" class="font-display text-3xl font-semibold">Uzun vade</h2>
 
         <div class="cork mt-6 rounded-md p-6 pt-8 sm:p-10">
+            @unless ($longTermGoals)
+                <p class="font-hand text-2xl text-paper">Panoda henüz bir kart yok.</p>
+            @endunless
+
             <div class="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($longTermGoals as $goal)
                     <article
@@ -213,16 +245,20 @@
                             @endif
                         </h3>
 
-                        <p class="mt-3 text-sm leading-relaxed text-ink-soft">
+                        @if ($goal['imageUrl'])
+                            <img src="{{ $goal['imageUrl'] }}" alt="" class="mt-3 aspect-[4/3] w-full object-cover" loading="lazy" />
+                        @endif
+
+                        <div class="mt-3 text-sm leading-relaxed text-ink-soft [&_p+p]:mt-2">
                             @if ($goal['why'])
                                 {{ $goal['why'] }}
-                            @else
+                            @elseif ($goal['whyLength'])
                                 <x-site.censored :length="$goal['whyLength']" />
                             @endif
-                        </p>
+                        </div>
 
                         <p class="mt-4 flex flex-wrap justify-between gap-2 border-t border-dashed border-rule pt-2 font-mono text-[11px] text-ink-faint">
-                            <span>başlangıç: {{ $goal['since'] }}</span>
+                            <span>@if ($goal['since']) başlangıç: {{ $goal['since'] }} @endif</span>
                             @if ($goal['childCount'])
                                 <span>{{ $goal['childCount'] }} bağlı hedef</span>
                             @endif
