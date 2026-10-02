@@ -1,0 +1,1 @@
+# kadir.gulec.tr
