@@ -115,4 +115,16 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Contact Form
+    |--------------------------------------------------------------------------
+    |
+    | Where messages from the contact form on the about page go. Without a
+    | value they go to the address in the imprint.
+    |
+    */
+
+    'contact_to' => env('MAIL_CONTACT_ADDRESS'),
+
 ];

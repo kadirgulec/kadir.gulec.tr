@@ -39,3 +39,16 @@ test('bots that fill the honeypot cannot register', function () {
 
     $this->assertGuest();
 });
+
+test('a registration without a Turnstile token fails once a secret is configured', function () {
+    config(['services.turnstile.secret_key' => 'secret']);
+
+    $this->post(route('register.store'), [
+        'name' => 'Bot',
+        'email' => 'bot@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ])->assertSessionHasErrors('cf-turnstile-response');
+
+    $this->assertGuest();
+});

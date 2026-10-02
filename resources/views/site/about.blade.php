@@ -144,21 +144,24 @@
     <section class="mt-16" aria-labelledby="iletisim">
         <h2 id="iletisim" class="font-display text-3xl font-semibold">İletişim</h2>
 
-        <div class="relative mt-8 max-w-lg rotate-[0.8deg] rounded-sm bg-paper-deep p-6 pt-8 shadow-[0_10px_22px_-12px_rgb(60_40_20/0.5)] dark:shadow-[0_10px_22px_-10px_rgb(0_0_0/0.85)]">
-            <span class="tape -top-3 -left-3 -rotate-12"></span>
+        <p class="mt-3 max-w-xl font-hand text-2xl">Bir merhaba, bir soru ya da bir film önerisi: hepsine açığım.</p>
 
-            <p class="font-hand text-2xl">Bir merhaba, bir soru ya da bir film önerisi: hepsine açığım.</p>
+        <div class="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
+            <livewire:site.contact-form />
 
-            <dl class="mt-5 grid grid-cols-1 items-baseline gap-x-4 gap-y-1 sm:grid-cols-[5rem_minmax(0,1fr)] sm:gap-y-3 [&_dd]:[overflow-wrap:anywhere] [&_dt:not(:first-child)]:max-sm:mt-3">
-                <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">E-posta</dt>
-                <dd><a href="mailto:info@kadirguelec.de" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">info@kadirguelec.de</a></dd>
+            <div class="relative rotate-[0.8deg] rounded-sm bg-paper-deep p-6 pt-8 shadow-[0_10px_22px_-12px_rgb(60_40_20/0.5)] dark:shadow-[0_10px_22px_-10px_rgb(0_0_0/0.85)]">
+                <span class="tape -top-3 -left-3 -rotate-12"></span>
 
-                <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">GitHub</dt>
-                <dd><a href="https://github.com/kadirgulec" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">github.com/kadirgulec</a></dd>
+                <p class="font-hand text-xl">başka yerlerde de varım</p>
 
-                <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">CV</dt>
-                <dd><a href="https://kadir.guelec.eu" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">kadir.guelec.eu</a> <span class="text-sm text-ink-soft">Almanca/İngilizce profesyonel CV için →</span></dd>
-            </dl>
+                <dl class="mt-4 grid grid-cols-1 items-baseline gap-y-1 [&_dd]:[overflow-wrap:anywhere] [&_dt:not(:first-child)]:mt-3">
+                    <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">GitHub</dt>
+                    <dd><a href="https://github.com/kadirgulec" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">github.com/kadirgulec</a></dd>
+
+                    <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">CV</dt>
+                    <dd><a href="https://kadir.guelec.eu" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">kadir.guelec.eu</a> <span class="text-sm text-ink-soft">Almanca/İngilizce profesyonel CV için →</span></dd>
+                </dl>
+            </div>
         </div>
     </section>
 </x-layouts::site>

@@ -27,6 +27,9 @@
                 <li>Giriş yapmadıkça çerez gerekmez. Giriş yaptığında oturum çerezi ve form güvenliği için bir CSRF çerezi kullanılır; ikisi de zorunlu çerezdir, bu yüzden çerez bandı yok.</li>
             </ul>
 
+            <h2>İletişim formunu kullandığında</h2>
+            <p>Yazdığın ad, e-posta adresi ve mesaj bana e-posta olarak gönderilir; sitede saklanmaz. E-postayı cevaplayabilmek ve konuşmamızın kaydı için e-posta kutumda tutarım, konu bitince silerim. Kötüye kullanımı önlemek için IP adresinden üretilen geri çevrilemez bir özetle en fazla bir gün süren bir sayaç tutulur. Hukuki dayanak: GVO md. 6/1 (f), mesajına cevap verebilmem.</p>
+
             <h2>Üye olduğunda</h2>
             <ul>
                 <li><strong>Hesap:</strong> görünen ad, e-posta adresi, şifrenin geri çevrilemez özeti (hash); kullanırsan passkey'in açık anahtarı ve iki adımlı doğrulama anahtarı. E-posta adresin kimseye gösterilmez.</li>
@@ -37,8 +40,8 @@
 
             <h2>Kullanılan hizmetler</h2>
             <ul>
-                <li><strong>Cloudflare Turnstile</strong> (Cloudflare, Inc., ABD): sadece kayıt ve yorum formlarında, robotları ayırmak için. Tarayıcın formu doldururken Cloudflare'e teknik bilgiler gönderir. Cloudflare AB–ABD Veri Gizliliği Çerçevesi'ne katılıyor. Dayanak: GVO md. 6/1 (f).</li>
-                <li><strong>E-posta gönderimi:</strong> doğrulama, şifre yenileme ve bildirim e-postaları bir e-posta servisi üzerinden gider; bu servise sadece e-posta adresin ve e-postanın içeriği iletilir. <em>(Servis seçilince adı buraya yazılacak.)</em></li>
+                <li><strong>Cloudflare Turnstile</strong> (Cloudflare, Inc., ABD): sadece kayıt, yorum ve iletişim formlarında, robotları ayırmak için. Tarayıcın formu doldururken Cloudflare'e teknik bilgiler gönderir. Cloudflare AB–ABD Veri Gizliliği Çerçevesi'ne katılıyor. Dayanak: GVO md. 6/1 (f).</li>
+                <li><strong>E-posta gönderimi:</strong> doğrulama, şifre yenileme, bildirim e-postaları ve iletişim formu mesajları bir e-posta servisi üzerinden gider; bu servise sadece e-posta adresin ve e-postanın içeriği iletilir. <em>(Servis seçilince adı buraya yazılacak.)</em></li>
                 <li><strong>TMDB:</strong> film bilgileri ve afişler admin panelinden bir kere çekilip bu sunucuda saklanır. Sayfaları gezerken TMDB'ye bağlanmazsın.</li>
             </ul>
 

@@ -16,6 +16,12 @@ class Turnstile implements ValidationRule
 {
     private const VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
+    /**
+     * Run on empty and missing values too: otherwise the validator skips the
+     * rule and a form sent without a token passes.
+     */
+    public bool $implicit = true;
+
     public function __construct(private ?string $ip = null) {}
 
     public function validate(string $attribute, mixed $value, Closure $fail): void

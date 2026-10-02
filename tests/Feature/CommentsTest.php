@@ -138,6 +138,7 @@ it('checks the Turnstile token when a secret is configured', function () {
     Http::fake(['challenges.cloudflare.com/*' => Http::sequence()->push(['success' => false])->push(['success' => true])]);
     $this->actingAs(User::factory()->member()->create());
 
+    commentsOn($this->post)->set('body', 'Selam')->call('post')->assertHasErrors('turnstileToken');
     commentsOn($this->post)->set('body', 'Selam')->set('turnstileToken', 'bad')->call('post')->assertHasErrors('turnstileToken');
     commentsOn($this->post)->set('body', 'Selam')->set('turnstileToken', 'good')->call('post')->assertHasNoErrors();
 
