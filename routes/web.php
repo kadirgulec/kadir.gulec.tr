@@ -27,8 +27,8 @@ if (! app()->isProduction()) {
     Route::view('stil', 'site.styleguide', ['section' => Section::Home])->name('styleguide');
 }
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::view('/', 'dashboard')->name('dashboard');
 });
 
 require __DIR__.'/settings.php';

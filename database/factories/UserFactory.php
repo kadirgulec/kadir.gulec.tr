@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\SystemRole;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -55,6 +56,39 @@ class UserFactory extends Factory
             'two_factor_secret' => encrypt('secret'),
             'two_factor_recovery_codes' => encrypt(json_encode(['recovery-code-1'])),
             'two_factor_confirmed_at' => now(),
+        ]);
+    }
+
+    /**
+     * A user with the given system role (the roles come from a migration).
+     */
+    public function withRole(SystemRole $role): static
+    {
+        return $this->afterCreating(fn (User $user) => $user->assignRole($role->value));
+    }
+
+    /**
+     * Kadir: the admin role and two-factor authentication, so /admin opens.
+     */
+    public function admin(): static
+    {
+        return $this->withTwoFactor()->withRole(SystemRole::Admin);
+    }
+
+    public function member(): static
+    {
+        return $this->withRole(SystemRole::Member);
+    }
+
+    public function close(): static
+    {
+        return $this->withRole(SystemRole::Close);
+    }
+
+    public function blocked(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'blocked_at' => now(),
         ]);
     }
 }

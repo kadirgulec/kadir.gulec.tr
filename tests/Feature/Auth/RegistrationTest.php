@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\SystemRole;
 use Laravel\Fortify\Features;
 
 beforeEach(function () {
@@ -21,7 +22,8 @@ test('new users can register', function () {
     ]);
 
     $response->assertSessionHasNoErrors()
-        ->assertRedirect(route('dashboard', absolute: false));
+        ->assertRedirect(route('home', absolute: false));
 
     $this->assertAuthenticated();
+    expect(auth()->user()->hasRole(SystemRole::Member->value))->toBeTrue();
 });
