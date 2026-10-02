@@ -3,6 +3,7 @@
 use App\Enums\Permission;
 use App\Enums\Section;
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\Admin\BackupDownloadController;
 use App\Http\Controllers\Admin\MarkdownPreviewController;
 use App\Http\Controllers\GoalsController;
 use App\Http\Controllers\HomeController;
@@ -58,6 +59,11 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::livewire('projeler', 'pages::admin.projects.index')->name('projects.index');
         Route::livewire('projeler/yeni', 'pages::admin.projects.edit')->name('projects.create');
         Route::livewire('projeler/{project}', 'pages::admin.projects.edit')->name('projects.edit');
+    });
+
+    Route::middleware('can:'.Permission::ManageBackups->value)->group(function () {
+        Route::livewire('yedekler', 'pages::admin.backups.index')->name('backups.index');
+        Route::get('yedekler/{name}', BackupDownloadController::class)->middleware('signed')->where('name', 'yedek-[0-9a-z-]+\\.zip')->name('backups.download');
     });
 
     Route::livewire('yorumlar', 'pages::admin.comments.index')->middleware('can:'.Permission::ModerateComments->value)->name('comments.index');
