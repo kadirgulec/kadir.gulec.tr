@@ -15,7 +15,7 @@
     $facts = collect([$entry['type']->label(), $entry['year'], $runtime])->filter()->implode(' · ');
 @endphp
 
-<x-layouts::site :section="Section::Watched" :title="$entry['title']" :accent="$entry['accent']">
+<x-layouts::site :section="Section::Watched" :title="$entry['title']" :accent="$entry['accent']" :draft="$entry['isDraft']">
     <a href="{{ route('watched.index') }}" class="font-hand text-xl text-ink-soft hover:text-section-ink">← İzlediklerim</a>
 
     <div class="mt-8 grid items-start gap-12 md:grid-cols-[15rem_1fr] md:gap-14">
@@ -51,25 +51,33 @@
             @endif
 
             <dl class="mt-8 grid grid-cols-[6.5rem_1fr] items-baseline gap-x-4 gap-y-3">
-                <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">{{ $isFilm ? 'Yönetmen' : 'Yaratıcı' }}</dt>
-                <dd class="font-hand text-2xl leading-tight">{{ $entry['creator'] }}</dd>
+                @if ($entry['creator'])
+                    <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">{{ $isFilm ? 'Yönetmen' : 'Yaratıcı' }}</dt>
+                    <dd class="font-hand text-2xl leading-tight">{{ $entry['creator'] }}</dd>
+                @endif
 
-                <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">Ne zaman</dt>
-                <dd class="font-hand text-2xl leading-tight">
-                    {{ TurkishDate::onDayMonth($entry['watchedAt']) }}
-                    @if ($entry['isRewatch'])
-                        <span class="text-section-ink">(tekrar izledim)</span>
-                    @endif
-                </dd>
+                @if ($entry['place'] !== null || $entry['note'] !== null || $entry['isRewatch'])
+                    <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">Ne zaman</dt>
+                    <dd class="font-hand text-2xl leading-tight">
+                        {{ TurkishDate::onDayMonth($entry['watchedAt']) }}
+                        @if ($entry['isRewatch'])
+                            <span class="text-section-ink">(tekrar izledim)</span>
+                        @endif
+                    </dd>
+                @endif
 
-                <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">Nerede</dt>
-                <dd class="font-hand text-2xl leading-tight">{{ $entry['place'] }}</dd>
+                @if ($entry['place'])
+                    <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">Nerede</dt>
+                    <dd class="font-hand text-2xl leading-tight">{{ $entry['place'] }}</dd>
+                @endif
 
                 @if ($entry['status'])
                     <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">Durum</dt>
                     <dd class="font-hand text-2xl leading-tight">
                         {{ $entry['status']->emoji() }} {{ $entry['status']->label() }}
-                        <span class="font-mono text-sm text-ink-soft">· S{{ $entry['season'] }} B{{ $entry['episode'] }}</span>
+                        @if ($entry['season'])
+                            <span class="font-mono text-sm text-ink-soft">· S{{ $entry['season'] }} B{{ $entry['episode'] }}</span>
+                        @endif
                     </dd>
                 @endif
             </dl>
@@ -96,20 +104,7 @@
                 <x-site.scribble variant="double" class="absolute -bottom-3 left-0 h-3 w-full text-section" />
             </h2>
 
-            <div class="mt-10 flex flex-col text-lg">
-                @foreach ($entry['review'] as $block)
-                    @switch($block['type'])
-                        @case('spoiler')
-                            <x-site.spoiler class="my-8">{{ $block['text'] }}</x-site.spoiler>
-                            @break
-                        @case('quote')
-                            <x-site.sticky-note :by="$block['by'] ?? null" class="mx-auto my-10">{{ $block['text'] }}</x-site.sticky-note>
-                            @break
-                        @default
-                            <p class="ruled pt-8 first:pt-0">{{ $block['text'] }}</p>
-                    @endswitch
-                @endforeach
-            </div>
+            <div class="prose-notebook prose-review mt-10">{{ $entry['reviewHtml'] }}</div>
 
             <div class="mt-12 flex items-center gap-4">
                 <x-site.logo class="stamp size-16 -rotate-12 text-section-ink" />
@@ -122,7 +117,9 @@
     @else
         <section class="mt-20 max-w-2xl" aria-labelledby="ozet">
             <h2 id="ozet" class="font-display text-2xl font-semibold">Özet</h2>
-            <p class="mt-4 text-lg leading-relaxed text-ink-soft">{{ $entry['overview'] }}</p>
+            @if ($entry['overview'])
+                <p class="mt-4 text-lg leading-relaxed text-ink-soft">{{ $entry['overview'] }}</p>
+            @endif
 
             <p class="mt-8 font-hand text-2xl text-section-ink">Bu {{ $isFilm ? 'film' : 'dizi' }} hakkında henüz bir şey yazmadım.</p>
         </section>
@@ -136,13 +133,14 @@
             <ol class="mt-5 flex flex-col gap-4">
                 @foreach ($entry['seasons'] as $season)
                     @php
-                        $isCurrentSeason = $season['number'] === $entry['season'];
+                        $isFinished = $entry['status'] === \App\Enums\SeriesStatus::Finished;
+                        $isCurrentSeason = ! $isFinished && $season['number'] === $entry['season'];
                         $watchedEpisodes = match (true) {
-                            $season['number'] < $entry['season'] => $season['episodeCount'],
-                            $isCurrentSeason => $entry['episode'],
+                            $isFinished, $season['number'] < (int) $entry['season'] => $season['episodeCount'],
+                            $isCurrentSeason => (int) $entry['episode'],
                             default => 0,
                         };
-                        $isComplete = $watchedEpisodes === $season['episodeCount'];
+                        $isComplete = $season['episodeCount'] > 0 && $watchedEpisodes >= $season['episodeCount'];
                     @endphp
 
                     <li class="relative rounded-sm bg-paper-deep p-4 pr-20">
@@ -186,5 +184,5 @@
         </section>
     @endif
 
-    <p class="mt-16 font-mono text-[11px] text-ink-faint">Yapım bilgileri ve afiş: The Movie Database (TMDB)</p>
+    <x-site.tmdb-attribution class="mt-16" />
 </x-layouts::site>

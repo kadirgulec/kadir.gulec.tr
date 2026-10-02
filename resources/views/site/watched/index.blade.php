@@ -147,5 +147,10 @@
                 </ol>
             </div>
         @endforeach
+        @if (! $diaryByMonth)
+            <p class="mt-6 font-hand text-2xl text-section-ink">Günlük henüz boş, patlamış mısır hazırlanıyor.</p>
+        @endif
     </section>
+
+    <x-site.tmdb-attribution compact class="mt-16" />
 </x-layouts::site>

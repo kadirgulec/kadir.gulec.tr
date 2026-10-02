@@ -6,6 +6,7 @@ use App\Http\Middleware\EnsureAdminAccess;
 use App\Models\Post;
 use App\Models\Project;
 use App\Models\User;
+use App\Models\Watchable;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Date;
@@ -45,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
             'user' => User::class,
             'project' => Project::class,
             'post' => Post::class,
+            'watchable' => Watchable::class,
         ]);
     }
 

@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'tmdb' => [
+        'token' => env('TMDB_API_TOKEN'),
+    ],
+
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
 ];

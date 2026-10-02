@@ -2,6 +2,7 @@
 
 namespace App\Support\Markdown;
 
+use App\Support\Markdown\Containers\ContainerExtension;
 use Illuminate\Support\Str;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\Autolink\AutolinkExtension;
@@ -28,6 +29,8 @@ use League\CommonMark\Node\Block\Paragraph;
  *   ~~text~~   strikethrough
  *   ```php     code card with syntax colors (tempest/highlight)
  *   ![alt](src "caption")  on its own line: a taped polaroid
+ *   :::spoiler … :::         a spoiler crossed out with marker
+ *   :::replik Kişi … :::     a favorite line on a post-it
  *
  * Raw HTML is escaped and unsafe links are dropped, so nothing typed into a
  * text field can inject markup. HTML is produced once when a model is saved
@@ -106,6 +109,7 @@ class Markdown
         $environment->addExtension(new ExternalLinkExtension);
         $environment->addExtension(new DefaultAttributesExtension);
         $environment->addExtension(new FootnoteExtension);
+        $environment->addExtension(new ContainerExtension);
 
         $environment->addRenderer(FootnoteRef::class, new SidenoteRenderer($idPrefix), 10);
         $environment->addRenderer(FencedCode::class, new CodeBlockRenderer, 10);

@@ -37,6 +37,7 @@
 
         <div class="mt-10 grid gap-x-8 gap-y-12 md:grid-cols-2">
             {{-- Last watched film --}}
+            @if ($lastWatched)
             <x-site.note :section="Section::Watched" tilt="-1.2" tape="left" label="son izlediğim" :more-href="route('watched.index')" more-label="tümü →">
                 <div class="flex gap-5">
                     <x-site.poster
@@ -70,6 +71,7 @@
                     </div>
                 </div>
             </x-site.note>
+            @endif
 
             {{-- Latest post --}}
             @if ($latestPost)
@@ -120,6 +122,7 @@
             </x-site.note>
 
             {{-- Currently watching --}}
+            @if ($currentlyWatching)
             <x-site.note :section="Section::Watched" tilt="-0.8" label="şu an izliyorum" :more-href="route('watched.index')" more-label="tümü →" class="md:mt-6">
                 <ul class="flex flex-col gap-5">
                     @foreach ($currentlyWatching as $series)
@@ -142,6 +145,7 @@
                     @endforeach
                 </ul>
             </x-site.note>
+            @endif
 
             {{-- Featured project --}}
             @if ($featuredProject)
