@@ -114,4 +114,17 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Strong Login For The Admin Panel
+    |--------------------------------------------------------------------------
+    |
+    | When on, /admin opens only after a passkey login or with two-factor
+    | authentication enabled. On by default in production only, so a local
+    | machine needs no authenticator app.
+    |
+    */
+
+    'admin_strong_login' => (bool) env('ADMIN_STRONG_LOGIN', env('APP_ENV') === 'production'),
+
 ];

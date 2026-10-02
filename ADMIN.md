@@ -19,7 +19,7 @@ Bu dosya, admin paneli ve üyelik aşamasının kararlarını, adımlarını ve 
 
 - **Kayıt:** Açık, e-posta doğrulaması zorunlu. Üyelik adımına kadar kapalı tutulur.
 - **İlk admin:** `php artisan user:create-admin`. Seeder'da gerçek şifre yok.
-- **Admin güvenliği:** Admin `/admin` sayfalarına ancak passkey ile girmişse ya da 2FA açıksa erişir, yoksa güvenlik ayarlarına yönlendirilir. Üyelerde 2FA opsiyonel.
+- **Admin güvenliği:** Production'da admin `/admin` sayfalarına ancak passkey ile girmişse ya da 2FA açıksa erişir, yoksa güvenlik ayarlarına yönlendirilir. Yerelde bu şart aranmaz (`ADMIN_STRONG_LOGIN`, varsayılan: sadece `APP_ENV=production`'da açık; Kadir'in 2026-10-02 isteği). Üyelerde 2FA opsiyonel.
 - **Kullanıcı yönetimi:** Liste (arama, rol filtresi), detay (rol, yorumlar, takipler), engelleme (`blocked_at`: giriş yapabilir, yorum yazamaz, e-posta almaz, yorumları gizlenir), silme. Kendi admin rolünü kaldırma, kendini engelleme ve son admini silme engellenir. Audit log yok.
 - **Roller ekranı:** Rol oluştur, yeniden adlandır, sil; izinler gruplu onay kutularıyla.
 
