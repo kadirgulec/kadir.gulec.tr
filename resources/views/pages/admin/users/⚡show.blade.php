@@ -147,6 +147,20 @@ new #[Layout('layouts::admin')] class extends Component {
         @endif
     </x-admin.card>
 
+    <x-admin.card>
+        <x-slot:heading>Takip ettikleri · bildirim: {{ $user->notification_frequency->label() }}</x-slot:heading>
+        @php($follows = $user->follows()->with('followable')->latest()->get()->filter(fn ($follow) => $follow->followable !== null))
+        @if ($follows->isEmpty())
+            <x-admin.text>Takip yok.</x-admin.text>
+        @else
+            <ul class="flex flex-wrap gap-2 text-sm">
+                @foreach ($follows as $follow)
+                    <li wire:key="user-follow-{{ $follow->id }}"><x-admin.badge>{{ $follow->followable->title ?? $follow->followable->name ?? '?' }}</x-admin.badge></li>
+                @endforeach
+            </ul>
+        @endif
+    </x-admin.card>
+
     <x-admin.modal name="delete-user" :heading="$user->name.' silinsin mi?'" description="Bu işlem geri alınamaz.">
         <x-slot:footer>
             <x-admin.modal.close><x-admin.button variant="ghost">Vazgeç</x-admin.button></x-admin.modal.close>

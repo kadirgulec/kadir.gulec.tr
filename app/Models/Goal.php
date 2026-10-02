@@ -6,6 +6,7 @@ use App\Enums\ChainDayState;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
 use App\Enums\GoalVisibility;
+use App\Models\Concerns\HasFollowers;
 use App\Models\Concerns\HasSlugRedirects;
 use App\Models\Concerns\RendersMarkdown;
 use App\Models\Concerns\Sortable;
@@ -55,7 +56,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 class Goal extends Model
 {
     /** @use HasFactory<GoalFactory> */
-    use HasFactory, HasSlugRedirects, RendersMarkdown, Sortable;
+    use HasFactory, HasFollowers, HasSlugRedirects, RendersMarkdown, Sortable;
 
     /**
      * The database defaults, so a fresh model has them before it is reloaded.

@@ -4,11 +4,13 @@ namespace App\Providers;
 
 use App\Http\Middleware\EnsureAdminAccess;
 use App\Models\Comment;
+use App\Models\Follow;
 use App\Models\Goal;
 use App\Models\Post;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\Watchable;
+use App\Support\Notifications\Announcements;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Date;
@@ -36,6 +38,8 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
         $this->configureAuthorization();
         $this->configureMorphMap();
+
+        Announcements::register();
     }
 
     /**
@@ -51,6 +55,7 @@ class AppServiceProvider extends ServiceProvider
             'watchable' => Watchable::class,
             'goal' => Goal::class,
             'comment' => Comment::class,
+            'follow' => Follow::class,
         ]);
     }
 

@@ -1,0 +1,48 @@
+{{-- Notification e-mail in the notebook's colors. Inline styles: e-mail clients ignore stylesheets. --}}
+<!DOCTYPE html>
+<html lang="tr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="color-scheme" content="light">
+        <title>{{ $entries[0]['item']->title ?? 'Defterden haberler' }}</title>
+    </head>
+    <body style="margin: 0; padding: 0; background: #f1e9d8; color: #2b2420; font-family: 'Nunito Sans', 'Segoe UI', Helvetica, Arial, sans-serif;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #f1e9d8; padding: 24px 12px;">
+            <tr>
+                <td align="center">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; background: #fbf7ee; border-radius: 3px; border-left: 6px solid #26386b;">
+                        <tr>
+                            <td style="padding: 28px 28px 8px;">
+                                <p style="margin: 0; font-family: 'Caveat', 'Comic Sans MS', cursive; font-size: 24px; font-weight: bold; color: #26386b;">kg · defterden haberler</p>
+                                <p style="margin: 6px 0 0; font-size: 14px; color: #5e5249;">Merhaba {{ $user->name }}, takip ettiklerinde olanlar:</p>
+                            </td>
+                        </tr>
+                        @foreach ($entries as $entry)
+                            <tr>
+                                <td style="padding: 14px 28px; border-top: 1px dashed #e4dac8;">
+                                    <p style="margin: 0; font-size: 16px; font-weight: bold; line-height: 1.4;">
+                                        <a href="{{ $entry['item']->url }}" style="color: #2b2420; text-decoration: underline; text-decoration-color: #d9694a;">{{ $entry['item']->title }}</a>
+                                    </p>
+                                    @if ($entry['item']->body)
+                                        <p style="margin: 6px 0 0; font-size: 14px; line-height: 1.5; color: #5e5249;">{{ \Illuminate\Support\Str::limit($entry['item']->body, 280) }}</p>
+                                    @endif
+                                    @if ($entry['unfollowUrl'])
+                                        <p style="margin: 6px 0 0; font-size: 12px;"><a href="{{ $entry['unfollowUrl'] }}" style="color: #74675a;">bunu takipten çık</a></p>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                        <tr>
+                            <td style="padding: 20px 28px 28px; border-top: 1px dashed #e4dac8; font-size: 12px; line-height: 1.6; color: #74675a;">
+                                Bu e-postayı kadir.gulec.tr'de bir şeyleri takip ettiğin için aldın.
+                                <a href="{{ $settingsUrl }}" style="color: #74675a;">Sıklığı değiştir</a> ·
+                                <a href="{{ $unsubscribeUrl }}" style="color: #74675a;">hiç e-posta gönderme</a>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

@@ -32,11 +32,12 @@
 
     <x-site.scribble class="mt-3 h-3.5 w-40 text-section" />
 
-    @if ($parentGoal)
-        <div class="mt-5">
+    <div class="mt-5 flex flex-wrap items-center gap-4">
+        @if ($parentGoal)
             <x-site.parent-chip :parent="$parentGoal" />
-        </div>
-    @endif
+        @endif
+        <livewire:site.follow-button type="goal" :id="$chain['id']" />
+    </div>
 
     {{-- Numbers --}}
     <dl class="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-5">

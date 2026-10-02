@@ -8,7 +8,10 @@
         <x-site.scribble class="absolute -bottom-3 left-0 h-3.5 w-full text-section" />
     </h1>
 
-    <p class="mt-8 font-hand text-2xl text-ink-soft">kod, kariyer ve arada kalan her şey</p>
+    <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
+        <p class="font-hand text-2xl text-ink-soft">kod, kariyer ve arada kalan her şey</p>
+        <livewire:site.post-subscription />
+    </div>
 
     {{-- Tag filter --}}
     <nav class="mt-8 flex flex-wrap items-center gap-x-3 gap-y-3" aria-label="Etiketler">

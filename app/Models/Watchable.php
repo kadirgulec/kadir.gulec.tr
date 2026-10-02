@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\SeriesStatus;
 use App\Enums\WatchableType;
+use App\Models\Concerns\HasFollowers;
 use App\Models\Concerns\HasPublication;
 use App\Models\Concerns\HasSlugRedirects;
 use App\Models\Concerns\RendersMarkdown;
@@ -56,7 +57,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Watchable extends Model
 {
     /** @use HasFactory<WatchableFactory> */
-    use HasFactory, HasPublication, HasSlugRedirects, RendersMarkdown;
+    use HasFactory, HasFollowers, HasPublication, HasSlugRedirects, RendersMarkdown;
 
     protected static function booted(): void
     {

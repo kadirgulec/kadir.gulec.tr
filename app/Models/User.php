@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\NotificationFrequency;
 use App\Enums\Permission;
 use App\Enums\SystemRole;
 use Carbon\CarbonImmutable;
@@ -31,6 +32,8 @@ use Spatie\Permission\Traits\HasRoles;
  * @property CarbonImmutable|null $two_factor_confirmed_at
  * @property string|null $remember_token
  * @property CarbonImmutable|null $blocked_at
+ * @property NotificationFrequency $notification_frequency
+ * @property bool $notify_new_posts
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
@@ -38,6 +41,16 @@ use Spatie\Permission\Traits\HasRoles;
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
+    /**
+     * The database defaults, so a fresh model has them before it is reloaded.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'notification_frequency' => 'daily',
+        'notify_new_posts' => false,
+    ];
+
     /**
      * Session key holding the id of the user who last verified a passkey.
      */
@@ -57,6 +70,8 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'blocked_at' => 'datetime',
+            'notification_frequency' => NotificationFrequency::class,
+            'notify_new_posts' => 'boolean',
         ];
     }
 
@@ -66,6 +81,30 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * @return HasMany<Follow, $this>
+     */
+    public function follows(): HasMany
+    {
+        return $this->hasMany(Follow::class);
+    }
+
+    /**
+     * @return HasMany<NotificationItem, $this>
+     */
+    public function notificationItems(): HasMany
+    {
+        return $this->hasMany(NotificationItem::class);
+    }
+
+    /**
+     * Whether we send this user notification e-mail at all.
+     */
+    public function receivesNotifications(): bool
+    {
+        return $this->hasVerifiedEmail() && ! $this->isBlocked() && $this->notification_frequency !== NotificationFrequency::Never;
     }
 
     /**

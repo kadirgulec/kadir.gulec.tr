@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProjectStatus;
+use App\Models\Concerns\HasFollowers;
 use App\Models\Concerns\HasPublication;
 use App\Models\Concerns\HasSlugRedirects;
 use App\Models\Concerns\RendersMarkdown;
@@ -43,7 +44,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 class Project extends Model
 {
     /** @use HasFactory<ProjectFactory> */
-    use HasFactory, HasPublication, HasSlugRedirects, RendersMarkdown, Sortable;
+    use HasFactory, HasFollowers, HasPublication, HasSlugRedirects, RendersMarkdown, Sortable;
 
     protected static function booted(): void
     {

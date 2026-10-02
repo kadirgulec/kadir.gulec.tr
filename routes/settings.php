@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Account\UnsubscribeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -10,11 +11,20 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::livewire('hesap/takip', 'pages::settings.follows')->name('follows.index');
+    Route::livewire('hesap/bildirimler', 'pages::settings.notifications')->name('notifications.edit');
+
     Route::livewire('hesap/guvenlik', 'pages::settings.security')
         ->middleware([
             'password.confirm',
         ])
         ->name('security.edit');
+});
+
+// Links in notification e-mails: signed, no sign-in needed.
+Route::middleware('signed')->group(function () {
+    Route::match(['get', 'post'], 'bildirimler/kapat/{user}', [UnsubscribeController::class, 'all'])->name('notifications.unsubscribe');
+    Route::match(['get', 'post'], 'takip/birak/{follow}', [UnsubscribeController::class, 'follow'])->name('follows.unsubscribe');
 });
 
 Route::get('.well-known/passkey-endpoints', function () {

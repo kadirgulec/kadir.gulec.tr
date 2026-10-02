@@ -18,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => EnsureAdminAccess::class,
         ]);
+
+        // Mail clients post one-click unsubscribes without a CSRF token (RFC 8058);
+        // the signed URL protects these routes instead.
+        $middleware->validateCsrfTokens(except: ['bildirimler/kapat/*', 'takip/birak/*']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // An address that changed (a renamed slug) answers with a permanent redirect.

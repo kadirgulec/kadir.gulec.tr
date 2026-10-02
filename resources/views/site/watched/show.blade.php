@@ -93,6 +93,10 @@
             @if ($entry['isFavorite'])
                 <p class="mt-7 font-hand text-2xl text-pen-red">favorilerime girdi! ★</p>
             @endif
+
+            <div class="mt-7">
+                <livewire:site.follow-button type="watchable" :id="$entry['id']" />
+            </div>
         </div>
     </div>
 

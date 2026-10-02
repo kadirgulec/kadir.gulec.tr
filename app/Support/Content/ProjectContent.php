@@ -18,7 +18,7 @@ use Illuminate\Support\HtmlString;
  *
  * @phpstan-type ProjectLog array{date: \Carbon\CarbonImmutable, html: HtmlString, text: string}
  * @phpstan-type ProjectData array{
- *     slug: string, name: string, isFeatured: bool, isDraft: bool, status: string, since: int, tagline: string,
+ *     id: int, slug: string, name: string, isFeatured: bool, isDraft: bool, status: string, since: int, tagline: string,
  *     stack: list<string>, imageUrl: ?string, imageSrcset: ?string, gallery: list<array{url: string, srcset: string, caption: string}>,
  *     demoUrl: ?string, repoUrl: ?string, goalId: ?int, bodyHtml: ?HtmlString, devlog: list<ProjectLog>,
  *     url: string, latestLog: ?ProjectLog, metaDescription: string
@@ -86,6 +86,7 @@ class ProjectContent
         ])->all());
 
         return [
+            'id' => $project->id,
             'slug' => $project->slug,
             'name' => $project->name,
             'isFeatured' => $project->is_featured,

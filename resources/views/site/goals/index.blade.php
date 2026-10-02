@@ -172,11 +172,12 @@
                             @break
                     @endswitch
 
-                    @if ($goal['parentGoal'])
-                        <div class="mt-4">
+                    <div class="mt-4 flex flex-wrap items-center gap-3 text-sm">
+                        @if ($goal['parentGoal'])
                             <x-site.parent-chip :parent="$goal['parentGoal']" />
-                        </div>
-                    @endif
+                        @endif
+                        <livewire:site.follow-button type="goal" :id="$goal['id']" :key="'follow-goal-'.$goal['id']" />
+                    </div>
                 </article>
             @endforeach
         </div>

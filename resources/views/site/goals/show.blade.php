@@ -9,6 +9,10 @@
 
     <x-site.scribble class="mt-3 h-3.5 w-40 text-section" />
 
+    <div class="mt-5">
+        <livewire:site.follow-button type="goal" :id="$goal['id']" />
+    </div>
+
     {{-- Why it matters, pinned like on the board --}}
     <div class="relative mt-10 max-w-xl rotate-[-1deg] bg-paper-deep p-6 pt-8 shadow-[2px_10px_18px_-10px_rgb(60_40_20/0.5)] dark:shadow-[2px_10px_18px_-8px_rgb(0_0_0/0.9)]">
         <x-site.push-pin class="absolute -top-3 left-1/2 -translate-x-1/2" />
