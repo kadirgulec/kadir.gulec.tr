@@ -2,18 +2,21 @@
 
 use App\Concerns\ProfileValidationRules;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Profile settings')] class extends Component {
+new #[Layout('layouts::account'), Title('Profil')] class extends Component {
     use ProfileValidationRules;
 
     public string $name = '';
+
     public string $email = '';
+
+    public ?string $status = null;
 
     /**
      * Mount the component.
@@ -41,7 +44,7 @@ new #[Title('Profile settings')] class extends Component {
 
         $user->save();
 
-        Flux::toast(variant: 'success', text: __('Profile updated.'));
+        $this->status = 'Kaydedildi.';
     }
 
     /**
@@ -76,49 +79,39 @@ new #[Title('Profile settings')] class extends Component {
     }
 }; ?>
 
-<section class="w-full">
-    @include('partials.settings-heading')
+<div class="space-y-12">
+    <section class="space-y-6">
+        <header class="space-y-1">
+            <h1 class="font-display text-4xl font-extrabold tracking-tight">Profil</h1>
+            <p class="text-ink-soft">Adın yorumlarının yanında görünür, e-postan kimseye gösterilmez.</p>
+        </header>
 
-    <flux:heading level="2" class="sr-only">{{ __('Profile settings') }}</flux:heading>
+        <form wire:submit="updateProfileInformation" class="space-y-5">
+            <x-site.form.input wire:model="name" label="Görünen ad" required autocomplete="name" />
 
-    <x-pages::settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
-        <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
-            <flux:input wire:model="name" :label="__('Name')" type="text" required autofocus autocomplete="name" />
-
-            <div>
-                <flux:input wire:model="email" :label="__('Email')" type="email" required autocomplete="email" />
+            <div class="space-y-3">
+                <x-site.form.input wire:model="email" label="E-posta" type="email" required autocomplete="email" />
 
                 @if ($this->hasUnverifiedEmail)
-                    <div>
-                        <flux:text class="mt-4">
-                            {{ __('Your email address is unverified.') }}
+                    <p class="text-sm text-ink-soft">
+                        E-posta adresin henüz doğrulanmadı.
+                        <button type="button" wire:click.prevent="resendVerificationNotification" class="cursor-pointer font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-ink">Doğrulama linkini tekrar gönder.</button>
+                    </p>
 
-                            <flux:link class="text-sm cursor-pointer" wire:click.prevent="resendVerificationNotification">
-                                {{ __('Click here to re-send the verification email.') }}
-                            </flux:link>
-                        </flux:text>
-
-                        @if (session('status') === 'verification-link-sent')
-                            <flux:text class="mt-2 font-medium !dark:text-green-400 !text-green-600">
-                                {{ __('A new verification link has been sent to your email address.') }}
-                            </flux:text>
-                        @endif
-                    </div>
+                    @if (session('status') === 'verification-link-sent')
+                        <x-site.form.status message="Yeni bir doğrulama linki gönderdik." />
+                    @endif
                 @endif
             </div>
 
             <div class="flex items-center gap-4">
-                <div class="flex items-center justify-end">
-                    <flux:button variant="primary" type="submit" class="w-full" data-test="update-profile-button">
-                        {{ __('Save') }}
-                    </flux:button>
-                </div>
-
+                <x-site.form.button type="submit" data-test="update-profile-button">Kaydet</x-site.form.button>
+                <x-site.form.status :message="$status" />
             </div>
         </form>
+    </section>
 
-        @if ($this->showDeleteUser)
-            <livewire:pages::settings.delete-user-form />
-        @endif
-    </x-pages::settings.layout>
-</section>
+    @if ($this->showDeleteUser)
+        <livewire:pages::settings.delete-user-form />
+    @endif
+</div>

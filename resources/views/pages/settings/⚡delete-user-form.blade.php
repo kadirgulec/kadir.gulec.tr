@@ -4,17 +4,13 @@ use Livewire\Component;
 
 new class extends Component {}; ?>
 
-<section class="mt-10 space-y-6">
-    <div class="relative mb-5">
-        <flux:heading>{{ __('Delete account') }}</flux:heading>
-        <flux:subheading>{{ __('Delete your account and all of its resources') }}</flux:subheading>
-    </div>
+<section class="space-y-4 border-t-2 border-dashed border-rule pt-10">
+    <header class="space-y-1">
+        <h2 class="font-display text-2xl font-extrabold">Hesabı sil</h2>
+        <p class="text-ink-soft">Hesabın ve takiplerin silinir. Yorumların "silinmiş üye" adıyla yerinde kalır, böylece konuşmalar bozulmaz.</p>
+    </header>
 
-    <flux:modal.trigger name="confirm-user-deletion">
-        <flux:button variant="danger" data-test="delete-user-button">
-            {{ __('Delete account') }}
-        </flux:button>
-    </flux:modal.trigger>
+    <x-site.form.button variant="danger" x-data x-on:click="$dispatch('modal-show', { name: 'confirm-user-deletion' })" data-test="delete-user-button">Hesabımı sil</x-site.form.button>
 
     <livewire:pages::settings.delete-user-modal />
 </section>

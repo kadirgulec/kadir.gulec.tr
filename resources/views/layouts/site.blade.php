@@ -73,6 +73,11 @@
                             <p>© {{ now()->year }} Kadir Gülec · bu defter elle tutuluyor</p>
 
                             <div class="flex gap-4">
+                                @auth
+                                    <a href="{{ route('profile.edit') }}" class="underline decoration-dotted underline-offset-4 hover:text-ink">hesabım</a>
+                                @else
+                                    <a href="{{ route('login') }}" class="underline decoration-dotted underline-offset-4 hover:text-ink">giriş yap</a>
+                                @endauth
                                 @if (Route::has('styleguide'))
                                     <a href="{{ route('styleguide') }}" class="underline decoration-dotted underline-offset-4 hover:text-ink">stil rehberi</a>
                                 @endif

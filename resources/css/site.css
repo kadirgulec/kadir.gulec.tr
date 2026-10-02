@@ -1,13 +1,19 @@
 /*
  * Public site: "digital scrapbook" design system.
- * Kept separate from app.css so the notebook look never leaks into the
- * Flux-based admin area (and vice versa).
+ * Kept separate from admin.css so the notebook look never leaks into the
+ * admin panel (and vice versa).
  */
 @import 'tailwindcss' source(none);
 
 @source '../views/site';
 @source '../views/layouts/site.blade.php';
 @source '../views/components/site';
+@source '../views/components/passkey-registration.blade.php';
+@source '../views/components/passkey-verify.blade.php';
+@source '../views/layouts/auth.blade.php';
+@source '../views/layouts/account.blade.php';
+@source '../views/pages/auth';
+@source '../views/pages/settings';
 @source '../../app/Enums';
 
 @custom-variant dark (&:where(.dark, .dark *));

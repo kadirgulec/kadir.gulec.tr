@@ -2,16 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 
+/*
+ * "Hesabım": profile and security of members (and Kadir), in the notebook design.
+ */
 Route::middleware(['auth'])->group(function () {
-    Route::redirect('settings', 'settings/profile');
-
-    Route::livewire('settings/profile', 'pages::settings.profile')->name('profile.edit');
+    Route::livewire('hesap', 'pages::settings.profile')->name('profile.edit');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::livewire('settings/appearance', 'pages::settings.appearance')->name('appearance.edit');
-
-    Route::livewire('settings/security', 'pages::settings.security')
+    Route::livewire('hesap/guvenlik', 'pages::settings.security')
         ->middleware([
             'password.confirm',
         ])

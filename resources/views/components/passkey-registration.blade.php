@@ -31,7 +31,7 @@
                 { pattern: /Windows/, name: 'Windows' },
             ].find(({ pattern }) => pattern.test(ua))?.name;
 
-            return [browser, os].filter(Boolean).join(' on ') || '';
+            return [browser, os].filter(Boolean).join(', ') || '';
         },
         init() {
             this.name = this.getDefaultPasskeyName();
@@ -66,50 +66,39 @@
     }"
 >
     <template x-if="!supported">
-        <flux:text>{{ __('Passkeys are not supported in this browser.') }}</flux:text>
+        <p class="text-sm text-ink-faint">Bu tarayıcı passkey desteklemiyor.</p>
     </template>
 
     <template x-if="supported && !showForm">
         <div>
-            <flux:button
-                variant="primary"
-                icon="plus"
-                x-on:click="showForm = true"
-            >
-                {{ __('Add passkey') }}
-            </flux:button>
+            <x-site.form.button variant="secondary" x-on:click="showForm = true">+ Passkey ekle</x-site.form.button>
         </div>
     </template>
 
     <template x-if="supported && showForm">
-        <div class="space-y-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 p-4">
-            <flux:input
-                label="{{ __('Passkey name') }}"
-                x-model="name"
-                placeholder="{{ __('e.g., MacBook Pro, iPhone') }}"
-                x-on:keydown.enter.prevent="register()"
-                x-ref="passkeyNameInput"
-                x-init="$nextTick(() => $refs.passkeyNameInput?.focus())"
-            />
-            <flux:text class="!mt-1">{{ __('Give this passkey a name to help you identify it later.') }}</flux:text>
+        <div class="space-y-4 rounded-md border-2 border-dashed border-rule p-4">
+            <div class="space-y-1.5">
+                <label for="passkey-name" class="block text-sm font-bold text-ink">Passkey adı</label>
+                <input
+                    id="passkey-name"
+                    x-model="name"
+                    placeholder="ör. Telefonum, iş bilgisayarı"
+                    x-on:keydown.enter.prevent="register()"
+                    x-ref="passkeyNameInput"
+                    x-init="$nextTick(() => $refs.passkeyNameInput?.focus())"
+                    class="block w-full rounded-md border-2 border-rule bg-paper px-3 py-2.5 text-ink focus:border-section-ink focus:outline-none"
+                />
+                <p class="text-sm text-ink-faint">Sonradan hangisi olduğunu tanıyabilmen için.</p>
+            </div>
 
-            <p x-show="error" x-text="error" x-cloak class="text-sm text-red-600 dark:text-red-400"></p>
+            <p x-show="error" x-text="error" x-cloak class="font-hand text-xl font-bold text-pen-red"></p>
 
-            <div class="flex gap-2">
-                <flux:button
-                    variant="primary"
-                    x-on:click="register()"
-                    x-bind:disabled="loading || !name.trim()"
-                >
-                    <span x-show="!loading">{{ __('Register passkey') }}</span>
-                    <span x-show="loading" x-cloak>{{ __('Registering...') }}</span>
-                </flux:button>
-                <flux:button
-                    variant="ghost"
-                    x-on:click="cancel()"
-                >
-                    {{ __('Cancel') }}
-                </flux:button>
+            <div class="flex flex-wrap gap-3">
+                <x-site.form.button x-on:click="register()" x-bind:disabled="loading || !name.trim()">
+                    <span x-show="!loading">Kaydet</span>
+                    <span x-show="loading" x-cloak>Kaydediliyor…</span>
+                </x-site.form.button>
+                <x-site.form.button variant="link" x-on:click="cancel()">Vazgeç</x-site.form.button>
             </div>
         </div>
     </template>

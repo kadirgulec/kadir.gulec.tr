@@ -1,31 +1,14 @@
-<x-layouts::auth :title="__('Forgot password')">
-    <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Forgot password')" :description="__('Enter your email to receive a password reset link')" />
+<x-layouts::auth title="Şifremi unuttum" heading="Şifreni mi unuttun?" description="E-posta adresini yaz, yeni şifre belirlemen için bir link gönderelim.">
+    <form method="POST" action="{{ route('password.email') }}" class="space-y-5">
+        @csrf
 
-        <!-- Session Status -->
-        <x-auth-session-status class="text-center" :status="session('status')" />
+        <x-site.form.input name="email" label="E-posta" type="email" :value="old('email')" required autofocus autocomplete="email" placeholder="ornek@eposta.com" />
 
-        <form method="POST" action="{{ route('password.email') }}" class="flex flex-col gap-6">
-            @csrf
+        <x-site.form.button type="submit" class="w-full" data-test="email-password-reset-link-button">Linki gönder</x-site.form.button>
+    </form>
 
-            <!-- Email Address -->
-            <flux:input
-                name="email"
-                :label="__('Email address')"
-                type="email"
-                required
-                autofocus
-                placeholder="email@example.com"
-            />
-
-            <flux:button variant="primary" type="submit" class="w-full" data-test="email-password-reset-link-button">
-                {{ __('Email password reset link') }}
-            </flux:button>
-        </form>
-
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-400">
-            <span>{{ __('Or, return to') }}</span>
-            <flux:link :href="route('login')" wire:navigate>{{ __('log in') }}</flux:link>
-        </div>
-    </div>
+    <p class="text-center text-sm text-ink-soft">
+        Hatırladın mı?
+        <x-site.form.button variant="link" :href="route('login')">Giriş yap</x-site.form.button>
+    </p>
 </x-layouts::auth>

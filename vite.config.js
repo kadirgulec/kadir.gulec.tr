@@ -7,8 +7,6 @@ export default defineConfig({
     plugins: lazyPlugins(() => [
         laravel({
             input: [
-                'resources/css/app.css',
-                'resources/js/app.js',
                 'resources/js/passkeys.js',
                 'resources/css/site.css',
                 'resources/js/site.js',
@@ -17,9 +15,6 @@ export default defineConfig({
             ],
             refresh: true,
             fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
-                }),
                 // Public site. Turkish needs the latin-ext subset (ğ, ş, İ).
                 // Above-the-fold variants are preloaded. Headings and handwriting use "block"
                 // so the very different fallback never flashes; body text keeps "fallback"
