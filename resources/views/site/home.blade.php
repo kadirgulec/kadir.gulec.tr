@@ -142,14 +142,11 @@
             </x-site.note>
 
             {{-- Featured project --}}
+            @if ($featuredProject)
             <x-site.note :section="Section::Projects" tilt="-0.4" label="üzerinde çalıştığım" :more-href="route('projects.index')" more-label="tüm projeler →" class="md:col-span-2">
                 <div class="grid items-start gap-6 md:grid-cols-[1.15fr_1fr] md:gap-8">
                     <a href="{{ $featuredProject['url'] }}" class="block rotate-[-1deg] transition duration-200 hover:rotate-0 motion-reduce:transition-none">
-                        <x-site.browser-frame
-                            :url="$featuredProject['demoUrl']"
-                            :image-url="$featuredProject['imageUrl']"
-                            :alt="$featuredProject['name'].' ana sayfasının ekran görüntüsü'"
-                        />
+                        <x-site.project-shot :project="$featuredProject" />
                     </a>
 
                     <div>
@@ -177,11 +174,14 @@
 
                         <div class="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
                             <a href="{{ $featuredProject['url'] }}" class="text-section-ink underline decoration-section decoration-2 underline-offset-4">projeyi incele →</a>
-                            <a href="{{ $featuredProject['demoUrl'] }}" class="text-ink-soft underline decoration-dotted underline-offset-4 hover:text-ink">demo ↗</a>
+                            @if ($featuredProject['demoUrl'])
+                                <a href="{{ $featuredProject['demoUrl'] }}" class="text-ink-soft underline decoration-dotted underline-offset-4 hover:text-ink">demo ↗</a>
+                            @endif
                         </div>
                     </div>
                 </div>
             </x-site.note>
+            @endif
         </div>
     </section>
 </x-layouts::site>

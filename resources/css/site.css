@@ -14,7 +14,9 @@
 @source '../views/layouts/account.blade.php';
 @source '../views/pages/auth';
 @source '../views/pages/settings';
+@source '../views/admin/markdown-preview.blade.php';
 @source '../../app/Enums';
+@source '../../app/Support/Markdown';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -585,3 +587,120 @@ html.lamp-off::view-transition-old(root) {
         box-shadow: 0 3px 8px -2px rgb(0 0 0 / 0.8);
     }
 }
+
+/*
+ * Rendered Markdown (case studies, posts, reviews, logbook entries).
+ * The HTML comes from App\Support\Markdown\Markdown, so its typography lives here.
+ */
+@layer components {
+    .prose-notebook {
+        font-size: 1.125rem;
+        line-height: 2rem;
+    }
+
+    .prose-notebook > * + * {
+        margin-top: 1.5rem;
+    }
+
+    .prose-notebook h2 {
+        margin-top: 3rem;
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 1.25;
+    }
+
+    .prose-notebook h3 {
+        margin-top: 2.25rem;
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    .prose-notebook > h2:first-child,
+    .prose-notebook > h3:first-child {
+        margin-top: 0;
+    }
+
+    .prose-notebook h2 + *,
+    .prose-notebook h3 + * {
+        margin-top: 1rem;
+    }
+
+    .prose-notebook a {
+        text-decoration: underline;
+        text-decoration-color: var(--color-section);
+        text-decoration-thickness: 2px;
+        text-underline-offset: 4px;
+    }
+
+    .prose-notebook a:hover {
+        color: var(--color-section-ink);
+    }
+
+    .prose-notebook ul,
+    .prose-notebook ol {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .prose-notebook ul > li {
+        position: relative;
+        padding-left: 1.75rem;
+    }
+
+    .prose-notebook ul > li::before {
+        content: '→';
+        position: absolute;
+        left: 0;
+        font-family: var(--font-hand);
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--color-section-ink);
+    }
+
+    .prose-notebook ol {
+        list-style: decimal;
+        padding-left: 1.5rem;
+    }
+
+    .prose-notebook ol > li::marker {
+        font-family: var(--font-hand);
+        font-weight: 700;
+        color: var(--color-section-ink);
+    }
+
+    .prose-notebook blockquote {
+        border-left: 3px solid var(--color-section);
+        padding-left: 1rem;
+        font-style: italic;
+        color: var(--color-ink-soft);
+    }
+
+    .prose-notebook hr {
+        border: 0;
+        border-top: 2px dashed var(--color-rule);
+    }
+
+    .prose-notebook strong {
+        font-weight: 700;
+    }
+
+    .prose-notebook del {
+        text-decoration-thickness: 2px;
+        color: var(--color-ink-faint);
+    }
+
+    /* Short logbook entries: tighter, normal size */
+    .prose-notebook.prose-compact {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .prose-notebook.prose-compact > * + * {
+        margin-top: 0.5rem;
+    }
+}
+

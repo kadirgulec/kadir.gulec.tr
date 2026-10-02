@@ -1,6 +1,6 @@
 @use('App\Enums\Section')
 
-<x-layouts::site :section="Section::Projects" :title="$project['name']">
+<x-layouts::site :section="Section::Projects" :title="$project['name']" :draft="$project['isDraft']">
     <a href="{{ route('projects.index') }}" class="font-hand text-xl text-ink-soft hover:text-section-ink">← Projeler</a>
 
     <header class="mt-8 max-w-3xl">
@@ -35,35 +35,14 @@
         <x-site.project-shot :project="$project" />
     </div>
 
-    @if ($project['caseStudy'])
-        <div class="mt-16 flex max-w-2xl flex-col gap-12">
-            @foreach ($project['caseStudy'] as $section)
-                <section>
-                    <h2 class="font-display text-2xl font-semibold">{{ $section['heading'] }}</h2>
-
-                    @foreach ($section['paragraphs'] as $paragraph)
-                        <p class="mt-4 text-lg leading-8">{{ $paragraph }}</p>
-                    @endforeach
-
-                    @if ($section['items'])
-                        <ul class="mt-5 grid gap-x-6 gap-y-3 sm:grid-cols-2">
-                            @foreach ($section['items'] as $item)
-                                <li class="flex gap-3">
-                                    <x-site.checkbox :checked="true" class="mt-0.5 size-5 text-ink-faint" />
-                                    <span>{{ $item }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
-                </section>
-            @endforeach
-        </div>
+    @if ($project['bodyHtml'])
+        <div class="prose-notebook mt-16 max-w-2xl">{{ $project['bodyHtml'] }}</div>
     @else
         <p class="mt-12 max-w-2xl font-hand text-2xl text-section-ink">Bu proje için henüz uzun bir yazı yok; ayrıntılar GitHub'daki README'de.</p>
     @endif
 
-    {{-- Additional screenshots as polaroids (the hero image is not repeated) --}}
-    @php($extraShots = array_values(array_filter($project['gallery'], fn (array $shot): bool => $shot['url'] !== $project['imageUrl'])))
+    {{-- More screenshots as polaroids (the cover is stored apart from the gallery) --}}
+    @php($extraShots = $project['gallery'])
 
     @if ($extraShots)
         <section class="mt-16" aria-labelledby="ekran-goruntuleri">
@@ -72,7 +51,7 @@
             <div class="mt-8 grid gap-10 sm:grid-cols-2">
                 @foreach ($extraShots as $shot)
                     <figure @class(['bg-[#fffdf7] p-2.5 pb-3 shadow-[0_8px_18px_-8px_rgb(60_40_20/0.5)] transition duration-200 hover:rotate-0 motion-reduce:transition-none dark:bg-[#2e2a25]', 'rotate-[-1.5deg]' => $loop->odd, 'rotate-[1.5deg]' => $loop->even])>
-                        <img src="{{ $shot['url'] }}" alt="{{ $project['name'] }}: {{ $shot['caption'] }}" class="aspect-[16/10] w-full object-cover object-top" loading="lazy" />
+                        <img src="{{ $shot['url'] }}" srcset="{{ $shot['srcset'] }}" sizes="(min-width: 40rem) 22rem, 100vw" alt="{{ $project['name'] }}: {{ $shot['caption'] }}" class="aspect-[16/10] w-full object-cover object-top" loading="lazy" />
                         <figcaption class="mt-2 text-center font-hand text-xl text-ink-soft">{{ $shot['caption'] }}</figcaption>
                     </figure>
                 @endforeach

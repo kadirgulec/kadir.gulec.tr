@@ -2,6 +2,7 @@
     'section',
     'title' => null,
     'accent' => null,
+    'draft' => false,
 ])
 
 <!DOCTYPE html>
@@ -11,6 +12,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <title>{{ filled($title) ? $title.' · Kadir Gülec' : 'Kadir Gülec' }}</title>
+        @if ($draft)
+            <meta name="robots" content="noindex, nofollow" />
+        @endif
 
         {{-- Runs before the first paint so the night notebook never flashes white. --}}
         <script>
@@ -64,6 +68,10 @@
 
                             <x-site.lamp />
                         </header>
+
+                        @if ($draft)
+                            <p role="status" class="mt-5 -rotate-1 self-start rounded-sm bg-highlighter px-3 py-1 font-mono text-xs font-semibold tracking-wide text-[#2b2420] uppercase shadow-sm">Taslak · sadece sen görüyorsun</p>
+                        @endif
 
                         <main id="icerik" class="vt-page flex-1 py-8 sm:py-10">
                             {{ $slot }}

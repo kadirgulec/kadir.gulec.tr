@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Http\Middleware\EnsureAdminAccess;
+use App\Models\Project;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -29,6 +31,19 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureAuthorization();
+        $this->configureMorphMap();
+    }
+
+    /**
+     * Short, stable names in polymorphic columns (devlog, roles, comments,
+     * follows) instead of class names, so renaming a class never breaks data.
+     */
+    protected function configureMorphMap(): void
+    {
+        Relation::enforceMorphMap([
+            'user' => User::class,
+            'project' => Project::class,
+        ]);
     }
 
     /**

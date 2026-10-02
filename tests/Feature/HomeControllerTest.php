@@ -1,5 +1,11 @@
 <?php
 
+use App\Models\Project;
+
+beforeEach(function () {
+    Project::factory()->featured()->create(['name' => 'CoMon']);
+});
+
 it('shows one snippet from every section on the lately board', function () {
     $response = $this->get(route('home'));
 

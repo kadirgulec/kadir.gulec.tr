@@ -10,6 +10,9 @@
 
     <p class="mt-8 font-hand text-2xl text-ink-soft">yaptıklarım, yapmakta olduklarım ve bir kenara koyduklarım</p>
 
+    @if (! $featured)
+        <p class="mt-14 font-hand text-2xl text-section-ink">Henüz burada bir proje yok, yakında.</p>
+    @else
     {{-- Featured --}}
     <x-site.note :section="Section::Projects" tilt="-0.4" label="şu an üzerinde çalıştığım" class="mt-14">
         <div class="grid items-start gap-6 md:grid-cols-[1.2fr_1fr] md:gap-8">
@@ -85,4 +88,5 @@
             </article>
         @endforeach
     </div>
+    @endif
 </x-layouts::site>

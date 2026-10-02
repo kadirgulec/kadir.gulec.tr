@@ -78,10 +78,12 @@
         <p class="font-hand text-lg text-ink-faint">bu liste diğer sayfalardan kendiliğinden güncellenir</p>
 
         <ul class="mt-6 flex flex-col gap-3 text-lg">
-            <li class="flex gap-3">
-                <span aria-hidden="true">🛠️</span>
-                <span><a href="{{ $now['project']['url'] }}" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">{{ $now['project']['name'] }}</a> üzerinde çalışıyorum.</span>
-            </li>
+            @if ($now['project'])
+                <li class="flex gap-3">
+                    <span aria-hidden="true">🛠️</span>
+                    <span><a href="{{ $now['project']['url'] }}" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">{{ $now['project']['name'] }}</a> üzerinde çalışıyorum.</span>
+                </li>
+            @endif
 
             @if ($now['series'])
                 <li class="flex gap-3">

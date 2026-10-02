@@ -1,5 +1,11 @@
 <?php
 
+use App\Models\Project;
+
+beforeEach(function () {
+    Project::factory()->featured()->create(['name' => 'CoMon']);
+});
+
 it('tells the story from Ankara to Düren in order', function () {
     $response = $this->get(route('about'));
 

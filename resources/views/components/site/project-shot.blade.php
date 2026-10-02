@@ -5,6 +5,7 @@
     <x-site.browser-frame
         :url="$project['demoUrl'] ?? $project['repoUrl'] ?? $project['url']"
         :image-url="$project['imageUrl']"
+        :srcset="$project['imageSrcset'] ?? null"
         :alt="$project['name'].' ekran görüntüsü'"
         {{ $attributes }}
     />

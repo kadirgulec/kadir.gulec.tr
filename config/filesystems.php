@@ -41,7 +41,8 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim((string) env('APP_URL', 'http://localhost'), '/').'/storage',
+            // Relative, so image URLs work on any host and port (absolute ones via url()).
+            'url' => '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

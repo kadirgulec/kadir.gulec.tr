@@ -1,4 +1,4 @@
-@props(['url', 'imageUrl', 'alt'])
+@props(['url', 'imageUrl', 'alt', 'srcset' => null, 'sizes' => '(min-width: 64rem) 40rem, 100vw'])
 
 {{-- A project screenshot inside a small browser window. --}}
 <div {{ $attributes->merge(['class' => 'overflow-hidden rounded-md border border-ink/15 bg-paper shadow-[0_8px_20px_-12px_rgb(60_40_20/0.5)] dark:shadow-[0_8px_20px_-8px_rgb(0_0_0/0.9)]']) }}>
@@ -8,5 +8,5 @@
         <span class="size-2 rounded-full bg-goals/70"></span>
         <span class="ml-2 truncate rounded bg-paper px-2 py-0.5 font-mono text-[10px] text-ink-faint">{{ parse_url($url, PHP_URL_HOST) }}</span>
     </div>
-    <img src="{{ $imageUrl }}" alt="{{ $alt }}" class="block aspect-[16/10] w-full object-cover object-top" loading="lazy" />
+    <img src="{{ $imageUrl }}" @if ($srcset) srcset="{{ $srcset }}" sizes="{{ $sizes }}" @endif alt="{{ $alt }}" class="block aspect-[16/10] w-full object-cover object-top" loading="lazy" />
 </div>

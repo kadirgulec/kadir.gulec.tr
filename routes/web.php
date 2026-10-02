@@ -3,6 +3,7 @@
 use App\Enums\Permission;
 use App\Enums\Section;
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\Admin\MarkdownPreviewController;
 use App\Http\Controllers\GoalsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostsController;
@@ -30,6 +31,13 @@ if (! app()->isProduction()) {
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::livewire('/', 'pages::admin.dashboard')->name('dashboard');
+    Route::post('onizleme', MarkdownPreviewController::class)->name('markdown.preview');
+
+    Route::middleware('can:'.Permission::ManageProjects->value)->group(function () {
+        Route::livewire('projeler', 'pages::admin.projects.index')->name('projects.index');
+        Route::livewire('projeler/yeni', 'pages::admin.projects.edit')->name('projects.create');
+        Route::livewire('projeler/{project}', 'pages::admin.projects.edit')->name('projects.edit');
+    });
 
     Route::middleware('can:'.Permission::ManageUsers->value)->group(function () {
         Route::livewire('kullanicilar', 'pages::admin.users.index')->name('users.index');
