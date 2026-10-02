@@ -23,8 +23,9 @@
     --color-paper: #fbf7ee;
     --color-paper-deep: #f3ecdd;
     --color-ink: #2b2420;
-    --color-ink-soft: #6b5f55;
-    --color-ink-faint: #a39685;
+    /* Faint and soft text both pass WCAG AA (4.5:1) on paper and on cards */
+    --color-ink-soft: #5e5249;
+    --color-ink-faint: #74675a;
     --color-rule: #e4dac8;
 
     /* Tool colors: the same in every section */
@@ -45,7 +46,7 @@
     --color-goals-ink: #4f7000;
     --color-goals-on: #2b2420;
     --color-projects: #f0b429;
-    --color-projects-ink: #9a6400;
+    --color-projects-ink: #8a5800;
     --color-projects-on: #2b2420;
     --color-about: #a08ce0;
     --color-about-ink: #5f4bb0;
@@ -72,8 +73,8 @@
         --color-paper: #1c1a17;
         --color-paper-deep: #26231f;
         --color-ink: #f1ebdd;
-        --color-ink-soft: #a89f92;
-        --color-ink-faint: #6f675d;
+        --color-ink-soft: #b8afa2;
+        --color-ink-faint: #968c80;
         --color-rule: #3a352f;
 
         --color-pen-red: #ff4d5e;

@@ -145,7 +145,7 @@
 
             <p class="font-hand text-2xl">Bir merhaba, bir soru ya da bir film önerisi: hepsine açığım.</p>
 
-            <dl class="mt-5 grid grid-cols-[6rem_1fr] items-baseline gap-x-4 gap-y-3">
+            <dl class="mt-5 grid grid-cols-1 items-baseline gap-x-4 gap-y-1 sm:grid-cols-[5rem_minmax(0,1fr)] sm:gap-y-3 [&_dd]:[overflow-wrap:anywhere] [&_dt:not(:first-child)]:max-sm:mt-3">
                 <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">E-posta</dt>
                 <dd><a href="mailto:info@kadirguelec.de" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">info@kadirguelec.de</a></dd>
 

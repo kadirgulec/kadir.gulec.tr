@@ -1,18 +1,47 @@
-@props(['days', 'mobileDays' => 14])
+@props(['days'])
 
 {{--
     "Don't break the chain": one ring per day, oldest first.
     done = a solid link, missed = a broken link, excused = a link patched with tape.
-    On small screens only the newest $mobileDays links are shown so the chain never overflows.
+
+    The chain fits its own box, not the screen: the list is a size container and each
+    ring hides itself (oldest first) when the box is too narrow to show it. That works in
+    any column layout, at any viewport width.
 --}}
 @php
     $doneCount = collect($days)->filter(fn (string $day): bool => $day !== 'missed')->count();
-    $firstMobileIndex = count($days) - $mobileDays;
+
+    // Each ring is 24px wide and overlaps the previous one by 6px; the list has 6px padding.
+    // Ring k (1 = newest) is shown only when the box is at least 6 + 18k px wide.
+    // Literal class names, so Tailwind can find and generate them.
+    $hideBelow = [
+        1 => '@max-[24px]:hidden',
+        2 => '@max-[42px]:hidden',
+        3 => '@max-[60px]:hidden',
+        4 => '@max-[78px]:hidden',
+        5 => '@max-[96px]:hidden',
+        6 => '@max-[114px]:hidden',
+        7 => '@max-[132px]:hidden',
+        8 => '@max-[150px]:hidden',
+        9 => '@max-[168px]:hidden',
+        10 => '@max-[186px]:hidden',
+        11 => '@max-[204px]:hidden',
+        12 => '@max-[222px]:hidden',
+        13 => '@max-[240px]:hidden',
+        14 => '@max-[258px]:hidden',
+        15 => '@max-[276px]:hidden',
+        16 => '@max-[294px]:hidden',
+        17 => '@max-[312px]:hidden',
+        18 => '@max-[330px]:hidden',
+        19 => '@max-[348px]:hidden',
+        20 => '@max-[366px]:hidden',
+        21 => '@max-[384px]:hidden',
+    ];
 @endphp
 
-<ol class="reveal flex items-center" aria-label="Son {{ count($days) }} gün: {{ $doneCount }} gün tamam" {{ $attributes }}>
+<ol class="reveal @container flex items-center pl-1.5" aria-label="Son {{ count($days) }} gün: {{ $doneCount }} gün tamam" {{ $attributes }}>
     @foreach ($days as $index => $day)
-        <li @class(['-ml-1.5 first:ml-0', 'max-sm:hidden' => $index < $firstMobileIndex, 'max-sm:ml-0' => $index === $firstMobileIndex]) style="--i: {{ $index }}">
+        <li class="-ml-1.5 shrink-0 {{ $hideBelow[count($days) - $index] ?? 'hidden' }}" style="--i: {{ $index }}">
             <svg viewBox="0 0 24 16" class="h-4 w-6 overflow-visible" aria-hidden="true">
                 <g transform="rotate({{ $index % 2 === 0 ? -10 : 10 }} 12 8)">
                     @if ($day === 'missed')

@@ -105,6 +105,6 @@
     {{-- The last weeks as links --}}
     <section class="mt-12" aria-labelledby="son-gunler">
         <h2 id="son-gunler" class="font-display text-2xl font-semibold">Son üç hafta</h2>
-        <x-site.chain :days="$chain['days']" class="mt-4 origin-left scale-125 sm:scale-150" />
+        <x-site.chain :days="$chain['days']" class="mt-4" />
     </section>
 </x-layouts::site>
