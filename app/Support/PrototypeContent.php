@@ -16,6 +16,10 @@ use Illuminate\Support\Str;
  * @phpstan-type PostBlock array{type: 'paragraph'|'heading'|'code'|'list', text?: string, notes?: array<int|string, string>, lang?: string, code?: string, items?: list<string>}
  * @phpstan-type RawPost array{slug: string, title: string, excerpt: string, publishedAt: CarbonImmutable, readingMinutes: int, tags: list<string>, isFeatured: bool, body: list<PostBlock>}
  * @phpstan-type Post array{slug: string, title: string, excerpt: string, publishedAt: CarbonImmutable, readingMinutes: int, tags: list<string>, isFeatured: bool, body: list<PostBlock>, url: string, tagSlugs: list<string>}
+ * @phpstan-type ProjectSection array{heading: string, paragraphs: list<string>, items: list<string>}
+ * @phpstan-type LogEntry array{date: CarbonImmutable, text: string}
+ * @phpstan-type RawProject array{slug: string, name: string, isFeatured: bool, status: 'in-progress'|'live'|'archived', since: int, tagline: string, stack: list<string>, imageUrl: ?string, gallery: list<array{url: string, caption: string}>, demoUrl: ?string, repoUrl: ?string, goal: ?string, caseStudy: list<ProjectSection>, devlog: list<LogEntry>}
+ * @phpstan-type Project array{slug: string, name: string, isFeatured: bool, status: 'in-progress'|'live'|'archived', since: int, tagline: string, stack: list<string>, imageUrl: ?string, gallery: list<array{url: string, caption: string}>, demoUrl: ?string, repoUrl: ?string, goal: ?string, caseStudy: list<ProjectSection>, devlog: list<LogEntry>, url: string, latestLog: ?LogEntry}
  * @phpstan-type Chain array{slug: string, title: string, visibility: GoalVisibility, streak: int, bestStreak: int, days: list<'done'|'missed'|'excused'>, parent: ?string}
  * @phpstan-type YearlyGoal array{slug: string, title: string, type: 'numeric'|'milestones'|'binary', visibility: GoalVisibility, current: ?int, target: ?int, unit: ?string, milestones: list<array{title: string, done: bool}>, achievedAt: ?CarbonImmutable, parent: ?string, linkUrl: ?string}
  * @phpstan-type LongTermGoal array{slug: string, title: string, why: string, visibility: GoalVisibility, since: int}
@@ -1236,7 +1240,7 @@ expect($invoice->total())->toBe(119.00);',
                     ['title' => 'Herkese açık yayın', 'done' => false],
                 ],
                 'parent' => 'kendi-urunum',
-                'linkUrl' => route('projects.index'),
+                'linkUrl' => route('projects.show', 'comon'),
             ]),
             $goal([
                 'slug' => '12-kitap',
@@ -1404,21 +1408,263 @@ expect($invoice->total())->toBe(119.00);',
     }
 
     /**
-     * @return array{name: string, slug: string, tagline: string, status: 'in-progress'|'live'|'archived', imageUrl: string, demoUrl: string, stack: list<string>, latestLog: array{date: CarbonImmutable, text: string}}
+     * The project shown on the home page.
+     *
+     * @return Project
      */
     public static function featuredProject(): array
     {
+        return array_find(self::projects(), fn (array $project): bool => $project['isFeatured']) ?? self::projects()[0];
+    }
+
+    /**
+     * Projects ordered by status (in progress, live, archived), newest first within a status.
+     *
+     * @return list<Project>
+     */
+    public static function projects(): array
+    {
+        $statusOrder = ['in-progress' => 0, 'live' => 1, 'archived' => 2];
+
+        $projects = array_map(fn (array $project): array => [
+            ...$project,
+            'url' => route('projects.show', $project['slug']),
+            'latestLog' => $project['devlog'][0] ?? null,
+        ], self::rawProjects());
+
+        usort($projects, fn (array $a, array $b): int => [$statusOrder[$a['status']], $b['since']] <=> [$statusOrder[$b['status']], $a['since']]);
+
+        return $projects;
+    }
+
+    /**
+     * @return Project|null
+     */
+    public static function findProject(string $slug): ?array
+    {
+        return array_find(self::projects(), fn (array $project): bool => $project['slug'] === $slug);
+    }
+
+    /**
+     * Real projects (descriptions follow their READMEs); the CoMon case study and devlog are sample text.
+     *
+     * @return list<RawProject>
+     */
+    private static function rawProjects(): array
+    {
         return [
-            'name' => 'CoMon',
-            'slug' => 'comon',
-            'tagline' => 'Sözleşmeleri, sayaç okumalarını ve ev bütçesini tek yerde tutan, çok kullanıcılı bir ev yönetimi uygulaması.',
-            'status' => 'in-progress',
-            'imageUrl' => '/images/projects/comon.webp',
-            'demoUrl' => 'https://comon.guelec.eu',
-            'stack' => ['Laravel', 'Livewire', 'Alpine.js', 'MySQL'],
-            'latestLog' => [
-                'date' => CarbonImmutable::parse('2026-09-24'),
-                'text' => 'Sayaç okumalarına aylık tüketim grafiği eklendi.',
+            [
+                'slug' => 'comon',
+                'name' => 'CoMon',
+                'isFeatured' => true,
+                'status' => 'in-progress',
+                'since' => 2025,
+                'tagline' => 'Sözleşmeleri, sayaç okumalarını ve ev bütçesini tek yerde tutan, çok kullanıcılı bir ev yönetimi uygulaması.',
+                'stack' => [
+                    'Laravel',
+                    'Livewire',
+                    'Alpine.js',
+                    'MySQL',
+                ],
+                'imageUrl' => '/images/projects/comon.webp',
+                'gallery' => [
+                    [
+                        'url' => '/images/projects/comon.webp',
+                        'caption' => 'karşılama sayfası',
+                    ],
+                    [
+                        'url' => '/images/projects/comon-features.webp',
+                        'caption' => 'özellikler',
+                    ],
+                ],
+                'demoUrl' => 'https://comon.guelec.eu',
+                'repoUrl' => null,
+                'goal' => 'comon-yayinla',
+                'caseStudy' => [
+                    [
+                        'heading' => 'Hangi problemi çözüyor?',
+                        'paragraphs' => [
+                            'Bir evde takip edilmesi gereken şeyler farklı yerlere dağılmış durumda: sözleşmelerin yenileme ve fesih tarihleri bir klasörde, sayaç okumaları bir defterde, harcamalar bir tabloda. CoMon bunları tek bir yerde topluyor ve bir şey gözden kaçmadan önce haber veriyor.',
+                        ],
+                        'items' => [],
+                    ],
+                    [
+                        'heading' => 'Neden yaptım?',
+                        'paragraphs' => [
+                            'İhtiyaç duyduğum aracı bulamadım: Ya çok karmaşıktı ya da abonelik istiyordu. CoMon\'u ücretsiz, reklamsız ve verilerin kullanıcıda kaldığı bir araç olarak tasarladım.',
+                        ],
+                        'items' => [],
+                    ],
+                    [
+                        'heading' => 'Neler yapabiliyor?',
+                        'paragraphs' => [],
+                        'items' => [
+                            'Sayaçları yönetmek ve okumaları zahmetsizce girmek',
+                            'Sözleşmeleri, fiyatlarını ve fesih sürelerini bir bakışta görmek',
+                            'Tüketim tahminleri ve değerlendirmeler',
+                            'Ev bütçesini kategorilere göre takip etmek',
+                            'Süre dolmadan hatırlatma ve uyarılar',
+                            'Verileri aileyle paylaşmak',
+                            'Verilerin kullanıcıda kalması, dışa aktarılabilmesi',
+                        ],
+                    ],
+                    [
+                        'heading' => 'Teknik kararlar',
+                        'paragraphs' => [
+                            'Uygulama Laravel ve Livewire ile yazıldı; etkileşimlerin çoğu sunucuda kalıyor, Alpine.js sadece küçük arayüz davranışları için kullanılıyor. Bir kullanıcı birden fazla haneye üye olabiliyor ve her hane yalnızca kendi verisini görüyor, bu yüzden her sorgu hane bağlamında çalışıyor.',
+                        ],
+                        'items' => [],
+                    ],
+                    [
+                        'heading' => 'Öğrendiklerim',
+                        'paragraphs' => [
+                            'Tek başına bir ürün geliştirmek, kod yazmaktan çok karar vermek demek. Hangi özelliğin bekleyebileceğine karar vermek en zor ve en öğretici kısım oldu.',
+                        ],
+                        'items' => [],
+                    ],
+                    [
+                        'heading' => 'Şu anki durum',
+                        'paragraphs' => [
+                            'Kapalı beta tamamlandı, şimdi mobil uyum üzerinde çalışıyorum. Sonraki büyük adım herkese açık yayın.',
+                        ],
+                        'items' => [],
+                    ],
+                ],
+                'devlog' => [
+                    [
+                        'date' => CarbonImmutable::parse('2026-09-24'),
+                        'text' => 'Sayaç okumalarına aylık tüketim grafiği eklendi.',
+                    ],
+                    [
+                        'date' => CarbonImmutable::parse('2026-08-30'),
+                        'text' => 'Hane üyeleri için davet sistemi tamamlandı.',
+                    ],
+                    [
+                        'date' => CarbonImmutable::parse('2026-07-12'),
+                        'text' => 'Kapalı beta başladı.',
+                    ],
+                    [
+                        'date' => CarbonImmutable::parse('2026-05-03'),
+                        'text' => 'Sözleşme hatırlatmaları e-postayla gönderilmeye başladı.',
+                    ],
+                    [
+                        'date' => CarbonImmutable::parse('2026-03-15'),
+                        'text' => 'İlk sürüm: sayaçlar, sözleşmeler ve bütçe.',
+                    ],
+                ],
+            ],
+            [
+                'slug' => 'calisan-portali',
+                'name' => 'Çalışan Portalı',
+                'isFeatured' => false,
+                'status' => 'in-progress',
+                'since' => 2024,
+                'tagline' => 'IHK bitirme projem: Bir İK departmanının kâğıt üzerindeki hastalık bildirimi sürecini dijitalleştiren çalışan yönetim portalı.',
+                'stack' => [
+                    'Laravel',
+                    'Livewire',
+                    'Filament',
+                    'Tailwind CSS',
+                ],
+                'imageUrl' => null,
+                'gallery' => [],
+                'demoUrl' => null,
+                'repoUrl' => 'https://github.com/kadirgulec/employee-portal',
+                'goal' => null,
+                'caseStudy' => [
+                    [
+                        'heading' => 'Hangi problemi çözüyor?',
+                        'paragraphs' => [
+                            'Orta ölçekli birçok şirkette çalışan verileri dağınık, iş akışları ise kâğıt üzerinde. Bu projenin hedefi, özellikle telefon ve form ile yürüyen hastalık bildirimi sürecini dijital bir iş akışına, otomatik PDF üretimine ve merkezi panellere taşımaktı.',
+                        ],
+                        'items' => [],
+                    ],
+                    [
+                        'heading' => 'Şu anki durum',
+                        'paragraphs' => [
+                            'Proje, Yazılım Geliştirici (IHK) bitirme sınavım için başladı. Mezuniyetten sonra da yeni özellikler ve mimari iyileştirmelerle geliştirmeye devam ediyorum.',
+                        ],
+                        'items' => [],
+                    ],
+                ],
+                'devlog' => [],
+            ],
+            [
+                'slug' => 'laravel-newsletter',
+                'name' => 'Laravel Newsletter',
+                'isFeatured' => false,
+                'status' => 'live',
+                'since' => 2026,
+                'tagline' => 'Laravel için veritabanı tabanlı, hafif bir bülten paketi: imzalı abonelikten çıkma bağlantıları ve RFC uyumlu e-postalar.',
+                'stack' => [
+                    'PHP',
+                    'Laravel',
+                ],
+                'imageUrl' => null,
+                'gallery' => [],
+                'demoUrl' => null,
+                'repoUrl' => 'https://github.com/kadirgulec/laravel-newsletter',
+                'goal' => null,
+                'caseStudy' => [],
+                'devlog' => [],
+            ],
+            [
+                'slug' => 'kadir-guelec-eu',
+                'name' => 'kadir.guelec.eu',
+                'isFeatured' => false,
+                'status' => 'live',
+                'since' => 2025,
+                'tagline' => 'Almanca ve İngilizce portfolyom ve blogum. 11ty ile üretilen statik bir site: veritabanı yok, sunucu tarafı kod yok.',
+                'stack' => [
+                    '11ty',
+                    'Nunjucks',
+                    'Markdown',
+                ],
+                'imageUrl' => '/images/projects/kadir-guelec-eu.webp',
+                'gallery' => [],
+                'demoUrl' => 'https://kadir.guelec.eu',
+                'repoUrl' => 'https://github.com/kadirgulec/My-11ty-blog',
+                'goal' => null,
+                'caseStudy' => [],
+                'devlog' => [],
+            ],
+            [
+                'slug' => 'tic-tac-toe',
+                'name' => 'Tic-Tac-Toe (Minimax)',
+                'isFeatured' => false,
+                'status' => 'archived',
+                'since' => 2026,
+                'tagline' => 'Minimax algoritmasını anlamak için yazdığım, yenilmez bir rakibi olan XOX oyunu.',
+                'stack' => [
+                    'JavaScript',
+                ],
+                'imageUrl' => null,
+                'gallery' => [],
+                'demoUrl' => null,
+                'repoUrl' => 'https://github.com/kadirgulec/TicTacToe',
+                'goal' => null,
+                'caseStudy' => [],
+                'devlog' => [],
+            ],
+            [
+                'slug' => 'renk-tahmin-oyunu',
+                'name' => 'Renk Tahmin Oyunu',
+                'isFeatured' => false,
+                'status' => 'archived',
+                'since' => 2023,
+                'tagline' => 'Verilen RGB koduna bakıp doğru rengi bulmaya çalıştığın küçük bir tarayıcı oyunu; kolay ve zor modlu.',
+                'stack' => [
+                    'HTML',
+                    'CSS',
+                    'JavaScript',
+                ],
+                'imageUrl' => '/images/projects/guess-the-color.webp',
+                'gallery' => [],
+                'demoUrl' => 'https://playguessthecolor.netlify.app/',
+                'repoUrl' => 'https://github.com/kadirgulec/GuessTheColorGame',
+                'goal' => null,
+                'caseStudy' => [],
+                'devlog' => [],
             ],
         ];
     }
