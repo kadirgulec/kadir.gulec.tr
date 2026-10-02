@@ -120,7 +120,7 @@ Bu dosya, admin paneli ve üyelik aşamasının kararlarını, adımlarını ve 
 ## 6. Adımlar
 
 - [ ] **Adım 1: Temel**
-  - [ ] 1.1 Altyapı: CI, MySQL collation ve test veritabanı, `tr` dili ve çeviri dosyaları, `Europe/Berlin`.
+  - [x] 1.1 Altyapı: CI, MySQL collation ve test veritabanı, `tr` dili ve çeviri dosyaları, `Europe/Berlin`.
   - [ ] 1.2 Roller ve izinler: `spatie/laravel-permission`, `Permission` enum'u, seeder, `Gate::before`, `user:create-admin`, admin erişim middleware'i (passkey/2FA şartı).
   - [ ] 1.3 Admin bileşen kütüphanesi, ikonlar, admin layout, pano iskeleti, `/admin/stil`.
   - [ ] 1.4 Giriş, kayıt ve profil sayfaları defter tasarımında; Flux'ın kaldırılması.
