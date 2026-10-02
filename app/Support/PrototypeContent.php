@@ -22,10 +22,11 @@ use Illuminate\Support\Str;
  * @phpstan-type Project array{slug: string, name: string, isFeatured: bool, status: 'in-progress'|'live'|'archived', since: int, tagline: string, stack: list<string>, imageUrl: ?string, gallery: list<array{url: string, caption: string}>, demoUrl: ?string, repoUrl: ?string, goal: ?string, caseStudy: list<ProjectSection>, devlog: list<LogEntry>, url: string, latestLog: ?LogEntry}
  * @phpstan-type Chain array{slug: string, title: string, visibility: GoalVisibility, streak: int, bestStreak: int, days: list<'done'|'missed'|'excused'>, parent: ?string}
  * @phpstan-type YearlyGoal array{slug: string, title: string, type: 'numeric'|'milestones'|'binary', visibility: GoalVisibility, current: ?int, target: ?int, unit: ?string, milestones: list<array{title: string, done: bool}>, achievedAt: ?CarbonImmutable, parent: ?string, linkUrl: ?string}
- * @phpstan-type LongTermGoal array{slug: string, title: string, why: string, visibility: GoalVisibility, since: int}
+ * @phpstan-type LongTermGoal array{slug: string, title: string, why: string, visibility: GoalVisibility, since: int, updates: list<LogEntry>}
+ * @phpstan-type Season array{number: int, episodeCount: int, rating: ?float, note: ?string}
  * @phpstan-type ReviewBlock array{type: 'paragraph'|'spoiler'|'quote', text: string, by?: string}
- * @phpstan-type RawWatchedEntry array{type: WatchableType, slug: string, title: string, originalTitle: ?string, year: int, creator: string, genres: list<string>, runtimeMinutes: ?int, overview: ?string, cast: list<array{name: string, role: string}>, watchedAt: CarbonImmutable, place: string, rating: ?float, isFavorite: bool, isRewatch: bool, status: ?SeriesStatus, season: ?int, episode: ?int, episodeCount: ?int, posterFile: string, posterColors: array{0: string, 1: string}, accent: string, review: ?list<ReviewBlock>}
- * @phpstan-type WatchedEntry array{type: WatchableType, slug: string, title: string, originalTitle: ?string, year: int, creator: string, genres: list<string>, runtimeMinutes: ?int, overview: ?string, cast: list<array{name: string, role: string}>, watchedAt: CarbonImmutable, place: string, rating: ?float, isFavorite: bool, isRewatch: bool, status: ?SeriesStatus, season: ?int, episode: ?int, episodeCount: ?int, posterFile: string, posterColors: array{0: string, 1: string}, accent: string, review: ?list<ReviewBlock>, posterUrl: ?string, hasReview: bool, reviewExcerpt: ?string, url: string}
+ * @phpstan-type RawWatchedEntry array{type: WatchableType, slug: string, title: string, originalTitle: ?string, year: int, creator: string, genres: list<string>, runtimeMinutes: ?int, overview: ?string, cast: list<array{name: string, role: string}>, watchedAt: CarbonImmutable, place: string, rating: ?float, isFavorite: bool, isRewatch: bool, status: ?SeriesStatus, season: ?int, episode: ?int, episodeCount: ?int, seasons: ?list<Season>, posterFile: string, posterColors: array{0: string, 1: string}, accent: string, review: ?list<ReviewBlock>}
+ * @phpstan-type WatchedEntry array{type: WatchableType, slug: string, title: string, originalTitle: ?string, year: int, creator: string, genres: list<string>, runtimeMinutes: ?int, overview: ?string, cast: list<array{name: string, role: string}>, watchedAt: CarbonImmutable, place: string, rating: ?float, isFavorite: bool, isRewatch: bool, status: ?SeriesStatus, season: ?int, episode: ?int, episodeCount: ?int, seasons: ?list<Season>, posterFile: string, posterColors: array{0: string, 1: string}, accent: string, review: ?list<ReviewBlock>, posterUrl: ?string, hasReview: bool, reviewExcerpt: ?string, url: string}
  */
 class PrototypeContent
 {
@@ -457,6 +458,7 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => null,
                 'episode' => null,
                 'episodeCount' => null,
+                'seasons' => null,
                 'posterFile' => 'kuru-otlar-ustune.webp',
                 'posterColors' => [
                     '#efbf80',
@@ -521,6 +523,7 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => null,
                 'episode' => null,
                 'episodeCount' => null,
+                'seasons' => null,
                 'posterFile' => 'perfect-days.webp',
                 'posterColors' => [
                     '#d7bf98',
@@ -591,6 +594,7 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => null,
                 'episode' => null,
                 'episodeCount' => null,
+                'seasons' => null,
                 'posterFile' => 'dune-part-two.webp',
                 'posterColors' => [
                     '#ef8e80',
@@ -638,6 +642,9 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => 1,
                 'episode' => 5,
                 'episodeCount' => 5,
+                'seasons' => [
+                    ['number' => 1, 'episodeCount' => 5, 'rating' => 9.5, 'note' => 'Beş bölüm, sıfır dolgu.'],
+                ],
                 'posterFile' => 'chernobyl.webp',
                 'posterColors' => [
                     '#acc4b4',
@@ -696,6 +703,7 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => null,
                 'episode' => null,
                 'episodeCount' => null,
+                'seasons' => null,
                 'posterFile' => 'past-lives.webp',
                 'posterColors' => [
                     '#adb8c2',
@@ -745,6 +753,7 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => null,
                 'episode' => null,
                 'episodeCount' => null,
+                'seasons' => null,
                 'posterFile' => 'anatomy-of-a-fall.webp',
                 'posterColors' => [
                     '#a5adcb',
@@ -799,6 +808,7 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => null,
                 'episode' => null,
                 'episodeCount' => null,
+                'seasons' => null,
                 'posterFile' => 'the-zone-of-interest.webp',
                 'posterColors' => [
                     '#9cd4a2',
@@ -848,6 +858,11 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => 3,
                 'episode' => 7,
                 'episodeCount' => 23,
+                'seasons' => [
+                    ['number' => 1, 'episodeCount' => 25, 'rating' => 8.5, 'note' => 'Adanın gizemi en taze hâliyle.'],
+                    ['number' => 2, 'episodeCount' => 24, 'rating' => 7.5, 'note' => null],
+                    ['number' => 3, 'episodeCount' => 23, 'rating' => null, 'note' => '7. bölümde bıraktım; cevap yerine yeni soru gelmeye devam etti.'],
+                ],
                 'posterFile' => 'lost.webp',
                 'posterColors' => [
                     '#9fd1d1',
@@ -895,6 +910,7 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => null,
                 'episode' => null,
                 'episodeCount' => null,
+                'seasons' => null,
                 'posterFile' => 'kis-uykusu.webp',
                 'posterColors' => [
                     '#cab4a5',
@@ -943,6 +959,7 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => null,
                 'episode' => null,
                 'episodeCount' => null,
+                'seasons' => null,
                 'posterFile' => 'oppenheimer.webp',
                 'posterColors' => [
                     '#e79f88',
@@ -991,6 +1008,9 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => 1,
                 'episode' => 8,
                 'episodeCount' => 8,
+                'seasons' => [
+                    ['number' => 1, 'episodeCount' => 8, 'rating' => 9.0, 'note' => 'Her bölüm başka bir karakterin gözünden; ikinci izleyişte daha da iyi.'],
+                ],
                 'posterFile' => 'bir-baskadir.webp',
                 'posterColors' => [
                     '#dbb894',
@@ -1040,6 +1060,10 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => 2,
                 'episode' => 5,
                 'episodeCount' => 10,
+                'seasons' => [
+                    ['number' => 1, 'episodeCount' => 9, 'rating' => 9.0, 'note' => 'Son bölüm yılın en gergin kırk dakikasıydı.'],
+                    ['number' => 2, 'episodeCount' => 10, 'rating' => null, 'note' => null],
+                ],
                 'posterFile' => 'severance.webp',
                 'posterColors' => [
                     '#93c4dc',
@@ -1088,6 +1112,11 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => 3,
                 'episode' => 2,
                 'episodeCount' => 10,
+                'seasons' => [
+                    ['number' => 1, 'episodeCount' => 8, 'rating' => 9.0, 'note' => null],
+                    ['number' => 2, 'episodeCount' => 10, 'rating' => 9.5, 'note' => '"Fishes" bölümü tek başına bir film gibi.'],
+                    ['number' => 3, 'episodeCount' => 10, 'rating' => null, 'note' => null],
+                ],
                 'posterFile' => 'the-bear.webp',
                 'posterColors' => [
                     '#8ba4e4',
@@ -1136,6 +1165,9 @@ expect($invoice->total())->toBe(119.00);',
                 'season' => 1,
                 'episode' => 4,
                 'episodeCount' => 10,
+                'seasons' => [
+                    ['number' => 1, 'episodeCount' => 10, 'rating' => null, 'note' => 'Çok iyi gidiyordu, kafam başka yerdeyken izlemek istemedim. Kışın devam.'],
+                ],
                 'posterFile' => 'shogun.webp',
                 'posterColors' => [
                     '#97d7d8',
@@ -1161,21 +1193,63 @@ expect($invoice->total())->toBe(119.00);',
     }
 
     /**
-     * Daily chains with the last 21 days, oldest first. Hidden chains are left out,
-     * the way a visibility scope will do it later.
+     * Daily chains with their last 21 days (oldest first) and numbers computed from the
+     * whole year, so a card and its detail page can never disagree. Hidden chains are
+     * left out, the way a visibility scope will do it later.
      *
      * @return list<Chain>
      */
     public static function chains(): array
     {
-        return self::visibleOnly([
+        return array_map(function (array $chain): array {
+            $days = array_column(self::chainHistory($chain), 'state');
+
+            return [
+                'slug' => $chain['slug'],
+                'title' => $chain['title'],
+                'visibility' => $chain['visibility'],
+                'parent' => $chain['parent'],
+                'days' => array_slice($days, -21),
+                'streak' => ChainStats::currentStreak($days),
+                'bestStreak' => ChainStats::bestStreak($days),
+            ];
+        }, self::visibleOnly(self::rawChains()));
+    }
+
+    /**
+     * A visible chain with its full history since the start of the year.
+     *
+     * @return array{chain: Chain, history: list<array{date: CarbonImmutable, state: 'done'|'missed'|'excused'}>}|null
+     */
+    public static function findChain(string $slug): ?array
+    {
+        $raw = array_find(self::visibleOnly(self::rawChains()), fn (array $chain): bool => $chain['slug'] === $slug);
+        $chain = array_find(self::chains(), fn (array $chain): bool => $chain['slug'] === $slug);
+
+        if ($raw === null || $chain === null) {
+            return null;
+        }
+
+        return ['chain' => $chain, 'history' => self::chainHistory($raw)];
+    }
+
+    /**
+     * recent: the last 21 days as x (done), - (missed), e (excused); hand-written.
+     * streak: the streak to reach when those 21 days have no missed day.
+     * rate: how often older days are done, in percent (sample data only).
+     *
+     * @return list<array{slug: string, title: string, visibility: GoalVisibility, streak: int, rate: int, recent: string, parent: ?string}>
+     */
+    private static function rawChains(): array
+    {
+        return [
             [
                 'slug' => 'her-gun-kod',
                 'title' => 'Her gün 30 dk kod',
                 'visibility' => GoalVisibility::Public,
                 'streak' => 23,
-                'bestStreak' => 58,
-                'days' => self::days('xxxxxxxxxxxxexxxxxxxx'),
+                'rate' => 88,
+                'recent' => 'xxxxxxxxxxxxexxxxxxxx',
                 'parent' => 'kendi-urunum',
             ],
             [
@@ -1183,8 +1257,8 @@ expect($invoice->total())->toBe(119.00);',
                 'title' => 'Spor',
                 'visibility' => GoalVisibility::Public,
                 'streak' => 6,
-                'bestStreak' => 19,
-                'days' => self::days('xxxxx-xxx-xxxx-xxxxxx'),
+                'rate' => 72,
+                'recent' => 'xxxxx-xxx-xxxx-xxxxxx',
                 'parent' => 'formda-50',
             ],
             [
@@ -1192,8 +1266,8 @@ expect($invoice->total())->toBe(119.00);',
                 'title' => 'Her gün 10 sayfa Almanca',
                 'visibility' => GoalVisibility::Public,
                 'streak' => 2,
-                'bestStreak' => 12,
-                'days' => self::days('xxx-xxxxxx--xxxxxx-xx'),
+                'rate' => 68,
+                'recent' => 'xxx-xxxxxx--xxxxxx-xx',
                 'parent' => 'almanca-c1',
             ],
             [
@@ -1201,8 +1275,8 @@ expect($invoice->total())->toBe(119.00);',
                 'title' => 'Ekransız sabahlar',
                 'visibility' => GoalVisibility::Censored,
                 'streak' => 41,
-                'bestStreak' => 41,
-                'days' => self::days('xxxxxxxxxxxxxxxxxxxxx'),
+                'rate' => 82,
+                'recent' => 'xxxxxxxxxxxxxxxxxxxxx',
                 'parent' => null,
             ],
             [
@@ -1210,11 +1284,62 @@ expect($invoice->total())->toBe(119.00);',
                 'title' => 'Tamamen gizli bir alışkanlık',
                 'visibility' => GoalVisibility::Hidden,
                 'streak' => 9,
-                'bestStreak' => 9,
-                'days' => self::days('xxxxxxxxxxxxxxxxxxxxx'),
+                'rate' => 90,
+                'recent' => 'xxxxxxxxxxxxxxxxxxxxx',
                 'parent' => null,
             ],
-        ]);
+        ];
+    }
+
+    /**
+     * Builds a deterministic day-by-day history for the prototype: the hand-written recent
+     * days at the end, a run before them so the current streak comes out as intended,
+     * and pseudo-random older days.
+     *
+     * @param  array{slug: string, streak: int, rate: int, recent: string}  $chain
+     * @return list<array{date: CarbonImmutable, state: 'done'|'missed'|'excused'}>
+     */
+    private static function chainHistory(array $chain): array
+    {
+        $today = CarbonImmutable::today();
+        $recent = self::days($chain['recent']);
+        $recentStart = $today->subDays(count($recent) - 1);
+
+        $leadIn = in_array('missed', $recent, true)
+            ? 0
+            : max(0, $chain['streak'] - ChainStats::count($recent, 'done'));
+
+        $start = $today->startOfYear()->min($recentStart->subDays($leadIn + 1));
+        $history = [];
+
+        for ($date = $start; $date->lte($today); $date = $date->addDay()) {
+            $offset = (int) round($recentStart->diffInDays($date));
+
+            $state = match (true) {
+                $offset >= 0 => $recent[$offset],
+                -$offset <= $leadIn => 'done',
+                -$offset === $leadIn + 1 => 'missed',
+                default => self::sampleDay($chain['slug'], $date, $chain['rate']),
+            };
+
+            $history[] = ['date' => $date, 'state' => $state];
+        }
+
+        return $history;
+    }
+
+    /**
+     * @return 'done'|'missed'|'excused'
+     */
+    private static function sampleDay(string $slug, CarbonImmutable $date, int $rate): string
+    {
+        $roll = crc32($slug.'|'.$date->toDateString()) % 100;
+
+        return match (true) {
+            $roll < $rate => 'done',
+            $roll < $rate + 3 => 'excused',
+            default => 'missed',
+        };
     }
 
     /**
@@ -1332,6 +1457,11 @@ expect($invoice->total())->toBe(119.00);',
                 'why' => 'Başkasının fikrini değil, kendi fikrimi büyütmek istiyorum. İnsanların gerçekten kullandığı küçük ama dürüst bir ürün.',
                 'visibility' => GoalVisibility::Public,
                 'since' => 2024,
+                'updates' => [
+                    ['date' => CarbonImmutable::parse('2026-09-24'), 'text' => 'CoMon\'da sayaç grafikleri bitti; kapalı betadaki ilk geri bildirimler çok umut verici.'],
+                    ['date' => CarbonImmutable::parse('2026-03-15'), 'text' => 'CoMon\'un ilk sürümü yayında. Küçük ama benim.'],
+                    ['date' => CarbonImmutable::parse('2025-06-01'), 'text' => 'Bir yan proje yerine tek bir ürüne odaklanmaya karar verdim.'],
+                ],
             ],
             [
                 'slug' => 'almanca',
@@ -1339,6 +1469,11 @@ expect($invoice->total())->toBe(119.00);',
                 'why' => 'Bir toplantıda kelime aramadan, esprimi çevirmeden konuşabildiğim gün burası gerçekten evim olacak.',
                 'visibility' => GoalVisibility::Public,
                 'since' => 2016,
+                'updates' => [
+                    ['date' => CarbonImmutable::parse('2026-08-20'), 'text' => 'İlk kez bir müşteri toplantısını baştan sona Almanca yönettim.'],
+                    ['date' => CarbonImmutable::parse('2026-01-10'), 'text' => 'C1 kursuna kaydoldum.'],
+                    ['date' => CarbonImmutable::parse('2016-09-01'), 'text' => 'Düren\'de ilk dil kursu. Bir kelime bile anlamıyordum.'],
+                ],
             ],
             [
                 'slug' => 'formda-50',
@@ -1346,6 +1481,10 @@ expect($invoice->total())->toBe(119.00);',
                 'why' => 'Masa başında geçen bir meslekte vücudumu ihmal etmemek. Yaşlandıkça da dağ yürüyüşüne çıkabilen biri olmak.',
                 'visibility' => GoalVisibility::Public,
                 'since' => 2025,
+                'updates' => [
+                    ['date' => CarbonImmutable::parse('2026-09-01'), 'text' => 'Yılın ilk 300 kilometresi tamam.'],
+                    ['date' => CarbonImmutable::parse('2025-11-15'), 'text' => 'Yarı maraton olmadı, ama düzenli koşmaya başladım.'],
+                ],
             ],
             [
                 'slug' => 'turkce-icerik',
@@ -1353,6 +1492,10 @@ expect($invoice->total())->toBe(119.00);',
                 'why' => 'Ben öğrenirken Türkçe kaynak çok azdı. Benden sonra gelenler için o eksikliği biraz kapatmak istiyorum.',
                 'visibility' => GoalVisibility::Public,
                 'since' => 2026,
+                'updates' => [
+                    ['date' => CarbonImmutable::parse('2026-06-12'), 'text' => 'Bir Laravel meetup\'ında ilk konuşmamı yaptım.'],
+                    ['date' => CarbonImmutable::parse('2026-01-05'), 'text' => 'Bu siteyi Türkçe yazmaya karar verdim.'],
+                ],
             ],
             [
                 'slug' => 'gizli-uzun-1',
@@ -1360,6 +1503,9 @@ expect($invoice->total())->toBe(119.00);',
                 'why' => 'Bunun nedenini sadece ben biliyorum ve şimdilik öyle kalsın.',
                 'visibility' => GoalVisibility::Censored,
                 'since' => 2023,
+                'updates' => [
+                    ['date' => CarbonImmutable::parse('2026-05-01'), 'text' => 'Gizli bir not.'],
+                ],
             ],
         ]);
     }

@@ -128,6 +128,49 @@
         </section>
     @endif
 
+    {{-- Seasons: progress per season, optional mark and note --}}
+    @if ($entry['seasons'])
+        <section class="mt-16 max-w-2xl" aria-labelledby="sezonlar">
+            <h2 id="sezonlar" class="font-display text-2xl font-semibold">Sezonlar</h2>
+
+            <ol class="mt-5 flex flex-col gap-4">
+                @foreach ($entry['seasons'] as $season)
+                    @php
+                        $isCurrentSeason = $season['number'] === $entry['season'];
+                        $watchedEpisodes = match (true) {
+                            $season['number'] < $entry['season'] => $season['episodeCount'],
+                            $isCurrentSeason => $entry['episode'],
+                            default => 0,
+                        };
+                        $isComplete = $watchedEpisodes === $season['episodeCount'];
+                    @endphp
+
+                    <li class="relative rounded-sm bg-paper-deep p-4 pr-20">
+                        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                            <h3 class="font-display text-lg font-semibold">{{ $season['number'] }}. sezon</h3>
+                            <span class="font-mono text-xs text-ink-faint">{{ $season['episodeCount'] }} bölüm</span>
+                            @if ($isComplete)
+                                <span class="font-hand text-lg text-section-ink">bitti ✓</span>
+                            @elseif ($isCurrentSeason)
+                                <span class="font-hand text-lg text-section-ink">{{ $entry['status']->emoji() }} {{ $entry['status']->label() }} · B{{ $entry['episode'] }}</span>
+                            @endif
+                        </div>
+
+                        <x-site.pencil-progress :value="$watchedEpisodes" :max="$season['episodeCount']" :label="$season['number'].'. sezon ilerlemesi'" class="mt-3" />
+
+                        @if ($season['note'])
+                            <p class="mt-3 font-hand text-xl leading-snug text-ink-soft">{{ $season['note'] }}</p>
+                        @endif
+
+                        @if ($season['rating'] !== null)
+                            <x-site.grade :value="$season['rating']" size="sm" class="absolute top-3 right-4" />
+                        @endif
+                    </li>
+                @endforeach
+            </ol>
+        </section>
+    @endif
+
     @if ($entry['cast'])
         <section class="mt-16 max-w-2xl" aria-labelledby="oyuncular">
             <h2 id="oyuncular" class="font-display text-2xl font-semibold">Oyuncular</h2>

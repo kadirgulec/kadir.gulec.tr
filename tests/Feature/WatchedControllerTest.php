@@ -31,6 +31,12 @@ describe('show', function () {
             ->assertDontSeeText('Yorumum');
     });
 
+    it('lists the seasons of a series with their progress, marks and notes', function () {
+        $response = $this->get(route('watched.show', ['type' => 'dizi', 'slug' => 'lost']));
+
+        $response->assertSeeTextInOrder(['Sezonlar', '1. sezon', 'bitti ✓', '2. sezon', '3. sezon', 'Bıraktım · B7', 'cevap yerine yeni soru']);
+    });
+
     it('returns 404 when the slug belongs to the other type', function () {
         $response = $this->get('/izlediklerim/dizi/perfect-days');
 

@@ -16,7 +16,9 @@ Route::get('izlediklerim', [WatchedController::class, 'index'])->name('watched.i
 Route::get('izlediklerim/{type}/{slug}', [WatchedController::class, 'show'])
     ->whereIn('type', ['film', 'dizi'])
     ->name('watched.show');
-Route::get('hedefler', GoalsController::class)->name('goals.index');
+Route::get('hedefler', [GoalsController::class, 'index'])->name('goals.index');
+Route::get('hedefler/zincir/{slug}', [GoalsController::class, 'chain'])->name('goals.chain');
+Route::get('hedefler/{slug}', [GoalsController::class, 'show'])->name('goals.show');
 Route::get('projeler', [ProjectsController::class, 'index'])->name('projects.index');
 Route::get('projeler/{slug}', [ProjectsController::class, 'show'])->name('projects.show');
 Route::get('hakkimda', AboutController::class)->name('about');

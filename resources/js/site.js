@@ -162,7 +162,17 @@ function initCopyButtons() {
     });
 }
 
+/**
+ * Wide scrollers (the yearly chain grid) start scrolled to the end, where the newest days are.
+ */
+function initScrollToEnd() {
+    document.querySelectorAll('[data-scroll-end]').forEach((scroller) => {
+        scroller.scrollLeft = scroller.scrollWidth;
+    });
+}
+
 initLamps();
 initDrawings();
 initSpoilers();
 initCopyButtons();
+initScrollToEnd();

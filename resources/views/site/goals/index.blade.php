@@ -39,12 +39,14 @@
                 <article id="hedef-{{ $chain['slug'] }}" class="relative min-w-0 scroll-mt-8 rounded-sm bg-paper-deep p-5 {{ $cardShadow }}">
                     <div class="flex items-start justify-between gap-4">
                         <h3 class="min-w-0 font-semibold">
-                            @if ($chain['title'])
-                                {{ $chain['title'] }}
-                            @else
-                                <span aria-hidden="true">🔒</span>
-                                <x-site.censored :length="$chain['titleLength']" label="sansürlü zincir" />
-                            @endif
+                            <a href="{{ route('goals.chain', $chain['slug']) }}" class="hover:text-section-ink">
+                                @if ($chain['title'])
+                                    {{ $chain['title'] }}
+                                @else
+                                    <span aria-hidden="true">🔒</span>
+                                    <x-site.censored :length="$chain['titleLength']" label="sansürlü zincir" />
+                                @endif
+                            </a>
                         </h3>
 
                         <p class="shrink-0 text-right leading-none">
@@ -56,7 +58,7 @@
                     <x-site.chain :days="$chain['days']" class="mt-3" />
 
                     <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
-                        <span class="font-mono text-[11px] text-ink-faint">en uzun seri: {{ $chain['bestStreak'] }} gün</span>
+                        <a href="{{ route('goals.chain', $chain['slug']) }}" class="font-mono text-[11px] text-ink-faint hover:text-section-ink">en uzun seri: {{ $chain['bestStreak'] }} gün · yıllık görünüm →</a>
                         @if ($chain['parentGoal'])
                             <x-site.parent-chip :parent="$chain['parentGoal']" />
                         @endif
@@ -204,7 +206,7 @@
 
                         <h3 class="font-display text-xl leading-tight font-semibold text-balance">
                             @if ($goal['title'])
-                                {{ $goal['title'] }}
+                                <a href="{{ route('goals.show', $goal['slug']) }}" class="hover:text-section-ink">{{ $goal['title'] }}</a>
                             @else
                                 <span aria-hidden="true">🔒</span>
                                 <x-site.censored :length="$goal['titleLength']" label="sansürlü uzun vadeli hedef" />
@@ -225,6 +227,10 @@
                                 <span>{{ $goal['childCount'] }} bağlı hedef</span>
                             @endif
                         </p>
+
+                        @if ($goal['title'])
+                            <a href="{{ route('goals.show', $goal['slug']) }}" class="mt-3 inline-block font-hand text-lg text-section-ink underline decoration-section decoration-wavy underline-offset-4">hikâyesi →</a>
+                        @endif
                     </article>
                 @endforeach
             </div>

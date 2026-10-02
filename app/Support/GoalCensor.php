@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Enums\GoalVisibility;
+use Carbon\CarbonImmutable;
 
 /**
  * Prepares goals for visitors. Censored goals never send their words to the
@@ -12,7 +13,7 @@ use App\Enums\GoalVisibility;
 class GoalCensor
 {
     /**
-     * @param  array{visibility: GoalVisibility, title: string, why?: string, milestones?: list<array{title: string, done: bool}>}  $goal
+     * @param  array{visibility: GoalVisibility, title: string, why?: string, milestones?: list<array{title: string, done: bool}>, updates?: list<array{date: CarbonImmutable, text: string}>}  $goal
      * @return array<string, mixed>
      */
     public static function apply(array $goal): array
@@ -31,6 +32,7 @@ class GoalCensor
                 fn (array $milestone): array => [...$milestone, 'title' => null],
                 $goal['milestones'] ?? [],
             ),
+            'updates' => [],
         ];
     }
 }
