@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Permission;
 use App\Enums\SystemRole;
 use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
@@ -10,6 +11,7 @@ use Illuminate\Contracts\Session\Session;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -56,6 +58,22 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'password' => 'hashed',
             'blocked_at' => 'datetime',
         ];
+    }
+
+    /**
+     * @return HasMany<Comment, $this>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * Whether the user may write a comment right now.
+     */
+    public function canComment(): bool
+    {
+        return $this->hasVerifiedEmail() && ! $this->isBlocked() && $this->can(Permission::CreateComments->value);
     }
 
     public function isAdmin(): bool

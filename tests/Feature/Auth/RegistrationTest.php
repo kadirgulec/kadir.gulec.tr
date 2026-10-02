@@ -27,3 +27,15 @@ test('new users can register', function () {
     $this->assertAuthenticated();
     expect(auth()->user()->hasRole(SystemRole::Member->value))->toBeTrue();
 });
+
+test('bots that fill the honeypot cannot register', function () {
+    $this->post(route('register.store'), [
+        'name' => 'Bot',
+        'email' => 'bot@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+        'website' => 'http://spam.example',
+    ])->assertSessionHasErrors('website');
+
+    $this->assertGuest();
+});

@@ -35,6 +35,8 @@
         </div>
     </article>
 
+    <livewire:site.comments :post="$postModel" />
+
     {{-- Older / newer --}}
     @if ($older || $newer)
         <nav class="mt-16 grid gap-4 border-t-2 border-dashed border-rule pt-8 sm:grid-cols-2" aria-label="Diğer yazılar">

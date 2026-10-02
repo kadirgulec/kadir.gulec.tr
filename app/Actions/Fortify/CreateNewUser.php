@@ -6,6 +6,8 @@ use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Enums\SystemRole;
 use App\Models\User;
+use App\Rules\Honeypot;
+use App\Rules\Turnstile;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
@@ -23,6 +25,8 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             ...$this->profileRules(),
             'password' => $this->passwordRules(),
+            Honeypot::FIELD => [new Honeypot],
+            'cf-turnstile-response' => [new Turnstile(request()->ip())],
         ])->validate();
 
         $user = User::create([

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Http\Middleware\EnsureAdminAccess;
+use App\Models\Comment;
 use App\Models\Goal;
 use App\Models\Post;
 use App\Models\Project;
@@ -49,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
             'post' => Post::class,
             'watchable' => Watchable::class,
             'goal' => Goal::class,
+            'comment' => Comment::class,
         ]);
     }
 

@@ -129,6 +129,24 @@ new #[Layout('layouts::admin')] class extends Component {
         </div>
     </div>
 
+    <x-admin.card>
+        <x-slot:heading>Son yorumları</x-slot:heading>
+        @php($recentComments = $user->comments()->with('commentable')->latest()->limit(10)->get())
+        @if ($recentComments->isEmpty())
+            <x-admin.text>Yorum yok.</x-admin.text>
+        @else
+            <ul class="divide-y divide-zinc-100 text-sm dark:divide-zinc-800">
+                @foreach ($recentComments as $comment)
+                    <li class="py-2" wire:key="user-comment-{{ $comment->id }}">
+                        <span class="font-mono text-xs text-zinc-500">{{ $comment->created_at?->format('d.m.Y') }}</span>
+                        @unless ($comment->isApproved()) <x-admin.badge color="yellow">bekliyor</x-admin.badge> @endunless
+                        <p class="text-zinc-700 dark:text-zinc-300">{{ \Illuminate\Support\Str::limit($comment->body, 200) }}</p>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
+    </x-admin.card>
+
     <x-admin.modal name="delete-user" :heading="$user->name.' silinsin mi?'" description="Bu işlem geri alınamaz.">
         <x-slot:footer>
             <x-admin.modal.close><x-admin.button variant="ghost">Vazgeç</x-admin.button></x-admin.modal.close>

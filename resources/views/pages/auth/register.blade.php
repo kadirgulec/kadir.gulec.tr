@@ -7,6 +7,10 @@
         <x-site.form.input name="password" label="Şifre" type="password" required autocomplete="new-password" viewable />
         <x-site.form.input name="password_confirmation" label="Şifre tekrar" type="password" required autocomplete="new-password" viewable />
 
+        <x-site.form.bot-check />
+
+        <p class="text-xs text-ink-faint">Kayıt olarak <a href="{{ route('privacy') }}" class="underline decoration-dotted underline-offset-4 hover:text-ink">gizlilik notunu</a> okuduğunu kabul edersin.</p>
+
         <x-site.form.button type="submit" class="w-full" data-test="register-user-button">Kayıt ol</x-site.form.button>
     </form>
 

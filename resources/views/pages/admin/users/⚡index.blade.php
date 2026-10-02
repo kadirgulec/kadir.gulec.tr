@@ -54,6 +54,7 @@ new #[Layout('layouts::admin'), Title('Kullanıcılar')] class extends Component
 
         return User::query()
             ->with('roles')
+            ->withCount('comments')
             ->when($this->search !== '', function ($query): void {
                 $query->where(fn ($query) => $query
                     ->where('name', 'like', '%'.$this->search.'%')
@@ -97,6 +98,7 @@ new #[Layout('layouts::admin'), Title('Kullanıcılar')] class extends Component
                 <x-admin.table.column sortable :sorted="$sortBy === 'name'" :direction="$sortDirection" wire:click="sort('name')">Kullanıcı</x-admin.table.column>
                 <x-admin.table.column>Roller</x-admin.table.column>
                 <x-admin.table.column>Durum</x-admin.table.column>
+                <x-admin.table.column>Yorum</x-admin.table.column>
                 <x-admin.table.column sortable :sorted="$sortBy === 'created_at'" :direction="$sortDirection" wire:click="sort('created_at')">Kayıt</x-admin.table.column>
             </x-admin.table.columns>
             <x-admin.table.rows>
@@ -125,6 +127,7 @@ new #[Layout('layouts::admin'), Title('Kullanıcılar')] class extends Component
                                 @endunless
                             </div>
                         </x-admin.table.cell>
+                        <x-admin.table.cell class="font-mono">{{ $user->comments_count }}</x-admin.table.cell>
                         <x-admin.table.cell class="font-mono text-xs">{{ $user->created_at?->format('d.m.Y') }}</x-admin.table.cell>
                     </x-admin.table.row>
                 @endforeach

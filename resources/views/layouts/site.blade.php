@@ -80,7 +80,9 @@
                         <footer class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-dashed border-rule py-5 font-mono text-xs text-ink-faint">
                             <p>© {{ now()->year }} Kadir Gülec · bu defter elle tutuluyor</p>
 
-                            <div class="flex gap-4">
+                            <div class="flex flex-wrap gap-4">
+                                <a href="{{ route('privacy') }}" class="underline decoration-dotted underline-offset-4 hover:text-ink">gizlilik</a>
+                                <a href="{{ route('imprint') }}" class="underline decoration-dotted underline-offset-4 hover:text-ink">künye</a>
                                 @auth
                                     <a href="{{ route('profile.edit') }}" class="underline decoration-dotted underline-offset-4 hover:text-ink">hesabım</a>
                                 @else

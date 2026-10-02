@@ -50,6 +50,7 @@ class PostsController extends Controller
 
         return view('site.posts.show', [
             'post' => $this->posts->toArray($post),
+            'postModel' => $post,
             'newer' => $newer,
             'older' => $older,
             'related' => $this->posts->related($post),

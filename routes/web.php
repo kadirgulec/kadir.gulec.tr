@@ -24,6 +24,8 @@ Route::get('hedefler/{slug}', [GoalsController::class, 'show'])->name('goals.sho
 Route::get('projeler', [ProjectsController::class, 'index'])->name('projects.index');
 Route::get('projeler/{slug}', [ProjectsController::class, 'show'])->name('projects.show');
 Route::get('hakkimda', AboutController::class)->name('about');
+Route::view('gizlilik', 'site.legal.privacy')->name('privacy');
+Route::view('kunye', 'site.legal.imprint')->name('imprint');
 
 if (! app()->isProduction()) {
     Route::view('stil', 'site.styleguide', ['section' => Section::Home])->name('styleguide');
@@ -57,6 +59,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::livewire('projeler/yeni', 'pages::admin.projects.edit')->name('projects.create');
         Route::livewire('projeler/{project}', 'pages::admin.projects.edit')->name('projects.edit');
     });
+
+    Route::livewire('yorumlar', 'pages::admin.comments.index')->middleware('can:'.Permission::ModerateComments->value)->name('comments.index');
 
     Route::middleware('can:'.Permission::ManageUsers->value)->group(function () {
         Route::livewire('kullanicilar', 'pages::admin.users.index')->name('users.index');
