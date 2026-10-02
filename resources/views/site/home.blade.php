@@ -50,9 +50,9 @@
 
                     <div class="flex min-w-0 flex-col">
                         <h3 class="font-display text-xl leading-tight font-semibold text-balance">
-                            <a href="{{ route('watched.index') }}" class="hover:text-section-ink">{{ $lastWatched['title'] }}</a>
+                            <a href="{{ $lastWatched['url'] }}" class="hover:text-section-ink">{{ $lastWatched['title'] }}</a>
                         </h3>
-                        <p class="mt-1 font-mono text-xs text-ink-faint">{{ $lastWatched['year'] }} · {{ $lastWatched['director'] }}</p>
+                        <p class="mt-1 font-mono text-xs text-ink-faint">{{ $lastWatched['year'] }} · {{ $lastWatched['creator'] }}</p>
                         <p class="mt-2 font-hand text-xl text-ink-soft">{{ \App\Support\TurkishDate::onDayMonth($lastWatched['watchedAt']) }} izledim</p>
 
                         <div class="mt-3 flex items-center gap-2">
@@ -63,7 +63,7 @@
                         </div>
 
                         @if ($lastWatched['hasReview'])
-                            <a href="{{ route('watched.index') }}" class="mt-auto pt-3 text-sm font-semibold text-section-ink underline decoration-section decoration-2 underline-offset-4">
+                            <a href="{{ $lastWatched['url'] }}" class="mt-auto pt-3 text-sm font-semibold text-section-ink underline decoration-section decoration-2 underline-offset-4">
                                 yorumumu oku →
                             </a>
                         @endif
@@ -115,11 +115,11 @@
                 <ul class="flex flex-col gap-5">
                     @foreach ($currentlyWatching as $series)
                         <li class="flex items-center gap-4">
-                            <x-site.poster :title="$series['title']" :colors="$series['posterColors']" :framed="false" class="w-12" />
+                            <x-site.poster :title="$series['title']" :image-url="$series['posterUrl']" :colors="$series['posterColors']" :framed="false" class="w-12" />
 
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-baseline justify-between gap-3">
-                                    <a href="{{ route('watched.index') }}" class="truncate font-display text-lg font-semibold hover:text-section-ink">{{ $series['title'] }}</a>
+                                    <a href="{{ $series['url'] }}" class="truncate font-display text-lg font-semibold hover:text-section-ink">{{ $series['title'] }}</a>
                                     <span class="shrink-0 font-mono text-xs text-ink-soft">S{{ $series['season'] }} · B{{ $series['episode'] }}</span>
                                 </div>
                                 <x-site.pencil-progress

@@ -5,7 +5,7 @@ use App\Enums\Section;
 it('renders each section page in its own section color', function (Section $section, string $path) {
     $response = $this->get($path);
 
-    $response->assertSee('<body data-section="'.$section->value.'"', false);
+    expect($response->getContent())->toMatch('/<body\s+data-section="'.$section->value.'"/');
 })->with([
     'home' => [Section::Home, '/'],
     'posts' => [Section::Posts, '/yazilar'],

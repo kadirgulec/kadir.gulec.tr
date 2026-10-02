@@ -115,5 +115,26 @@ function initDrawings() {
     drawings.forEach((drawing) => observer.observe(drawing));
 }
 
+/**
+ * Spoilers stay under the marker until the reader asks for them.
+ */
+function initSpoilers() {
+    document.querySelectorAll('[data-spoiler]').forEach((spoiler) => {
+        const text = spoiler.querySelector('.spoiler-text');
+        const toggle = spoiler.querySelector('[data-spoiler-toggle]');
+
+        text?.setAttribute('aria-hidden', 'true');
+
+        toggle?.addEventListener('click', () => {
+            spoiler.classList.add('is-revealed');
+            text?.removeAttribute('aria-hidden');
+            text?.setAttribute('tabindex', '-1');
+            text?.focus({ preventScroll: true });
+            toggle.remove();
+        });
+    });
+}
+
 initLamps();
 initDrawings();
+initSpoilers();

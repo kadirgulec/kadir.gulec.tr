@@ -340,3 +340,60 @@ html.theme-switching .vt-page {
 html.lamp-off::view-transition-old(root) {
     z-index: 2;
 }
+
+/*
+ * Per-film accent: --film-accent is the color picked from the poster. Relative
+ * color syntax keeps the hue but forces a lightness that stays readable on paper.
+ * Browsers without support keep the section's own color.
+ */
+@utility film-accent {
+    --color-section: oklch(from var(--film-accent) 0.68 clamp(0.07, c, 0.15) h);
+    --color-section-ink: oklch(from var(--film-accent) 0.45 clamp(0.07, c, 0.15) h);
+
+    &:where(.dark *) {
+        --color-section: oklch(from var(--film-accent) 0.74 clamp(0.07, c, 0.15) h);
+        --color-section-ink: oklch(from var(--film-accent) 0.82 clamp(0.06, c, 0.14) h);
+    }
+}
+
+/*
+ * Lined notebook paper; the text sits on the lines. Applied per paragraph so that
+ * blocks in between (spoilers, post-its) cannot push the lines out of step.
+ */
+@utility ruled {
+    --line: 2rem;
+    line-height: var(--line) !important;
+    background-image: linear-gradient(
+        to bottom,
+        transparent calc(var(--line) - 1px),
+        color-mix(in oklab, var(--color-section) 30%, transparent) calc(var(--line) - 1px)
+    );
+    background-size: 100% var(--line);
+    background-position: 0 -0.3rem;
+}
+
+/* Thick marker over text (spoilers now, censored goals later). Dark mode: correction tape. */
+@utility redact {
+    color: transparent;
+    background-image: linear-gradient(
+        100deg,
+        transparent 0.3%,
+        var(--color-ink) 1%,
+        color-mix(in oklab, var(--color-ink) 92%, transparent) 50%,
+        var(--color-ink) 98.8%,
+        transparent 99.6%
+    );
+    border-radius: 0.3em 0.15em 0.35em 0.2em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    padding-inline: 0.1em;
+    user-select: none;
+}
+
+:where(html.js) [data-spoiler]:not(.is-revealed) .spoiler-text {
+    @apply redact;
+}
+
+[data-spoiler] .spoiler-text {
+    transition: color 300ms ease-out;
+}

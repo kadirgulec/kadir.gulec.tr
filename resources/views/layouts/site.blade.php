@@ -1,6 +1,7 @@
 @props([
     'section',
     'title' => null,
+    'accent' => null,
 ])
 
 <!DOCTYPE html>
@@ -29,7 +30,11 @@
 
         @vite(['resources/css/site.css', 'resources/js/site.js'])
     </head>
-    <body data-section="{{ $section->value }}" class="min-h-dvh pb-24 antialiased lg:pb-0">
+    <body
+        data-section="{{ $section->value }}"
+        @if ($accent) style="--film-accent: {{ $accent }}" @endif
+        @class(['min-h-dvh pb-24 antialiased lg:pb-0', 'film-accent' => $accent])
+    >
         {{-- Shared SVG filter that gives stamps their uneven, hand-pressed ink. --}}
         <svg class="absolute size-0" aria-hidden="true" focusable="false">
             <filter id="ink-rough">
