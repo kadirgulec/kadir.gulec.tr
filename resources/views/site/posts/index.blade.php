@@ -70,6 +70,10 @@
     <section class="mt-16" aria-labelledby="fihrist">
         <h2 id="fihrist" class="font-display text-2xl font-semibold">{{ $activeTag ? 'Sonuçlar' : 'Fihrist' }}</h2>
 
+        @if (! $postsByYear && ! $featured)
+            <p class="mt-6 font-hand text-2xl text-section-ink">Defterin bu sayfası henüz boş, ilk yazı yolda.</p>
+        @endif
+
         @foreach ($postsByYear as $year => $posts)
             <div class="mt-8">
                 <p class="font-mono text-sm font-semibold text-section-ink">{{ $year }}</p>

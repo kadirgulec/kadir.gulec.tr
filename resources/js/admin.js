@@ -147,6 +147,23 @@ document.addEventListener('alpine:init', () => {
             area.dispatchEvent(new Event('input', { bubbles: true }));
             area.focus();
         },
+        insert(text) {
+            const area = this.textarea();
+            const start = area.selectionStart;
+            const lead = start > 0 && area.value[start - 1] !== '\n' ? '\n\n' : '';
+            const placeholder = 'açıklama yaz';
+
+            area.setRangeText(`${lead}${text}\n`, start, area.selectionEnd, 'end');
+            const at = area.value.indexOf(placeholder, start);
+
+            if (at !== -1) {
+                area.selectionStart = at;
+                area.selectionEnd = at + placeholder.length;
+            }
+
+            area.dispatchEvent(new Event('input', { bubbles: true }));
+            area.focus();
+        },
         sidenote() {
             const area = this.textarea();
             const numbers = [...area.value.matchAll(/\[\^(\d+)\]/g)].map((match) => Number(match[1]));

@@ -33,6 +33,13 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::livewire('/', 'pages::admin.dashboard')->name('dashboard');
     Route::post('onizleme', MarkdownPreviewController::class)->name('markdown.preview');
 
+    Route::middleware('can:'.Permission::ManagePosts->value)->group(function () {
+        Route::livewire('yazilar', 'pages::admin.posts.index')->name('posts.index');
+        Route::livewire('yazilar/yeni', 'pages::admin.posts.edit')->name('posts.create');
+        Route::livewire('yazilar/etiketler', 'pages::admin.tags.index')->name('tags.index');
+        Route::livewire('yazilar/{post}', 'pages::admin.posts.edit')->name('posts.edit');
+    });
+
     Route::middleware('can:'.Permission::ManageProjects->value)->group(function () {
         Route::livewire('projeler', 'pages::admin.projects.index')->name('projects.index');
         Route::livewire('projeler/yeni', 'pages::admin.projects.edit')->name('projects.create');

@@ -704,3 +704,115 @@ html.lamp-off::view-transition-old(root) {
     }
 }
 
+/*
+ * Code card: a dark card taped onto the page (Markdown code blocks and
+ * x-site.code-block). Syntax colors come from tempest/highlight's hl-* classes;
+ * every color passes WCAG AA (4.5:1) on both card backgrounds.
+ */
+@layer components {
+    .code-card {
+        position: relative;
+        border-radius: 0.375rem;
+        background-color: #24211d;
+        color: #efe8da;
+        box-shadow: 0 12px 24px -14px rgb(0 0 0 / 0.7);
+        outline: 1px solid rgb(0 0 0 / 0.05);
+    }
+
+    .dark .code-card {
+        background-color: #0f0e0c;
+        outline-color: rgb(255 255 255 / 0.1);
+    }
+
+    .prose-notebook .code-card {
+        margin-block: 2.5rem;
+    }
+
+    .code-card-caption {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        border-bottom: 1px solid rgb(255 255 255 / 0.1);
+        padding: 0.75rem 1rem 0.5rem;
+    }
+
+    .code-card-lang {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #b8ad9b;
+    }
+
+    .code-card-copy {
+        cursor: pointer;
+        border-radius: 0.25rem;
+        padding: 0.125rem 0.5rem;
+        font-family: var(--font-hand);
+        font-size: 1.125rem;
+        line-height: 1;
+        color: #e8dcc4;
+    }
+
+    .code-card-copy:hover {
+        background-color: rgb(255 255 255 / 0.1);
+    }
+
+    .code-card-pre {
+        overflow-x: auto;
+        padding: 1rem;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        line-height: 1.625;
+        font-variant-ligatures: none;
+    }
+
+    .code-card .hl-keyword { color: #f4a582; }
+    .code-card .hl-type { color: #e9c46a; }
+    .code-card .hl-property { color: #a8d5a2; }
+    .code-card .hl-attribute { color: #a8d5a2; font-style: italic; }
+    .code-card .hl-variable { color: #9ec5ff; }
+    .code-card .hl-value { color: #f5b8c8; }
+    .code-card .hl-number,
+    .code-card .hl-literal { color: #d4b8ff; }
+    .code-card .hl-generic { color: #d4b8ff; }
+    .code-card .hl-comment { color: #a89f92; font-style: italic; }
+    .code-card .hl-strong { font-weight: 700; }
+    .code-card .hl-em { font-style: italic; }
+    .code-card .hl-blur { filter: blur(2px); }
+    .code-card .hl-addition { display: inline-block; min-width: 100%; background-color: rgb(120 200 120 / 0.15); }
+    .code-card .hl-deletion { display: inline-block; min-width: 100%; background-color: rgb(240 100 100 / 0.15); }
+
+    /* Images in Markdown: taped polaroids */
+    .prose-notebook .polaroid {
+        margin-block: 2.5rem;
+        width: fit-content;
+        max-width: 100%;
+        rotate: -1deg;
+        background-color: #fffdf7;
+        padding: 0.625rem 0.625rem 0.75rem;
+        box-shadow: 0 8px 18px -8px rgb(60 40 20 / 0.5);
+    }
+
+    .dark .prose-notebook .polaroid {
+        background-color: #2e2a25;
+    }
+
+    .prose-notebook .polaroid img {
+        display: block;
+        max-height: 32rem;
+        width: auto;
+        max-width: 100%;
+    }
+
+    .prose-notebook .polaroid figcaption {
+        margin-top: 0.5rem;
+        text-align: center;
+        font-family: var(--font-hand);
+        font-size: 1.25rem;
+        line-height: 1.3;
+        color: var(--color-ink-soft);
+    }
+}
+

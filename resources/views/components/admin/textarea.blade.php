@@ -27,6 +27,6 @@
         @if ($name) name="{{ $name }}" @endif
         @if ($error) aria-invalid="true" @endif
         @if ($describedBy) aria-describedby="{{ $describedBy }}" @endif
-        {{ $attributes->except(['class', 'id'])->class(['control resize-y leading-relaxed', 'font-mono text-[13px]' => $mono, $controlClass]) }}
+        {{ $attributes->except(['class', 'id'])->class(['control resize-y leading-relaxed', 'font-mono text-[13px] [font-variant-ligatures:none]' => $mono, $controlClass]) }}
     >{{ $slot }}</textarea>
 </x-admin.field>

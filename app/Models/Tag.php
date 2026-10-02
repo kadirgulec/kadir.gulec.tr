@@ -1,0 +1,82 @@
+<?php
+
+namespace App\Models;
+
+use Carbon\CarbonImmutable;
+use Database\Factories\TagFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+/**
+ * A post tag, shown as washi tape. Its color comes from the slug.
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $slug
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ */
+#[Fillable(['name'])]
+class Tag extends Model
+{
+    /** @use HasFactory<TagFactory> */
+    use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::saving(function (Tag $tag): void {
+            $tag->slug = Str::slug($tag->name) ?: Str::lower((string) Str::ulid());
+        });
+    }
+
+    /**
+     * The tags with these names, created when missing (in this order).
+     *
+     * @param  list<string>  $names
+     * @return list<int>
+     */
+    public static function idsForNames(array $names): array
+    {
+        $ids = [];
+
+        foreach (array_values(array_unique(array_filter(array_map('trim', $names)))) as $name) {
+            $ids[] = (int) static::query()->firstOrCreate(['name' => $name])->getKey();
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Moves every post of this tag to another tag and deletes this one.
+     */
+    public function mergeInto(Tag $target): void
+    {
+        if ($target->is($this)) {
+            return;
+        }
+
+        DB::transaction(function () use ($target): void {
+            $rows = DB::table('post_tag')->where('tag_id', $this->id)->get(['post_id', 'position']);
+
+            DB::table('post_tag')->insertOrIgnore($rows->map(fn (object $row): array => [
+                'post_id' => $row->post_id,
+                'tag_id' => $target->id,
+                'position' => $row->position,
+            ])->all());
+
+            $this->delete();
+        });
+    }
+
+    /**
+     * @return BelongsToMany<Post, $this>
+     */
+    public function posts(): BelongsToMany
+    {
+        return $this->belongsToMany(Post::class)->withPivot('position');
+    }
+}

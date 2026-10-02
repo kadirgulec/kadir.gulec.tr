@@ -2,7 +2,9 @@
     Markdown editor: monospace textarea, toolbar, preview tab (rendered with
     the site's own CSS in an iframe) and the ⓘ syntax guide next to the label.
     <x-admin.markdown wire:model="body" label="Vaka çalışması" section="projects" />
-    "reviews" adds the spoiler and quote buttons of film reviews.
+    "reviews" adds the spoiler and quote buttons of film reviews. "upload" names a
+    Livewire property for in-text images: the page stores the upload and
+    dispatches 'markdown-insert' with the Markdown to put at the cursor.
 --}}
 @props([
     'label' => null,
@@ -10,10 +12,12 @@
     'section' => 'home',
     'rows' => 16,
     'reviews' => false,
+    'upload' => null,
 ])
 
 <div
     x-data="markdownEditor({ previewUrl: @js(route('admin.markdown.preview')), section: @js($section) })"
+    x-on:markdown-insert.window="insert($event.detail.text)"
     {{ $attributes->only('class')->class('space-y-1.5') }}
 >
     <x-admin.textarea mono :rows="$rows" :label="$label" :description="$description" {{ $attributes->except('class') }} x-ref="editorArea" x-show="tab === 'write'" control-class="rounded-t-none">
@@ -25,6 +29,7 @@
                 <p><code>metin[^1]</code> + en alta <code>[^1]: not</code> → kenar notu</p>
                 <p><code>[link](https://…)</code> · <code>- madde</code> · <code>1. madde</code></p>
                 <p><code>`kod`</code> · <code>```php</code> … <code>```</code> kod bloğu</p>
+                <p><code>![ne görünüyor](adres "altyazı")</code> tek satırda: polaroid görsel</p>
                 @if ($reviews)
                     <p><code>:::spoiler</code> … <code>:::</code> spoiler (markörle kapalı)</p>
                     <p><code>:::replik Kişi</code> … <code>:::</code> replik post-it'i</p>
@@ -47,6 +52,10 @@
                     @if ($reviews)
                         <x-admin.button size="sm" variant="ghost" square icon="eye-off" x-on:click="block(':::spoiler', ':::', 'spoiler metni')" aria-label="Spoiler" title="Spoiler" />
                         <x-admin.button size="sm" variant="ghost" square icon="quote" x-on:click="block(':::replik Kişi', ':::', 'replik')" aria-label="Replik" title="Replik" />
+                    @endif
+                    @if ($upload)
+                        <x-admin.button size="sm" variant="ghost" square icon="image" x-on:click="$wire.$upload('{{ $upload }}', { accept: 'image/jpeg,image/png,image/webp,image/avif,image/gif' })" aria-label="Görsel ekle" title="Görsel ekle" />
+                        <span wire:loading wire:target="{{ $upload }}" class="px-1 text-xs font-semibold text-accent">yükleniyor…</span>
                     @endif
                     {{ $toolbar ?? '' }}
                 </div>

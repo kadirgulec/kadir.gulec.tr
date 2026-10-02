@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\GoalVisibility;
 use App\Enums\ToolboxGroup;
 use App\Models\Technology;
+use App\Support\Content\PostContent;
 use App\Support\Content\ProjectContent;
 use App\Support\PrototypeContent;
 use Illuminate\View\View;
@@ -14,7 +15,7 @@ class AboutController extends Controller
     /**
      * The story, a "now" list fed by the other sections, the toolbox and contact details.
      */
-    public function __invoke(ProjectContent $projects): View
+    public function __invoke(ProjectContent $projects, PostContent $posts): View
     {
         $publicChains = array_values(array_filter(
             PrototypeContent::chains(),
@@ -30,7 +31,7 @@ class AboutController extends Controller
                 'project' => $projects->featured(),
                 'series' => PrototypeContent::currentlyWatching()[0] ?? null,
                 'chain' => $publicChains[0] ?? null,
-                'post' => PrototypeContent::latestPost(),
+                'post' => $posts->latest(),
                 'books' => $books,
             ],
         ]);

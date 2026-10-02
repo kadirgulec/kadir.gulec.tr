@@ -18,7 +18,8 @@
         "league/commonmark": "^2.10",
         "livewire/blaze": "^1.0",
         "livewire/livewire": "^4.1",
-        "spatie/laravel-permission": "^8.3"
+        "spatie/laravel-permission": "^8.3",
+        "tempest/highlight": "^2.28"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",

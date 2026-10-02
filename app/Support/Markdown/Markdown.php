@@ -6,6 +6,8 @@ use Illuminate\Support\Str;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\Autolink\AutolinkExtension;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+use League\CommonMark\Extension\CommonMark\Node\Block\FencedCode;
+use League\CommonMark\Extension\CommonMark\Node\Block\IndentedCode;
 use League\CommonMark\Extension\CommonMark\Node\Inline\Code;
 use League\CommonMark\Extension\DefaultAttributes\DefaultAttributesExtension;
 use League\CommonMark\Extension\ExternalLink\ExternalLinkExtension;
@@ -16,6 +18,7 @@ use League\CommonMark\Extension\Highlight\HighlightExtension;
 use League\CommonMark\Extension\Highlight\Mark;
 use League\CommonMark\Extension\Strikethrough\StrikethroughExtension;
 use League\CommonMark\MarkdownConverter;
+use League\CommonMark\Node\Block\Paragraph;
 
 /**
  * The Markdown dialect of the notebook. Standard Markdown plus:
@@ -23,6 +26,8 @@ use League\CommonMark\MarkdownConverter;
  *   [^1]       sidenote (the footnote text appears in the margin)
  *   ==text==   highlighter pen
  *   ~~text~~   strikethrough
+ *   ```php     code card with syntax colors (tempest/highlight)
+ *   ![alt](src "caption")  on its own line: a taped polaroid
  *
  * Raw HTML is escaped and unsafe links are dropped, so nothing typed into a
  * text field can inject markup. HTML is produced once when a model is saved
@@ -103,6 +108,9 @@ class Markdown
         $environment->addExtension(new FootnoteExtension);
 
         $environment->addRenderer(FootnoteRef::class, new SidenoteRenderer($idPrefix), 10);
+        $environment->addRenderer(FencedCode::class, new CodeBlockRenderer, 10);
+        $environment->addRenderer(IndentedCode::class, new CodeBlockRenderer, 10);
+        $environment->addRenderer(Paragraph::class, new PolaroidRenderer, 10);
         $environment->addRenderer(FootnoteContainer::class, new EmptyRenderer, 10);
 
         return new MarkdownConverter($environment);

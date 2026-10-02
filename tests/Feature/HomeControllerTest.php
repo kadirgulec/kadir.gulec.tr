@@ -1,9 +1,11 @@
 <?php
 
+use App\Models\Post;
 use App\Models\Project;
 
 beforeEach(function () {
     Project::factory()->featured()->create(['name' => 'CoMon']);
+    Post::factory()->create(['title' => 'Yapay zekâyla kod yazarken kendime koyduğum beş kural']);
 });
 
 it('shows one snippet from every section on the lately board', function () {

@@ -32,7 +32,7 @@
             @if ($name) name="{{ $name }}" @endif
             @if ($error) aria-invalid="true" @endif
             @if ($describedBy) aria-describedby="{{ $describedBy }}" @endif
-            {{ $attributes->except(['class', 'id'])->class(['control', 'pl-9' => $icon, 'font-mono' => $mono]) }}
+            {{ $attributes->except(['class', 'id'])->class(['control', 'pl-9' => $icon, 'font-mono [font-variant-ligatures:none]' => $mono]) }}
         />
     </div>
 </x-admin.field>

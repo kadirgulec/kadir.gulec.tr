@@ -106,10 +106,12 @@
                 </li>
             @endif
 
-            <li class="flex gap-3">
-                <span aria-hidden="true">✍️</span>
-                <span>Son yazım: <a href="{{ $now['post']['url'] }}" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">{{ $now['post']['title'] }}</a></span>
-            </li>
+            @if ($now['post'])
+                <li class="flex gap-3">
+                    <span aria-hidden="true">✍️</span>
+                    <span>Son yazım: <a href="{{ $now['post']['url'] }}" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">{{ $now['post']['title'] }}</a></span>
+                </li>
+            @endif
         </ul>
     </section>
 

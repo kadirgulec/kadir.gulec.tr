@@ -72,6 +72,7 @@
             </x-site.note>
 
             {{-- Latest post --}}
+            @if ($latestPost)
             <x-site.note :section="Section::Posts" tilt="0.8" label="son yazdığım" :more-href="route('posts.index')" more-label="tümü →" class="md:mt-6">
                 <p class="font-mono text-xs text-ink-faint">
                     {{ $latestPost['publishedAt']->locale('tr')->translatedFormat('j F Y') }} · {{ $latestPost['readingMinutes'] }} dk okuma
@@ -89,6 +90,7 @@
                     @endforeach
                 </div>
             </x-site.note>
+            @endif
 
             {{-- Chains --}}
             <x-site.note :section="Section::Goals" tilt="1" tape="right" label="zincirler" :more-href="route('goals.index')" more-label="tüm hedefler →">

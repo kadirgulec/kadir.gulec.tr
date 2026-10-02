@@ -1,7 +1,6 @@
 @use('App\Enums\Section')
-@use('App\Support\InlineMarkup')
 
-<x-layouts::site :section="Section::Posts" :title="$post['title']">
+<x-layouts::site :section="Section::Posts" :title="$post['title']" :draft="$post['isDraft']">
     <article>
         <a href="{{ route('posts.index') }}" class="font-hand text-xl text-ink-soft hover:text-section-ink">← Yazılar</a>
 
@@ -23,28 +22,7 @@
 
         {{-- Body: a readable column; on wide screens sidenotes sit in the free margin to the right --}}
         <div class="mt-12 max-w-2xl text-lg leading-8 xl:max-w-[34rem]">
-            @foreach ($post['body'] as $block)
-                @switch($block['type'])
-                    @case('heading')
-                        <h2 class="mt-12 mb-4 font-display text-2xl leading-tight font-semibold">{{ InlineMarkup::render($block['text']) }}</h2>
-                        @break
-                    @case('code')
-                        <x-site.code-block :lang="$block['lang']" :code="$block['code']" class="my-10" />
-                        @break
-                    @case('list')
-                        <ul class="mt-6 flex flex-col gap-2">
-                            @foreach ($block['items'] as $item)
-                                <li class="flex gap-3">
-                                    <span class="font-hand text-xl leading-8 font-bold text-section-ink" aria-hidden="true">→</span>
-                                    <span>{{ InlineMarkup::render($item) }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
-                        @break
-                    @default
-                        <p class="mt-6 first:mt-0">{{ InlineMarkup::render($block['text'], $block['notes'] ?? [], 'not-'.$loop->index) }}</p>
-                @endswitch
-            @endforeach
+            <div class="prose-notebook">{{ $post['bodyHtml'] }}</div>
 
             {{-- Signed off with the stamp --}}
             <div class="mt-16 flex items-center gap-4">
