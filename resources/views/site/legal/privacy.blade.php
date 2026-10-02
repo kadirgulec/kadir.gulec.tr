@@ -28,7 +28,7 @@
             </ul>
 
             <h2>İletişim formunu kullandığında</h2>
-            <p>Yazdığın ad, e-posta adresi ve mesaj bana e-posta olarak gönderilir; sitede saklanmaz. E-postayı cevaplayabilmek ve konuşmamızın kaydı için e-posta kutumda tutarım, konu bitince silerim. Kötüye kullanımı önlemek için IP adresinden üretilen geri çevrilemez bir özetle en fazla bir gün süren bir sayaç tutulur. Hukuki dayanak: GVO md. 6/1 (f), mesajına cevap verebilmem.</p>
+            <p>Yazdığın ad, e-posta adresi ve mesaj bu sitenin veritabanına kaydedilir ve bana e-posta olarak da gönderilir. Mesajı sadece ben okurum; cevap verebilmek ve konuşmamızın kaydı için tutarım. Sitedeki kayıt en geç 12 ay sonra kendiliğinden silinir, istersen daha önce de silerim. Mesajla birlikte IP adresin ya da hesabın saklanmaz; kötüye kullanımı önlemek için IP adresinden üretilen geri çevrilemez bir özetle en fazla bir gün süren bir sayaç tutulur. Hukuki dayanak: GVO md. 6/1 (f), mesajına cevap verebilmem.</p>
 
             <h2>Üye olduğunda</h2>
             <ul>
@@ -46,7 +46,7 @@
             </ul>
 
             <h2>Ne kadar saklıyorum?</h2>
-            <p>Hesabın, sen silene kadar. Hesabını silince ad, e-posta, takiplerin ve tercihlerin silinir; yorumların konuşmalar bozulmasın diye "silinmiş üye" adıyla, sana bağlanamayacak şekilde kalır. Teknik kayıtlar en fazla 14 gün tutulur.</p>
+            <p>Hesabın, sen silene kadar. İletişim formu mesajların en fazla 12 ay. Hesabını silince ad, e-posta, takiplerin ve tercihlerin silinir; yorumların konuşmalar bozulmasın diye "silinmiş üye" adıyla, sana bağlanamayacak şekilde kalır. Teknik kayıtlar en fazla 14 gün tutulur.</p>
 
             <h2>Hakların</h2>
             <p>Verilerine erişme, düzeltme, silme, işlenmesini kısıtlama ve itiraz etme hakkın var. Çoğunu kendin yapabilirsin: <a href="{{ route('profile.edit') }}">hesabım</a> sayfasından adını ve e-postanı değiştirir, verilerini JSON olarak indirir ya da hesabını silebilirsin. Geri kalanı için bana yaz. Ayrıca bir veri koruma denetim makamına şikâyet edebilirsin (Kuzey Ren-Vestfalya için: Landesbeauftragte für Datenschutz und Informationsfreiheit NRW).</p>

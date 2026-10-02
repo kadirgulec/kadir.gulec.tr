@@ -1,11 +1,13 @@
 <?php
 
 use App\Actions\Contact\SendContactMessage;
-use App\Mail\ContactMessage;
+use App\Mail\ContactMessageReceived;
+use App\Models\ContactMessage;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
+use Symfony\Component\Mailer\Exception\TransportException;
 
 beforeEach(function () {
     Mail::fake();
@@ -33,9 +35,38 @@ it('mails the message to the address from the env with the sender as reply-to', 
         ->assertSet('message', '')
         ->assertSee('Mesajın ulaştı');
 
-    Mail::assertSent(ContactMessage::class, fn (ContactMessage $mail): bool => $mail->hasTo('gelen@example.com')
+    Mail::assertSent(ContactMessageReceived::class, fn (ContactMessageReceived $mail): bool => $mail->hasTo('gelen@example.com')
         && $mail->hasReplyTo('ayse@example.com', 'Ayşe Yılmaz')
-        && $mail->body === "Merhaba Kadir,\nfilm önerin var mı?");
+        && $mail->contactMessage->is(ContactMessage::sole()));
+});
+
+it('saves the message for the admin inbox, without IP or account', function () {
+    $this->actingAs(User::factory()->member()->create());
+
+    contactForm()->call('send');
+
+    $message = ContactMessage::sole();
+    expect($message->only(['name', 'email', 'body']))->toBe(['name' => 'Ayşe Yılmaz', 'email' => 'ayse@example.com', 'body' => "Merhaba Kadir,\nfilm önerin var mı?"])
+        ->and($message->isRead())->toBeFalse()
+        ->and(array_keys($message->getAttributes()))->toEqualCanonicalizing(['id', 'name', 'email', 'body', 'read_at', 'created_at', 'updated_at']);
+});
+
+it('keeps the message when the mail server fails', function () {
+    Mail::shouldReceive('to->send')->andThrow(new TransportException('bağlantı yok'));
+
+    contactForm()->call('send')->assertHasNoErrors()->assertSee('Mesajın ulaştı');
+
+    expect(ContactMessage::query()->count())->toBe(1);
+});
+
+it('prunes messages older than a year', function () {
+    $old = ContactMessage::factory()->create(['created_at' => now()->subMonths(ContactMessage::KEEP_MONTHS)->subDay()]);
+    $recent = ContactMessage::factory()->create(['created_at' => now()->subMonths(ContactMessage::KEEP_MONTHS)->addDay()]);
+
+    $this->artisan('model:prune', ['--model' => [ContactMessage::class]])->assertSuccessful();
+
+    expect(ContactMessage::query()->pluck('id')->all())->toBe([$recent->id])
+        ->and($old->fresh())->toBeNull();
 });
 
 it('falls back to the imprint address without a contact address', function () {
@@ -43,7 +74,7 @@ it('falls back to the imprint address without a contact address', function () {
 
     contactForm()->call('send');
 
-    Mail::assertSent(ContactMessage::class, fn (ContactMessage $mail): bool => $mail->hasTo('kunye@example.com'));
+    Mail::assertSent(ContactMessageReceived::class, fn (ContactMessageReceived $mail): bool => $mail->hasTo('kunye@example.com'));
 });
 
 it('fills in the name and e-mail of a signed-in member', function () {
@@ -62,6 +93,7 @@ it('validates the fields', function () {
         ->assertHasErrors(['name' => 'required', 'email' => 'email', 'message' => 'min']);
 
     Mail::assertNothingSent();
+    expect(ContactMessage::query()->count())->toBe(0);
 });
 
 it('rejects bots that fill in the honeypot', function () {
@@ -89,9 +121,10 @@ it('limits how many messages one sender can send', function () {
 });
 
 it('renders the e-mail with the message escaped', function () {
-    $mail = new ContactMessage('Ali', 'ali@example.com', "<script>x</script>\nikinci satır");
+    $mail = new ContactMessageReceived(ContactMessage::factory()->make(['name' => 'Ali', 'body' => "<script>x</script>\nikinci satır"]));
 
     $mail->assertSeeInHtml('&lt;script&gt;x&lt;/script&gt;<br />', false)
         ->assertDontSeeInHtml('<script>', false)
-        ->assertSeeInText('<script>x</script>');
+        ->assertSeeInText('<script>x</script>')
+        ->assertSeeInHtml(route('admin.messages.index'));
 });

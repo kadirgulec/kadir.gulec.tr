@@ -73,6 +73,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::get('yedekler/{name}', BackupDownloadController::class)->middleware('signed')->where('name', 'yedek-[0-9a-z-]+\\.zip')->name('backups.download');
     });
 
+    Route::livewire('mesajlar', 'pages::admin.messages.index')->middleware('can:'.Permission::ReadMessages->value)->name('messages.index');
+
     Route::livewire('yorumlar', 'pages::admin.comments.index')->middleware('can:'.Permission::ModerateComments->value)->name('comments.index');
 
     Route::middleware('can:'.Permission::ManageUsers->value)->group(function () {

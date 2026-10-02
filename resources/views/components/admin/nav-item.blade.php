@@ -1,10 +1,11 @@
-{{-- A sidebar entry. "dot" adds a section color dot, "current" marks the open page. --}}
+{{-- A sidebar entry. "dot" adds a section color dot, "count" a number badge (hidden at 0), "current" marks the open page. --}}
 @props([
     'href',
     'icon' => null,
     'current' => false,
     'dot' => null,
     'external' => false,
+    'count' => null,
 ])
 
 <a
@@ -22,6 +23,10 @@
     @endif
 
     <span class="flex-1">{{ $slot }}</span>
+
+    @if ($count)
+        <x-admin.badge color="accent">{{ $count }}</x-admin.badge>
+    @endif
 
     @if ($dot)
         <span class="size-2 rounded-full {{ $dot }}" aria-hidden="true"></span>

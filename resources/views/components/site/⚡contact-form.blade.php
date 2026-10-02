@@ -4,11 +4,10 @@ use App\Actions\Contact\SendContactMessage;
 use App\Rules\Honeypot;
 use App\Rules\Turnstile;
 use Livewire\Component;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 /*
- * The contact form on the about page: name, e-mail and a message, sent to
- * Kadir by e-mail (see SendContactMessage). Nothing is stored on the site.
+ * The contact form on the about page: name, e-mail and a message, saved to
+ * the admin inbox and e-mailed to Kadir (see SendContactMessage).
  */
 new class extends Component {
     public string $name = '';
@@ -45,11 +44,6 @@ new class extends Component {
 
         try {
             $send->handle($this->name, $this->email, $this->message, request()->ip());
-        } catch (TransportExceptionInterface $exception) {
-            report($exception);
-            $this->addError('message', 'Mesaj şu an gönderilemedi. Biraz sonra tekrar dene.');
-
-            return;
         } finally {
             $this->turnstileToken = '';
             $this->dispatch('turnstile-reset');
@@ -85,7 +79,7 @@ new class extends Component {
 
     <div class="flex flex-wrap items-center gap-4">
         <x-site.form.button type="submit">Gönder</x-site.form.button>
-        <span class="text-xs text-ink-faint">sitede saklanmaz, bana e-posta olarak gelir · <a href="{{ route('privacy') }}" class="underline">gizlilik</a></span>
+        <span class="text-xs text-ink-faint">sadece ben okurum, bir yıl içinde silinir · <a href="{{ route('privacy') }}" class="underline">gizlilik</a></span>
     </div>
 
     <x-site.form.status :message="$status" />

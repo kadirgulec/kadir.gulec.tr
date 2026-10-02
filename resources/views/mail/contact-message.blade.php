@@ -28,6 +28,7 @@
                         <tr>
                             <td style="padding: 16px 28px 28px; border-top: 1px dashed #e4dac8; font-size: 12px; line-height: 1.6; color: #74675a;">
                                 kadir.gulec.tr'nin Hakkımda sayfasındaki formdan geldi. Cevapla dersen {{ $senderEmail }} adresine gider.
+                                <a href="{{ $inboxUrl }}" style="color: #74675a;">Admin panelinde aç</a>
                             </td>
                         </tr>
                     </table>

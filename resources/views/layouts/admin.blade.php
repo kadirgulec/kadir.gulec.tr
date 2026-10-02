@@ -105,6 +105,9 @@
                 @endif
 
                 <div class="space-y-0.5">
+                    @can(\App\Enums\Permission::ReadMessages->value)
+                        <x-admin.nav-item :href="route('admin.messages.index')" icon="mail" :count="\App\Models\ContactMessage::unreadCount()" :current="request()->routeIs('admin.messages.*')">Mesajlar</x-admin.nav-item>
+                    @endcan
                     @if (Route::has('admin.backups.index'))
                         <x-admin.nav-item :href="route('admin.backups.index')" icon="archive" :current="request()->routeIs('admin.backups.*')">Yedekler</x-admin.nav-item>
                     @endif

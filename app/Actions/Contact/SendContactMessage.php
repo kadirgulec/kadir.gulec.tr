@@ -2,15 +2,17 @@
 
 namespace App\Actions\Contact;
 
-use App\Mail\ContactMessage;
+use App\Mail\ContactMessageReceived;
+use App\Models\ContactMessage;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 /**
- * Sends a message from the contact form to Kadir by e-mail. Nothing is
- * stored: the IP address only feeds a short-lived rate limit counter
- * (hashed), and "reply" in the mail program goes to the sender.
+ * Saves a message from the contact form to the admin inbox and mails it to
+ * Kadir. The message is saved first, so a mail server hiccup loses nothing.
+ * The IP address only feeds a short-lived rate limit counter (hashed).
  */
 class SendContactMessage
 {
@@ -18,11 +20,23 @@ class SendContactMessage
 
     public const PER_DAY = 10;
 
-    public function handle(string $name, string $email, string $message, ?string $ip): void
+    public function handle(string $name, string $email, string $message, ?string $ip): ContactMessage
     {
         $this->throttle($ip);
 
-        Mail::to(self::recipient())->send(new ContactMessage(trim($name), trim($email), trim($message)));
+        $contactMessage = ContactMessage::query()->create([
+            'name' => trim($name),
+            'email' => trim($email),
+            'body' => trim($message),
+        ]);
+
+        try {
+            Mail::to(self::recipient())->send(new ContactMessageReceived($contactMessage));
+        } catch (TransportExceptionInterface $exception) {
+            report($exception);
+        }
+
+        return $contactMessage;
     }
 
     public static function recipient(): string

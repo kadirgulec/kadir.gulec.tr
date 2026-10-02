@@ -7,3 +7,4 @@
 
 --
 kadir.gulec.tr'nin Hakkımda sayfasındaki formdan geldi. Cevapla dersen {!! $senderEmail !!} adresine gider.
+Admin panelinde aç: {!! $inboxUrl !!}
