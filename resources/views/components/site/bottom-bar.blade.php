@@ -11,7 +11,7 @@
                     href="{{ $item->url() }}"
                     @if ($isCurrent) aria-current="page" @endif
                     @class([
-                        'flex flex-col items-center gap-1 pb-2 text-[10.5px] leading-none font-semibold',
+                        'flex flex-col items-center gap-0.5 pb-1.5 text-[10.5px] leading-normal font-semibold',
                         'text-section-ink' => $isCurrent,
                         'text-ink-soft' => ! $isCurrent,
                     ])

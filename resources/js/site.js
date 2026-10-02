@@ -89,10 +89,10 @@ function initLamps() {
 }
 
 /**
- * Strokes inside `.draw` elements are drawn once, the first time they scroll into view.
+ * `.draw` strokes and `.reveal` groups animate once, the first time they scroll into view.
  */
 function initDrawings() {
-    const drawings = document.querySelectorAll('.draw');
+    const drawings = document.querySelectorAll('.draw, .reveal');
 
     if (!('IntersectionObserver' in window)) {
         drawings.forEach((drawing) => drawing.classList.add('is-drawn'));

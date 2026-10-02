@@ -14,6 +14,7 @@
         {{-- Runs before the first paint so the night notebook never flashes white. --}}
         <script>
             (() => {
+                document.documentElement.classList.add('js');
                 let stored = null;
                 try { stored = localStorage.getItem('theme'); } catch (e) {}
                 const isDark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;

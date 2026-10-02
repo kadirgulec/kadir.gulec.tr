@@ -165,7 +165,7 @@ Tek sayfa, yukarıdan aşağıya üç kat (zoom out). Hedefler opsiyonel olarak 
 ## 5. Adımlar
 
 - [x] **Adım 1: Ortak temel.** Renk token'ları (açık ve gece defteri), fontlar, kâğıt zemin, sekme navigasyonu (masaüstü kenar, mobil alt çubuk), masa lambası dark mode düğmesi, temel animasyon kuralları. Font karşılaştırma bölümü. *(Onaylandı. Bkz. `/stil`.)*
-- [ ] **Adım 2: Ana sayfa.** Kapak / "şu sıralar" panosu, logo damgası, selamlama.
+- [x] **Adım 2: Ana sayfa.** Kapak / "şu sıralar" panosu, logo damgası, selamlama. *(Onaylandı.)*
 - [ ] **Adım 3: İzlediklerim.** Liste (afiş şeridi, şu an izliyorum, günlük) ve yorumlu detay sayfası (puan dairesi, favori yıldızı, spoiler, replik kutusu, afiş rengi).
 - [ ] **Adım 4: Hedefler.** Üç katlı sayfa (zincir kartları, yıllık hedef tipleri, uzun vade panosu), sansürlü kart durumu.
 - [ ] **Adım 5: Yazılar.** Fihrist listesi, öne çıkan girdiler, washi tape etiketleri, yazı sayfası (kenar notları, fosforlu kalem, kod blokları, mühür).
@@ -179,6 +179,9 @@ Tek sayfa, yukarıdan aşağıya üç kat (zoom out). Hedefler opsiyonel olarak 
 - **CSS:** Site için ayrı giriş `resources/css/site.css` (admin'deki Flux stilleriyle karışmasın diye). JS: `resources/js/site.js` (lamba, el çizimi animasyonları).
 - **Layout ve bileşenler:** `resources/views/layouts/site.blade.php`, `resources/views/components/site/*` (logo, section-icon, tabs, bottom-bar, lamp, scribble). Sayfalar: `resources/views/site/*`.
 - **Fontlar:** `vite.config.js` içinde Bunny Fonts ile tanımlı; build sırasında indirilip kendi sunucumuzdan sunuluyor (ziyaretçi üçüncü taraf font sunucusuna bağlanmıyor). Türkçe için `latin-ext` alt kümesi şart. İlk ekranda görünen varyantlar önceden yükleniyor (preload); başlık ve el yazısı fontları `font-display: block`, gövde ve monospace `fallback` kullanıyor (yedek font titremesini önlemek için).
+- **Örnek veriler:** `app/Support/PrototypeContent.php`. Her metot ileride gelecek sorgunun döndüreceği şekli taklit eder; gerçek modellere geçerken sadece bu sınıf değişir. Ana sayfa `HomeController` üzerinden bu verileri alır.
+- **Ortak bileşenler (Adım 2):** `note` (bantlı kart), `poster` (polaroid / üretilmiş afiş), `grade` (kırmızı daire puan, Türkçe ondalık virgül), `favorite-star`, `pencil-progress`, `chain` (halkalar: tamam / kopuk / bantlı), `status-stamp`, `browser-frame`.
+- **Türkçe dil bilgisi:** `app/Support/TurkishDate.php` ("30 Eylül'de" gibi ünlü uyumuna göre ekler).
 - **Stil rehberi:** `/stil`, sadece production dışında kayıtlı.
 - **Tema tercihi:** `localStorage` içinde `theme` anahtarı (`light` / `dark`). Kayıt yoksa sistem ayarı takip edilir.
 

@@ -228,22 +228,53 @@
     }
 }
 
-/* Hand-drawn strokes: SVG paths with pathLength="1" draw themselves once in view */
+/*
+ * Hand-drawn strokes: SVG paths with pathLength="1" draw themselves once in view.
+ * Hidden only when JS runs (html.js), so the strokes still show without it.
+ */
 @utility draw {
-    & :where(path, line, circle, ellipse, polyline) {
+    :where(html.js) & :where(path, line, circle, ellipse, polyline) {
         stroke-dasharray: 1;
         stroke-dashoffset: 1;
     }
 
-    &.is-drawn :where(path, line, circle, ellipse, polyline) {
+    :where(html.js) &.is-drawn :where(path, line, circle, ellipse, polyline) {
         animation: var(--animate-draw);
     }
 
     @media (prefers-reduced-motion: reduce) {
-        & :where(path, line, circle, ellipse, polyline) {
+        :where(html.js) & :where(path, line, circle, ellipse, polyline) {
             stroke-dashoffset: 0;
             animation: none !important;
         }
+    }
+}
+
+/* Chain links snapping on one after another (children set --i for the stagger) */
+@utility reveal {
+    :where(html.js) & > * {
+        opacity: 0;
+        scale: 0.4;
+    }
+
+    :where(html.js) &.is-drawn > * {
+        animation: link-in 240ms cubic-bezier(0.3, 1.6, 0.6, 1) forwards;
+        animation-delay: calc(var(--i, 0) * 28ms);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        :where(html.js) & > * {
+            opacity: 1;
+            scale: 1;
+            animation: none !important;
+        }
+    }
+}
+
+@keyframes link-in {
+    to {
+        opacity: 1;
+        scale: 1;
     }
 }
 

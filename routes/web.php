@@ -1,9 +1,10 @@
 <?php
 
 use App\Enums\Section;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'site.placeholder', ['section' => Section::Home])->name('home');
+Route::get('/', HomeController::class)->name('home');
 Route::view('yazilar', 'site.placeholder', ['section' => Section::Posts])->name('posts.index');
 Route::view('izlediklerim', 'site.placeholder', ['section' => Section::Watched])->name('watched.index');
 Route::view('hedefler', 'site.placeholder', ['section' => Section::Goals])->name('goals.index');
