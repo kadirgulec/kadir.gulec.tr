@@ -1,6 +1,6 @@
 @use('App\Enums\Section')
 
-<x-layouts::site :section="Section::Posts" :title="$post['title']" :draft="$post['isDraft']">
+<x-layouts::site :section="Section::Posts" :title="$post['title']" :draft="$post['isDraft']" :description="$post['metaDescription']" :og-image="$post['ogImage']" og-type="article">
     <article>
         <a href="{{ route('posts.index') }}" class="font-hand text-xl text-ink-soft hover:text-section-ink">← Yazılar</a>
 

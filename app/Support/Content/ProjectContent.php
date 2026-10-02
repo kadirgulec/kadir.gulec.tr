@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\ProjectImage;
 use App\Models\Technology;
 use App\Support\Images\ImageStore;
+use App\Support\Og\OgUrl;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
@@ -21,7 +22,7 @@ use Illuminate\Support\HtmlString;
  *     id: int, slug: string, name: string, isFeatured: bool, isDraft: bool, status: string, since: int, tagline: string,
  *     stack: list<string>, imageUrl: ?string, imageSrcset: ?string, gallery: list<array{url: string, srcset: string, caption: string}>,
  *     demoUrl: ?string, repoUrl: ?string, goalId: ?int, bodyHtml: ?HtmlString, devlog: list<ProjectLog>,
- *     url: string, latestLog: ?ProjectLog, metaDescription: string
+ *     url: string, latestLog: ?ProjectLog, metaDescription: string, ogImage: string
  * }
  */
 class ProjectContent
@@ -110,6 +111,7 @@ class ProjectContent
             'url' => route('projects.show', $project->slug),
             'latestLog' => $devlog[0] ?? null,
             'metaDescription' => $project->meta_description ?: $project->tagline,
+            'ogImage' => OgUrl::for('project', $project->slug, $project->updated_at),
         ];
     }
 }

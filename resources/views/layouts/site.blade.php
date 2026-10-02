@@ -3,7 +3,16 @@
     'title' => null,
     'accent' => null,
     'draft' => false,
+    'description' => null,
+    'ogImage' => null,
+    'ogType' => 'website',
 ])
+
+@php
+    $metaDescription = \Illuminate\Support\Str::limit(trim((string) ($description ?? "Kadir Gülec'in dijital defteri: yazılar, izledikleri, hedefleri ve projeleri.")), 200, '…', preserveWords: true);
+    $pageTitle = filled($title) ? $title.' · Kadir Gülec' : 'Kadir Gülec';
+    $ogImage ??= \App\Support\Og\OgUrl::for('page', $section->value);
+@endphp
 
 <!DOCTYPE html>
 <html lang="tr">
@@ -11,7 +20,22 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <title>{{ filled($title) ? $title.' · Kadir Gülec' : 'Kadir Gülec' }}</title>
+        <title>{{ $pageTitle }}</title>
+        <meta name="description" content="{{ $metaDescription }}" />
+        <link rel="canonical" href="{{ url()->current() }}" />
+        <meta property="og:site_name" content="kadir.gulec.tr" />
+        <meta property="og:locale" content="tr_TR" />
+        <meta property="og:type" content="{{ $ogType }}" />
+        <meta property="og:title" content="{{ $title ?? 'Kadir Gülec' }}" />
+        <meta property="og:description" content="{{ $metaDescription }}" />
+        <meta property="og:url" content="{{ url()->current() }}" />
+        <meta property="og:image" content="{{ $ogImage }}" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        @if (Route::has('posts.feed'))
+            <link rel="alternate" type="application/atom+xml" title="Kadir Gülec · Yazılar" href="{{ route('posts.feed') }}" />
+        @endif
         @if ($draft)
             <meta name="robots" content="noindex, nofollow" />
         @endif

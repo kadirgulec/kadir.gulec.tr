@@ -15,7 +15,7 @@
     $facts = collect([$entry['type']->label(), $entry['year'], $runtime])->filter()->implode(' · ');
 @endphp
 
-<x-layouts::site :section="Section::Watched" :title="$entry['title']" :accent="$entry['accent']" :draft="$entry['isDraft']">
+<x-layouts::site :section="Section::Watched" :title="$entry['title']" :accent="$entry['accent']" :draft="$entry['isDraft']" :description="$entry['metaDescription']" :og-image="$entry['ogImage']">
     <a href="{{ route('watched.index') }}" class="font-hand text-xl text-ink-soft hover:text-section-ink">← İzlediklerim</a>
 
     <div class="mt-8 grid items-start gap-12 md:grid-cols-[15rem_1fr] md:gap-14">

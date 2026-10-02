@@ -6,7 +6,7 @@
     $stickerTilts = [-4, 3, -2, 5, -3, 2, -5, 4];
 @endphp
 
-<x-layouts::site :section="Section::About" title="Hakkımda">
+<x-layouts::site :section="Section::About" title="Hakkımda" description="Ankara'da memurdum, Düren'de yazılımcıyım. Arada bir sürü şey oldu, burası o defter.">
     {{-- Intro --}}
     <section class="grid items-start gap-8 md:grid-cols-[1fr_auto]">
         <div>

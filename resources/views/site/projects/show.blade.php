@@ -1,6 +1,6 @@
 @use('App\Enums\Section')
 
-<x-layouts::site :section="Section::Projects" :title="$project['name']" :draft="$project['isDraft']">
+<x-layouts::site :section="Section::Projects" :title="$project['name']" :draft="$project['isDraft']" :description="$project['metaDescription']" :og-image="$project['ogImage']">
     <a href="{{ route('projects.index') }}" class="font-hand text-xl text-ink-soft hover:text-section-ink">← Projeler</a>
 
     <header class="mt-8 max-w-3xl">

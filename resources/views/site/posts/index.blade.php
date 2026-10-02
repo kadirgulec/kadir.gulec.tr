@@ -1,6 +1,6 @@
 @use('App\Enums\Section')
 
-<x-layouts::site :section="Section::Posts" :title="$activeTag ? '#'.$activeTag['name'].' · Yazılar' : 'Yazılar'">
+<x-layouts::site :section="Section::Posts" :title="$activeTag ? '#'.$activeTag['name'].' · Yazılar' : 'Yazılar'" description="Kod, kariyer ve arada kalan her şey üzerine Türkçe yazılar.">
     <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">{{ $postCount }} yazı</p>
 
     <h1 class="relative mt-3 inline-block font-display text-5xl font-extrabold tracking-tight sm:text-6xl">

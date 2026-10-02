@@ -44,6 +44,15 @@ class Markdown
     }
 
     /**
+     * HTML for feed readers: sidenotes become plain footnotes at the end,
+     * since readers drop the CSS that puts them in the margin.
+     */
+    public function toFeedHtml(string $markdown): string
+    {
+        return trim($this->converter('not', sidenotes: false)->convert($markdown)->getContent());
+    }
+
+    /**
      * Plain text of the rendered Markdown, for excerpts and reading time.
      */
     public function toText(string $markdown): string
@@ -83,7 +92,7 @@ class Markdown
         return max(1, (int) ceil(str_word_count($this->toText($markdown), 0, 'çğıöşüÇĞİÖŞÜâîû') / 200));
     }
 
-    private function converter(string $idPrefix): MarkdownConverter
+    private function converter(string $idPrefix, bool $sidenotes = true): MarkdownConverter
     {
         $environment = new Environment([
             'html_input' => 'escape',
@@ -111,11 +120,14 @@ class Markdown
         $environment->addExtension(new FootnoteExtension);
         $environment->addExtension(new ContainerExtension);
 
-        $environment->addRenderer(FootnoteRef::class, new SidenoteRenderer($idPrefix), 10);
         $environment->addRenderer(FencedCode::class, new CodeBlockRenderer, 10);
         $environment->addRenderer(IndentedCode::class, new CodeBlockRenderer, 10);
         $environment->addRenderer(Paragraph::class, new PolaroidRenderer, 10);
-        $environment->addRenderer(FootnoteContainer::class, new EmptyRenderer, 10);
+
+        if ($sidenotes) {
+            $environment->addRenderer(FootnoteRef::class, new SidenoteRenderer($idPrefix), 10);
+            $environment->addRenderer(FootnoteContainer::class, new EmptyRenderer, 10);
+        }
 
         return new MarkdownConverter($environment);
     }

@@ -16,7 +16,7 @@
     ];
 @endphp
 
-<x-layouts::site :section="Section::Goals" :title="$chain['title'] ?? 'Sansürlü zincir'">
+<x-layouts::site :section="Section::Goals" :title="$chain['title'] ?? 'Sansürlü zincir'" :description="($chain['title'] ?? 'Sansürlü bir zincir').': '.$stats['streak'].' günlük seri, en uzun '.$stats['bestStreak'].' gün.'" :og-image="\App\Support\Og\OgUrl::for('goal', $chain['slug'], now()->startOfDay())">
     <a href="{{ route('goals.index') }}" class="font-hand text-xl text-ink-soft hover:text-section-ink">← Hedefler</a>
 
     <p class="mt-8 font-mono text-xs tracking-widest text-ink-faint uppercase">zincir · {{ $lastDay->year }}</p>

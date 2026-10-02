@@ -5,6 +5,7 @@ namespace App\Support\Content;
 use App\Enums\Permission;
 use App\Models\Post;
 use App\Models\Tag;
+use App\Support\Og\OgUrl;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
@@ -15,7 +16,7 @@ use Illuminate\Support\HtmlString;
  * @phpstan-type PostData array{
  *     id: int, slug: string, title: string, excerpt: string, publishedAt: \Carbon\CarbonImmutable,
  *     readingMinutes: int, tags: list<string>, tagSlugs: list<string>, isFeatured: bool, isDraft: bool,
- *     bodyHtml: HtmlString, url: string, metaDescription: string
+ *     bodyHtml: HtmlString, url: string, metaDescription: string, ogImage: string
  * }
  */
 class PostContent
@@ -149,6 +150,7 @@ class PostContent
             'bodyHtml' => new HtmlString((string) $post->body_html),
             'url' => route('posts.show', $post->slug),
             'metaDescription' => $post->meta_description ?: $post->excerptText(),
+            'ogImage' => OgUrl::for('post', $post->slug, $post->updated_at),
         ];
     }
 }

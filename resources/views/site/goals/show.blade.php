@@ -1,6 +1,6 @@
 @use('App\Enums\Section')
 
-<x-layouts::site :section="Section::Goals" :title="$goal['title']">
+<x-layouts::site :section="Section::Goals" :title="$goal['title']" :description="strip_tags((string) $goal['why'])" :og-image="\App\Support\Og\OgUrl::for('goal', $goal['slug'])">
     <a href="{{ route('goals.index') }}#uzun-vade" class="font-hand text-xl text-ink-soft hover:text-section-ink">← Uzun vade</a>
 
     <p class="mt-8 font-mono text-xs tracking-widest text-ink-faint uppercase">uzun vadeli hedef @if ($goal['since']) · başlangıç: {{ $goal['since'] }} @endif</p>

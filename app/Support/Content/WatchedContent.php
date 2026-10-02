@@ -10,6 +10,7 @@ use App\Models\Viewing;
 use App\Models\Watchable;
 use App\Support\Images\PosterPalette;
 use App\Support\Markdown\Markdown;
+use App\Support\Og\OgUrl;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
@@ -27,7 +28,7 @@ use Illuminate\Support\Str;
  *     status: ?SeriesStatus, season: ?int, episode: ?int, episodeCount: ?int,
  *     seasons: list<array{number: int, episodeCount: int, rating: ?float, note: ?string}>,
  *     posterUrl: ?string, posterColors: array{0: string, 1: string}, accent: string,
- *     hasReview: bool, reviewHtml: ?HtmlString, reviewExcerpt: ?string, url: string, isDraft: bool, metaDescription: string
+ *     hasReview: bool, reviewHtml: ?HtmlString, reviewExcerpt: ?string, url: string, isDraft: bool, metaDescription: string, ogImage: string
  * }
  */
 class WatchedContent
@@ -140,6 +141,7 @@ class WatchedContent
             'url' => route('watched.show', ['type' => $watchable->type->routeSegment(), 'slug' => $watchable->slug]),
             'isDraft' => ! $watchable->isPublished(),
             'metaDescription' => $watchable->meta_description ?: Str::limit((string) $watchable->overview, 155, '…', preserveWords: true),
+            'ogImage' => OgUrl::for($watchable->type->routeSegment(), $watchable->slug, $watchable->updated_at),
         ];
     }
 

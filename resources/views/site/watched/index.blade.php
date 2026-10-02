@@ -4,7 +4,7 @@
     $posterTilts = [-3, 2, -1.5, 3, -2, 1.5];
 @endphp
 
-<x-layouts::site :section="Section::Watched" title="İzlediklerim">
+<x-layouts::site :section="Section::Watched" title="İzlediklerim" description="İzlediğim filmler ve diziler: puanlar, kısa yorumlar ve bir izleme günlüğü.">
     <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">bu yıl {{ $filmCountThisYear }} film · {{ $seriesCountThisYear }} dizi</p>
 
     <h1 class="relative mt-3 inline-block font-display text-5xl font-extrabold tracking-tight sm:text-6xl">

@@ -1,6 +1,6 @@
 @use('App\Enums\Section')
 
-<x-layouts::site :section="Section::Projects" title="Projeler">
+<x-layouts::site :section="Section::Projects" title="Projeler" description="Yaptıklarım, yapmakta olduklarım ve bir kenara koyduklarım.">
     <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">{{ $projectCount }} proje</p>
 
     <h1 class="relative mt-3 inline-block font-display text-5xl font-extrabold tracking-tight sm:text-6xl">

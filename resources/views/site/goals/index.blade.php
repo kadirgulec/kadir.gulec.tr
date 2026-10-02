@@ -13,7 +13,7 @@
     $cardShadow = 'shadow-[0_10px_22px_-14px_rgb(60_40_20/0.5)] dark:shadow-[0_10px_22px_-10px_rgb(0_0_0/0.85)]';
 @endphp
 
-<x-layouts::site :section="Section::Goals" title="Hedefler">
+<x-layouts::site :section="Section::Goals" title="Hedefler" description="Günlük zincirler, bu yılın hedefleri ve uzun vadeli hayaller; tutanlar da tutmayanlar da.">
     <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">{{ $today->locale('tr')->translatedFormat('j F Y') }}</p>
 
     <h1 class="relative mt-3 inline-block font-display text-5xl font-extrabold tracking-tight sm:text-6xl">
