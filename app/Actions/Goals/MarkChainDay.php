@@ -37,10 +37,11 @@ class MarkChainDay
             return null;
         }
 
-        return $chain->chainDays()->updateOrCreate(
-            ['date' => $date->toDateString()],
-            ['state' => $state, 'note' => $state === ChainDayState::Excused ? $note : null],
-        );
+        // Looked up with whereDate: SQLite stores the date as "Y-m-d H:i:s", so an exact match would miss it.
+        $day = $chain->chainDays()->whereDate('date', $date)->first() ?? $chain->chainDays()->make(['date' => $date]);
+        $day->fill(['state' => $state, 'note' => $state === ChainDayState::Excused ? $note : null])->save();
+
+        return $day;
     }
 
     /**

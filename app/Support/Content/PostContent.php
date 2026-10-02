@@ -113,9 +113,11 @@ class PostContent
      */
     public function tags(): array
     {
+        $published = fn (Builder $query) => $query->whereNotNull('posts.published_at')->where('posts.published_at', '<=', now());
+
         $tags = Tag::query()
-            ->withCount(['posts' => fn (Builder $query) => $query->whereNotNull('posts.published_at')->where('posts.published_at', '<=', now())])
-            ->having('posts_count', '>', 0)
+            ->whereHas('posts', $published)
+            ->withCount(['posts' => $published])
             ->orderByDesc('posts_count')
             ->orderBy('name')
             ->get();
