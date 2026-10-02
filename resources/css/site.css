@@ -1,0 +1,311 @@
+/*
+ * Public site: "digital scrapbook" design system.
+ * Kept separate from app.css so the notebook look never leaks into the
+ * Flux-based admin area (and vice versa).
+ */
+@import 'tailwindcss' source(none);
+
+@source '../views/site';
+@source '../views/layouts/site.blade.php';
+@source '../views/components/site';
+@source '../../app/Enums';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-display: var(--font-fraunces), Georgia, serif;
+    --font-sans: var(--font-nunito-sans), ui-sans-serif, system-ui, sans-serif;
+    --font-hand: var(--font-caveat), 'Comic Sans MS', cursive;
+    --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+    /* Paper and ink */
+    --color-desk: #f1e9d8;
+    --color-paper: #fbf7ee;
+    --color-paper-deep: #f3ecdd;
+    --color-ink: #2b2420;
+    --color-ink-soft: #6b5f55;
+    --color-ink-faint: #a39685;
+    --color-rule: #e4dac8;
+
+    /* Tool colors: the same in every section */
+    --color-pen-red: #d7263d;
+    --color-highlighter: #ffe45c;
+
+    /* Section colors: "fill" for surfaces, "-ink" for text on paper, "-on" for text on the fill */
+    --color-home: #26386b;
+    --color-home-ink: #26386b;
+    --color-home-on: #fbf7ee;
+    --color-posts: #d9694a;
+    --color-posts-ink: #a8452b;
+    --color-posts-on: #2b2420;
+    --color-watched: #f2577a;
+    --color-watched-ink: #c42452;
+    --color-watched-on: #2b2420;
+    --color-goals: #9cc424;
+    --color-goals-ink: #4f7000;
+    --color-goals-on: #2b2420;
+    --color-projects: #f0b429;
+    --color-projects-ink: #9a6400;
+    --color-projects-on: #2b2420;
+    --color-about: #a08ce0;
+    --color-about-ink: #5f4bb0;
+    --color-about-on: #2b2420;
+
+    /* The active section, resolved through [data-section] below */
+    --color-section: var(--color-home);
+    --color-section-ink: var(--color-home-ink);
+    --color-section-on: var(--color-home-on);
+
+    --animate-draw: draw 500ms ease-out forwards;
+
+    @keyframes draw {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+}
+
+/* "Night notebook": black sketchbook paper, gel-pen colors */
+@layer theme {
+    .dark {
+        --color-desk: #141210;
+        --color-paper: #1c1a17;
+        --color-paper-deep: #26231f;
+        --color-ink: #f1ebdd;
+        --color-ink-soft: #a89f92;
+        --color-ink-faint: #6f675d;
+        --color-rule: #3a352f;
+
+        --color-pen-red: #ff4d5e;
+        --color-highlighter: #e8ff3a;
+
+        --color-home: #93aaff;
+        --color-home-ink: #a9bcff;
+        --color-posts: #ff8f6b;
+        --color-posts-ink: #ff9e80;
+        --color-watched: #ff6b8e;
+        --color-watched-ink: #ff8aa6;
+        --color-goals: #c8f25a;
+        --color-goals-ink: #d2f77a;
+        --color-projects: #ffcb52;
+        --color-projects-ink: #ffd675;
+        --color-about: #bba8ff;
+        --color-about-ink: #c9baff;
+
+        --color-home-on: #1c1a17;
+        --color-posts-on: #1c1a17;
+        --color-watched-on: #1c1a17;
+        --color-goals-on: #1c1a17;
+        --color-projects-on: #1c1a17;
+        --color-about-on: #1c1a17;
+    }
+}
+
+@layer base {
+    [data-section='home'] {
+        --color-section: var(--color-home);
+        --color-section-ink: var(--color-home-ink);
+        --color-section-on: var(--color-home-on);
+    }
+
+    [data-section='posts'] {
+        --color-section: var(--color-posts);
+        --color-section-ink: var(--color-posts-ink);
+        --color-section-on: var(--color-posts-on);
+    }
+
+    [data-section='watched'] {
+        --color-section: var(--color-watched);
+        --color-section-ink: var(--color-watched-ink);
+        --color-section-on: var(--color-watched-on);
+    }
+
+    [data-section='goals'] {
+        --color-section: var(--color-goals);
+        --color-section-ink: var(--color-goals-ink);
+        --color-section-on: var(--color-goals-on);
+    }
+
+    [data-section='projects'] {
+        --color-section: var(--color-projects);
+        --color-section-ink: var(--color-projects-ink);
+        --color-section-on: var(--color-projects-on);
+    }
+
+    [data-section='about'] {
+        --color-section: var(--color-about);
+        --color-section-ink: var(--color-about-ink);
+        --color-section-on: var(--color-about-on);
+    }
+
+    html {
+        color-scheme: light;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    html.dark {
+        color-scheme: dark;
+    }
+
+    body {
+        background-color: var(--color-desk);
+        color: var(--color-ink);
+        font-family: var(--font-sans);
+    }
+
+    ::selection {
+        background-color: color-mix(in oklab, var(--color-highlighter) 70%, transparent);
+        color: var(--color-ink);
+    }
+
+    :focus-visible {
+        outline: 2px dashed var(--color-section-ink);
+        outline-offset: 3px;
+        border-radius: 4px;
+    }
+}
+
+/* Paper: faint grain plus a dot grid, like a dotted notebook page */
+@utility paper {
+    background-color: var(--color-paper);
+    background-image:
+        radial-gradient(circle at 1px 1px, color-mix(in oklab, var(--color-ink) 9%, transparent) 1px, transparent 1.2px),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .3 0 0 0 0 .2 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 24px 24px, 160px 160px;
+}
+
+/* Highlighter pen: uneven edges, wraps cleanly across lines */
+@utility marker {
+    background-image: linear-gradient(
+        100deg,
+        transparent 0.4%,
+        color-mix(in oklab, var(--color-highlighter) 75%, transparent) 1.8%,
+        color-mix(in oklab, var(--color-highlighter) 60%, transparent) 50%,
+        color-mix(in oklab, var(--color-highlighter) 80%, transparent) 97%,
+        transparent 99.4%
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 68%;
+    background-position: 0 75%;
+    border-radius: 0.35em 0.15em 0.45em 0.2em;
+    padding-inline: 0.15em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+
+    .dark & {
+        background-image: linear-gradient(
+            100deg,
+            transparent 0.4%,
+            color-mix(in oklab, var(--color-highlighter) 32%, transparent) 1.8%,
+            color-mix(in oklab, var(--color-highlighter) 26%, transparent) 50%,
+            color-mix(in oklab, var(--color-highlighter) 34%, transparent) 97%,
+            transparent 99.4%
+        );
+    }
+}
+
+/* Washi tape strip with torn, zigzag ends. Position it with utilities. */
+@utility tape {
+    position: absolute;
+    height: 1.6rem;
+    width: 6.5rem;
+    background-color: color-mix(in oklab, var(--color-section) 55%, transparent);
+    background-image: repeating-linear-gradient(
+        -45deg,
+        transparent 0 6px,
+        color-mix(in oklab, white 18%, transparent) 6px 9px
+    );
+    clip-path: polygon(
+        0 8%, 4% 0, 8% 10%, 4% 22%, 8% 34%, 3% 48%, 7% 60%, 2% 74%, 6% 88%, 2% 100%,
+        96% 100%, 100% 90%, 95% 78%, 99% 64%, 94% 50%, 98% 36%, 93% 24%, 97% 12%, 94% 0
+    );
+    mix-blend-mode: multiply;
+
+    .dark & {
+        background-color: color-mix(in oklab, var(--color-section) 40%, transparent);
+        mix-blend-mode: normal;
+        opacity: 0.8;
+    }
+}
+
+/* Hand-drawn strokes: SVG paths with pathLength="1" draw themselves once in view */
+@utility draw {
+    & :where(path, line, circle, ellipse, polyline) {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+    }
+
+    &.is-drawn :where(path, line, circle, ellipse, polyline) {
+        animation: var(--animate-draw);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        & :where(path, line, circle, ellipse, polyline) {
+            stroke-dashoffset: 0;
+            animation: none !important;
+        }
+    }
+}
+
+/* Ink stamp: slightly uneven, as if pressed by hand */
+@utility stamp {
+    filter: url(#ink-rough);
+    opacity: 0.88;
+    mix-blend-mode: multiply;
+
+    .dark & {
+        mix-blend-mode: screen;
+    }
+}
+
+/*
+ * Page turn between tabs (cross-document view transitions).
+ * Browsers without support simply navigate without the animation.
+ */
+@view-transition {
+    navigation: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(page) {
+        animation: page-out 260ms ease-in both;
+    }
+
+    ::view-transition-new(page) {
+        animation: page-in 320ms ease-out both;
+    }
+}
+
+@keyframes page-out {
+    to {
+        opacity: 0;
+        transform: translateX(-24px) rotate(-0.4deg);
+    }
+}
+
+@keyframes page-in {
+    from {
+        opacity: 0;
+        transform: translateX(32px) rotate(0.4deg);
+    }
+}
+
+/* Desk lamp theme switch: the light spreads from (or folds back into) the lamp */
+.vt-page {
+    view-transition-name: page;
+}
+
+/* While the lamp animates, the whole page must be one snapshot */
+html.theme-switching .vt-page {
+    view-transition-name: none;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
+html.lamp-off::view-transition-old(root) {
+    z-index: 2;
+}
