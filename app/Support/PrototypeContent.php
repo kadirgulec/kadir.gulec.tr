@@ -13,6 +13,9 @@ use Illuminate\Support\Str;
  * Each method mirrors what a real query will return later, so the views
  * and components can be wired to models without changing their shape.
  *
+ * @phpstan-type PostBlock array{type: 'paragraph'|'heading'|'code'|'list', text?: string, notes?: array<int|string, string>, lang?: string, code?: string, items?: list<string>}
+ * @phpstan-type RawPost array{slug: string, title: string, excerpt: string, publishedAt: CarbonImmutable, readingMinutes: int, tags: list<string>, isFeatured: bool, body: list<PostBlock>}
+ * @phpstan-type Post array{slug: string, title: string, excerpt: string, publishedAt: CarbonImmutable, readingMinutes: int, tags: list<string>, isFeatured: bool, body: list<PostBlock>, url: string, tagSlugs: list<string>}
  * @phpstan-type Chain array{slug: string, title: string, visibility: GoalVisibility, streak: int, bestStreak: int, days: list<'done'|'missed'|'excused'>, parent: ?string}
  * @phpstan-type YearlyGoal array{slug: string, title: string, type: 'numeric'|'milestones'|'binary', visibility: GoalVisibility, current: ?int, target: ?int, unit: ?string, milestones: list<array{title: string, done: bool}>, achievedAt: ?CarbonImmutable, parent: ?string, linkUrl: ?string}
  * @phpstan-type LongTermGoal array{slug: string, title: string, why: string, visibility: GoalVisibility, since: int}
@@ -23,17 +26,309 @@ use Illuminate\Support\Str;
 class PrototypeContent
 {
     /**
-     * @return array{title: string, slug: string, excerpt: string, publishedAt: CarbonImmutable, readingMinutes: int, tags: list<string>}
+     * The newest post, for the home page.
+     *
+     * @return Post
      */
     public static function latestPost(): array
     {
+        return self::posts()[0];
+    }
+
+    /**
+     * Every post, newest first, with its URL and tag slugs added.
+     *
+     * @return list<Post>
+     */
+    public static function posts(): array
+    {
+        $posts = array_map(fn (array $post): array => [
+            ...$post,
+            'url' => route('posts.show', $post['slug']),
+            'tagSlugs' => array_map(fn (string $tag): string => Str::slug($tag), $post['tags']),
+        ], self::rawPosts());
+
+        usort($posts, fn (array $a, array $b): int => $b['publishedAt'] <=> $a['publishedAt']);
+
+        return $posts;
+    }
+
+    /**
+     * @return Post|null
+     */
+    public static function findPost(string $slug): ?array
+    {
+        return array_find(self::posts(), fn (array $post): bool => $post['slug'] === $slug);
+    }
+
+    /**
+     * Sample posts. Body blocks: paragraph (inline syntax, see InlineMarkup), heading, code and list.
+     *
+     * @return list<RawPost>
+     */
+    private static function rawPosts(): array
+    {
         return [
-            'title' => 'Yapay zekâyla kod yazarken kendime koyduğum beş kural',
-            'slug' => 'yapay-zekayla-kod-yazarken-bes-kural',
-            'excerpt' => 'Asistan hızlı yazıyor, ama neyin doğru olduğuna hâlâ ben karar veriyorum. Bir yılın sonunda elimde kalan, biraz da acı tecrübeyle öğrendiğim beş kural.',
-            'publishedAt' => CarbonImmutable::parse('2026-09-28'),
-            'readingMinutes' => 6,
-            'tags' => ['yapay zekâ', 'iş akışı'],
+            [
+                'slug' => 'yapay-zekayla-kod-yazarken-bes-kural',
+                'title' => 'Yapay zekâyla kod yazarken kendime koyduğum beş kural',
+                'excerpt' => 'Asistan hızlı yazıyor, ama neyin doğru olduğuna hâlâ ben karar veriyorum. Bir yılın sonunda elimde kalan, biraz da acı tecrübeyle öğrendiğim beş kural.',
+                'publishedAt' => CarbonImmutable::parse('2026-09-28'),
+                'readingMinutes' => 6,
+                'tags' => [
+                    'yapay zekâ',
+                    'iş akışı',
+                ],
+                'isFeatured' => true,
+                'body' => [
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Bir yıldır neredeyse her gün bir yapay zekâ asistanıyla kod yazıyorum. Hız konusunda şikâyetim yok; asıl mesele, hızın beni nereye götürdüğü. ==Asistan ne kadar hızlı yazarsa yazsın, kodun sorumluluğu hâlâ bende.== Bu yazıda, biraz da acı tecrübeyle oturttuğum beş kuralı paylaşıyorum.[^1]',
+                        'notes' => [
+                            '1' => 'Bu kurallar küçük bir ekipte, çoğunlukla Laravel projelerinde işe yaradı. Sizin bağlamınız farklıysa uyarlayın.',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'text' => '1. Önce ben anlayacağım',
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Asistanın yazdığı bir satırı açıklayamıyorsam o satır commit\'e girmiyor. Kulağa yavaş geliyor ama aslında tersi doğru: Anlamadığım kodu üç hafta sonra hata ayıklarken çok daha pahalıya ödüyorum.',
+                    ],
+                    [
+                        'type' => 'heading',
+                        'text' => '2. Testi ben yazarım, ya da en azından okurum',
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Asistan test yazmakta çok iyi; o kadar iyi ki bazen kodun doğru yaptığını değil, yanlış yaptığını da test ediyor. ==Bir testin neyi kanıtladığını okumadan yeşil ışığa güvenmiyorum.==[^2]',
+                        'notes' => [
+                            '2' => 'En sevdiğim tuzak: beklenen değeri uygulamanın kendi formülüyle hesaplayan test. Kod yanlışsa test de onunla birlikte yanlış.',
+                        ],
+                    ],
+                    [
+                        'type' => 'code',
+                        'lang' => 'php',
+                        'code' => '// Kötü: beklenen değer, uygulamanın kendi formülüyle hesaplanıyor.
+expect($invoice->total())->toBe($invoice->net() * 1.19);
+
+// İyi: bilinen bir girdi, elle hesaplanmış bir sonuç.
+expect($invoice->total())->toBe(119.00);',
+                    ],
+                    [
+                        'type' => 'heading',
+                        'text' => '3. Küçük adımlar, sık commit',
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Büyük bir değişikliği tek seferde istemek yerine küçük parçalara bölüyorum. Her parçanın sonunda testler geçiyor ve bir commit atılıyor. Bir şey ters giderse geri dönmek için uzağa gitmem gerekmiyor.',
+                    ],
+                    [
+                        'type' => 'heading',
+                        'text' => '4. Bağlamı ben veririm',
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Projenin kurallarını, isimlendirme alışkanlıklarını ve mimari kararlarını yazılı hâle getirdim. Asistan bunları her seferinde tahmin etmek zorunda kalmayınca daha az hata yapıyor ve yazdığı kod ekibin geri kalanına daha tanıdık geliyor.',
+                    ],
+                    [
+                        'type' => 'list',
+                        'items' => [
+                            'Proje kuralları tek bir dosyada, sürüm kontrolünde.',
+                            'Her kural için kısa bir **neden**: Gerekçesi olmayan kural ilk fırsatta çiğneniyor.',
+                            'Örnek kod: Anlatmak yerine göstermek.',
+                        ],
+                    ],
+                    [
+                        'type' => 'heading',
+                        'text' => '5. Son sözü insan söyler',
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Bir değişikliği yayına almadan önce mutlaka gözden geçiriyorum; mümkünse bir başkasına da gösteriyorum. Asistan iyi bir yardımcı, ama sorumluluğu devredebileceğim biri değil.',
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Bu kuralların hiçbiri yeni değil; iyi bir ekipte zaten uygulanan şeyler. Yapay zekâ sadece onları atlamayı çok daha cazip hâle getiriyor.',
+                    ],
+                ],
+            ],
+            [
+                'slug' => 'livewire-tek-dosyali-bilesenler',
+                'title' => 'Livewire\'da tek dosyalı bileşenlere geçerken öğrendiklerim',
+                'excerpt' => 'Sınıf ve görünümü aynı dosyada tutmak ilk bakışta dağınık göründü. Birkaç hafta sonra eski düzene dönmek istemediğimi fark ettim.',
+                'publishedAt' => CarbonImmutable::parse('2026-09-02'),
+                'readingMinutes' => 8,
+                'tags' => [
+                    'livewire',
+                    'laravel',
+                ],
+                'isFeatured' => true,
+                'body' => [
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Yıllarca bir Livewire bileşeni için iki dosya açtım: bir PHP sınıfı ve bir Blade görünümü. Tek dosyalı bileşenler bu ikisini bir araya getiriyor. ==İlk tepkim itiraz oldu, ikinci tepkim rahatlama.==',
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Küçük bileşenlerde fark hemen hissediliyor: Bir butonun davranışını değiştirmek için iki dosya arasında gidip gelmek yok. Büyük bileşenlerde ise dosya uzadığında bunu bir uyarı işareti olarak görmeyi öğrendim; genellikle bileşenin bölünmesi gerektiğini söylüyor.[^1]',
+                        'notes' => [
+                            '1' => 'Kendime koyduğum sınır: Dosya ekrana sığmıyorsa bileşen büyük demektir.',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'slug' => 'alpine-ile-klavye-kisayollari',
+                'title' => 'Alpine.js ile 40 satırda klavye kısayolları',
+                'excerpt' => 'Bir yönetim panelinde en çok kullanılan üç işlem için klavye kısayolu ekledim. Kütüphane yok, sadece Alpine.',
+                'publishedAt' => CarbonImmutable::parse('2026-08-11'),
+                'readingMinutes' => 4,
+                'tags' => [
+                    'alpine.js',
+                    'javascript',
+                ],
+                'isFeatured' => false,
+                'body' => [
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Kullanıcılar aynı üç işlemi günde onlarca kez yapıyorsa, fareye uzanmak küçük ama birikmiş bir zaman kaybı. Alpine\'ın `@keydown.window` dinleyicisiyle bunu birkaç satırda çözmek mümkün.',
+                    ],
+                    [
+                        'type' => 'code',
+                        'lang' => 'html',
+                        'code' => '<div
+    x-data
+    @keydown.window.prevent.ctrl.k="$refs.search.focus()"
+    @keydown.window.prevent.ctrl.n="$dispatch(\'open-create-modal\')"
+>
+    <input x-ref="search" type="search" placeholder="Ara (Ctrl+K)">
+</div>',
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Önemli olan kısayolları görünür kılmak: Bir kısayol varsa, butonun yanında küçük bir ipucu olarak yazılmalı. ==Gizli kısayol, olmayan kısayoldur.==',
+                    ],
+                ],
+            ],
+            [
+                'slug' => 'yeniden-cirak-olmak',
+                'title' => 'Yeniden çırak olmak: Fachinformatiker eğitimi üzerine notlar',
+                'excerpt' => 'Yıllarca bir devlet dairesinde çalıştıktan sonra Almanya\'da yeniden öğrenci olmak. Kimse bunun kolay olduğunu söylemedi, haklılarmış.',
+                'publishedAt' => CarbonImmutable::parse('2026-07-20'),
+                'readingMinutes' => 7,
+                'tags' => [
+                    'kariyer',
+                    'almanya',
+                ],
+                'isFeatured' => false,
+                'body' => [
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Meslek değiştirmek, bildiğin her şeyi bırakmak değil; onları yeni bir dile çevirmek. Devlet dairesinde öğrendiğim düzen, belgeleme ve sabır, yazılımda beklediğimden çok daha işime yaradı.',
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Zor olan teknik kısım değildi. ==Zor olan, yeniden en az bilen kişi olmayı kabullenmekti.== İlk aylarda en çok sorduğum soru "bu neden böyle?" idi; şimdi o soruyu soran stajyerlere aynı sabrı göstermeye çalışıyorum.',
+                    ],
+                ],
+            ],
+            [
+                'slug' => 'gelistirme-ortamimi-neden-uc-kez-degistirdim',
+                'title' => 'Yerel geliştirme ortamımı neden üç kez değiştirdim',
+                'excerpt' => 'Her yeni araç bir sorunu çözüp yenisini getirdi. Sonunda aradığımın en hızlı değil, en az düşündüren ortam olduğunu anladım.',
+                'publishedAt' => CarbonImmutable::parse('2026-06-14'),
+                'readingMinutes' => 5,
+                'tags' => [
+                    'araçlar',
+                ],
+                'isFeatured' => false,
+                'body' => [
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'İyi bir geliştirme ortamı fark edilmeyen ortamdır. Ne zaman ortamımla uğraşmaya başlasam, aslında yapmam gereken işten kaçtığımı fark ettim.',
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Şu anki kuralım basit: Yeni bir projeyi sıfırdan ayağa kaldırmak on dakikadan uzun sürüyorsa bir şeyler yanlış. ==Hız değil, tekrarlanabilirlik.==',
+                    ],
+                ],
+            ],
+            [
+                'slug' => 'tailwind-4-ile-tasarim-sistemi',
+                'title' => 'Tailwind 4 ile CSS değişkenleri: bu sitenin tasarım sistemi',
+                'excerpt' => 'Her bölümün kendi rengi, gece defteri ve elle çizilmiş çizgiler. Hepsi birkaç CSS değişkeni ve bir data niteliğiyle.',
+                'publishedAt' => CarbonImmutable::parse('2026-05-03'),
+                'readingMinutes' => 6,
+                'tags' => [
+                    'tailwind',
+                    'css',
+                ],
+                'isFeatured' => false,
+                'body' => [
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Bu sitede her sekmenin kendi rengi var. Bileşenler hangi sayfada olduklarını bilmiyor; sadece `bg-section` diyorlar. Rengi seçen, `body` etiketindeki tek bir `data-section` niteliği.',
+                    ],
+                    [
+                        'type' => 'code',
+                        'lang' => 'css',
+                        'code' => '[data-section=\'goals\'] {
+    --color-section: var(--color-goals);
+    --color-section-ink: var(--color-goals-ink);
+}',
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Gece defteri de aynı mantıkla çalışıyor: `.dark` sınıfı geldiğinde aynı değişkenler yeni değerler alıyor. ==Bileşenlerde neredeyse hiç dark: sınıfı yok.==',
+                    ],
+                ],
+            ],
+            [
+                'slug' => '2025-hedefler-zincirler',
+                'title' => '2025\'in sonunda: hedefler, zincirler ve kırılan halkalar',
+                'excerpt' => 'Beş hedefin üçü tuttu. Tutmayan ikisini silmek yerine üstlerini karalayıp bıraktım; neden öyle yaptığımı anlatıyorum.',
+                'publishedAt' => CarbonImmutable::parse('2025-12-29'),
+                'readingMinutes' => 5,
+                'tags' => [
+                    'kişisel',
+                    'hedefler',
+                ],
+                'isFeatured' => false,
+                'body' => [
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Yıl sonu muhasebesi yaparken en kolay şey tutmayan hedefleri listeden sessizce çıkarmak. Bu yıl bunu yapmadım. ==Karalanmış bir hedef, hiç yazılmamış bir hedeften daha dürüst.==',
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Yarı maraton olmadı, her ay bir yan proje de olmadı. Ama sınavımı geçtim ve ilk açık kaynak katkımı yaptım. Önümüzdeki yıl daha az ama daha net hedefler koyacağım.',
+                    ],
+                ],
+            ],
+            [
+                'slug' => 'toplantilarda-konusmak',
+                'title' => 'Almanya\'da bir Türk yazılımcı olarak toplantılarda konuşmak',
+                'excerpt' => 'Teknik olarak hazırdım, dil olarak da fena değildim. Eksik olan, cümlemi bitirmeden söz almaya cesaret etmekti.',
+                'publishedAt' => CarbonImmutable::parse('2025-11-09'),
+                'readingMinutes' => 4,
+                'tags' => [
+                    'almanya',
+                    'kariyer',
+                ],
+                'isFeatured' => false,
+                'body' => [
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'İlk toplantılarımda söyleyeceğimi kafamda kurup Almancasını düzeltene kadar konu çoktan değişmiş oluyordu. ==Mükemmel cümle beklerken söz hakkını kaçırıyordum.==',
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Çözüm basit ama rahatsız ediciydi: yarım cümleyle söze girmek. Kimse dilbilgisi hatama takılmadı; herkes söylediğim fikre odaklandı.',
+                    ],
+                ],
+            ],
         ];
     }
 

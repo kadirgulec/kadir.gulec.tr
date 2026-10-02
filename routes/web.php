@@ -3,11 +3,13 @@
 use App\Enums\Section;
 use App\Http\Controllers\GoalsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PostsController;
 use App\Http\Controllers\WatchedController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
-Route::view('yazilar', 'site.placeholder', ['section' => Section::Posts])->name('posts.index');
+Route::get('yazilar', [PostsController::class, 'index'])->name('posts.index');
+Route::get('yazilar/{slug}', [PostsController::class, 'show'])->name('posts.show');
 Route::get('izlediklerim', [WatchedController::class, 'index'])->name('watched.index');
 Route::get('izlediklerim/{type}/{slug}', [WatchedController::class, 'show'])
     ->whereIn('type', ['film', 'dizi'])

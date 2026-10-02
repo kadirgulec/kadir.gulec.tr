@@ -454,3 +454,102 @@ html.lamp-off::view-transition-old(root) {
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
 }
+
+/*
+ * Post typography helpers. These classes are produced by App\Support\InlineMarkup,
+ * so they live here rather than as utilities in the views.
+ */
+@layer components {
+    mark.marker {
+        background-color: transparent;
+        color: inherit;
+    }
+
+    .inline-code {
+        font-family: var(--font-mono);
+        font-size: 0.85em;
+        padding: 0.1em 0.35em;
+        border-radius: 0.25em;
+        background-color: color-mix(in oklab, var(--color-section) 14%, transparent);
+        color: var(--color-section-ink);
+    }
+
+    /*
+     * Sidenotes (after Tufte CSS): in the right margin on wide screens,
+     * a tap-to-open note below the line on narrow ones. No JavaScript needed.
+     */
+    .sidenote-number {
+        cursor: pointer;
+        font-family: var(--font-hand);
+        font-weight: 700;
+        font-size: 1.15em;
+        line-height: 0;
+        vertical-align: super;
+        color: var(--color-section-ink);
+        padding-inline: 0.1em;
+    }
+
+    .sidenote-number:has(+ .margin-toggle:focus-visible) {
+        outline: 2px dashed var(--color-section-ink);
+        outline-offset: 2px;
+        border-radius: 3px;
+    }
+
+    .margin-toggle {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+    }
+
+    .sidenote {
+        display: none;
+        font-family: var(--font-hand);
+        font-size: 1.3rem;
+        line-height: 1.25;
+        color: var(--color-section-ink);
+    }
+
+    .sidenote-key {
+        font-weight: 700;
+    }
+
+    .margin-toggle:checked + .sidenote {
+        display: block;
+        margin-block: 0.6rem;
+        padding: 0.5rem 0.75rem;
+        border-left: 2px solid var(--color-section);
+        background-color: color-mix(in oklab, var(--color-section) 10%, transparent);
+    }
+
+    @media (width >= 80rem) {
+        .sidenote-number {
+            cursor: default;
+        }
+
+        .sidenote,
+        .margin-toggle:checked + .sidenote {
+            display: block;
+            float: right;
+            clear: right;
+            position: relative;
+            width: 13rem;
+            margin: 0.25rem -15rem 1rem 0;
+            padding: 0;
+            border: 0;
+            background: none;
+            rotate: -1.2deg;
+        }
+    }
+}
+
+/* Washi tape label for tags; set --tape-color to change the color */
+@utility washi {
+    display: inline-block;
+    padding: 0.15rem 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    background-color: color-mix(in oklab, var(--tape-color, var(--color-section)) 38%, transparent);
+    clip-path: polygon(0 10%, 3% 0, 6% 12%, 3% 30%, 6% 50%, 2% 70%, 5% 88%, 2% 100%, 97% 100%, 100% 85%, 96% 66%, 99% 48%, 95% 30%, 98% 12%, 96% 0);
+}

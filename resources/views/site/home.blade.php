@@ -78,14 +78,14 @@
                 </p>
 
                 <h3 class="mt-2 font-display text-2xl leading-tight font-semibold text-balance">
-                    <a href="{{ route('posts.index') }}" class="hover:text-section-ink">{{ $latestPost['title'] }}</a>
+                    <a href="{{ $latestPost['url'] }}" class="hover:text-section-ink">{{ $latestPost['title'] }}</a>
                 </h3>
 
                 <p class="mt-3 line-clamp-3 text-ink-soft">{{ $latestPost['excerpt'] }}</p>
 
                 <div class="mt-4 flex flex-wrap items-center gap-2">
-                    @foreach ($latestPost['tags'] as $tag)
-                        <span class="rotate-[-1.5deg] bg-section/25 px-2 py-0.5 font-mono text-xs text-section-ink odd:rotate-[1.5deg] dark:bg-section/20">#{{ $tag }}</span>
+                    @foreach ($latestPost['tags'] as $index => $tag)
+                        <x-site.tag :name="$tag" :slug="$latestPost['tagSlugs'][$index]" />
                     @endforeach
                 </div>
             </x-site.note>

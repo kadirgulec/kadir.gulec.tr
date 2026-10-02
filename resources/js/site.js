@@ -135,6 +135,34 @@ function initSpoilers() {
     });
 }
 
+/**
+ * Copy buttons on code blocks.
+ */
+function initCopyButtons() {
+    document.querySelectorAll('[data-code-block]').forEach((block) => {
+        const button = block.querySelector('[data-copy]');
+        const code = block.querySelector('code');
+
+        if (!button || !code || !navigator.clipboard) {
+            button?.remove();
+
+            return;
+        }
+
+        button.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(code.textContent);
+                button.textContent = 'kopyalandı ✓';
+            } catch {
+                button.textContent = 'kopyalanamadı';
+            }
+
+            setTimeout(() => (button.textContent = 'kopyala'), 1800);
+        });
+    });
+}
+
 initLamps();
 initDrawings();
 initSpoilers();
+initCopyButtons();
