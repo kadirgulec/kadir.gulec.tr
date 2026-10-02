@@ -2,7 +2,7 @@
 
 Bu dosya, tasarım kararlarını ve prototip adımlarını kayıt altında tutar. Yeni bir oturumda önce bu dosyayı oku, sonra işaretlenmemiş ilk adımdan devam et.
 
-> **Kapsam:** Şimdilik sadece tasarım. Admin panel, veritabanı ve iş akışları daha sonra yapılacak. Prototip sabit örnek verilerle çalışır.
+> **Kapsam:** Bu dosya tasarım aşamasını anlatır (tamamlandı). Admin paneli, veritabanı ve üyelik aşaması için `ADMIN.md`'ye bak.
 
 ---
 
