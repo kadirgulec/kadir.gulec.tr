@@ -553,3 +553,28 @@ html.lamp-off::view-transition-old(root) {
     background-color: color-mix(in oklab, var(--tape-color, var(--color-section)) 38%, transparent);
     clip-path: polygon(0 10%, 3% 0, 6% 12%, 3% 30%, 6% 50%, 2% 70%, 5% 88%, 2% 100%, 97% 100%, 100% 85%, 96% 66%, 99% 48%, 95% 30%, 98% 12%, 96% 0);
 }
+
+/* The hand-drawn road of the "about" timeline: a wavy dashed line, repeated downwards */
+@utility road {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='80' viewBox='0 0 24 80'%3E%3Cpath d='M12 0 C 22 20, 2 40, 12 60 S 12 80, 12 80' fill='none' stroke='%23a08ce0' stroke-width='2.5' stroke-linecap='round' stroke-dasharray='6 7'/%3E%3C/svg%3E");
+    background-repeat: repeat-y;
+    background-size: 24px 80px;
+}
+
+/* A die-cut sticker: white border, slight shadow, set --sticker-color */
+@utility sticker {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    border: 3px solid #fffdf7;
+    background-color: var(--sticker-color, var(--color-section));
+    color: #2b2420;
+    font-family: var(--font-display);
+    font-weight: 700;
+    box-shadow: 0 3px 6px -2px rgb(60 40 20 / 0.45);
+
+    &:where(.dark *) {
+        border-color: #2e2a25;
+        box-shadow: 0 3px 8px -2px rgb(0 0 0 / 0.8);
+    }
+}

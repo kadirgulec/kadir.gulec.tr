@@ -1,0 +1,160 @@
+@use('App\Enums\Section')
+
+@php
+    // Light colors only: the sticker text is always dark ink.
+    $stickerColors = ['var(--color-posts)', 'var(--color-goals)', 'var(--color-about)', 'var(--color-projects)', 'var(--color-watched)', '#8fb8de'];
+    $stickerTilts = [-4, 3, -2, 5, -3, 2, -5, 4];
+@endphp
+
+<x-layouts::site :section="Section::About" title="Hakkımda">
+    {{-- Intro --}}
+    <section class="grid items-start gap-8 md:grid-cols-[1fr_auto]">
+        <div>
+            <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">Hakkımda</p>
+
+            <h1 class="mt-4 max-w-3xl font-display text-4xl leading-[1.12] font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl">
+                Ankara'da
+                <span class="relative inline-block">
+                    memurdum,
+                    <x-site.scribble class="absolute -bottom-2 left-0 h-3 w-[92%] text-section" />
+                </span>
+                Düren'de
+                <span class="relative inline-block px-1">
+                    yazılımcıyım.
+                    <x-site.scribble variant="circle" class="absolute -inset-x-4 -inset-y-3 h-[calc(100%+1.5rem)] w-[calc(100%+2rem)] text-pen-red" />
+                </span>
+            </h1>
+
+            <p class="mt-8 font-hand text-3xl text-ink-soft">Arada bir sürü şey oldu, burası o defter.</p>
+        </div>
+
+        <x-site.logo class="stamp mt-4 mr-2 hidden size-32 rotate-12 text-section-ink md:block" />
+    </section>
+
+    @unless (app()->isProduction())
+        <p class="mt-10 inline-block rotate-[-0.5deg] border border-dashed border-ink/30 px-3 py-1.5 font-hand text-lg text-ink-faint">
+            ✎ taslak: hikâyedeki kişisel cümleler yer tutucu, gerçek metni Kadir yazacak
+        </p>
+    @endunless
+
+    {{-- The road from Ankara to Düren --}}
+    <section class="mt-16" aria-labelledby="hikayem">
+        <h2 id="hikayem" class="font-display text-3xl font-semibold">Hikâyem</h2>
+
+        <ol class="relative mt-10">
+            <li class="road pointer-events-none absolute inset-y-0 left-1 w-6 md:left-1/2 md:-translate-x-1/2" aria-hidden="true"></li>
+
+            @foreach ($stops as $stop)
+                @if ($stop['isTurningPoint'])
+                    <li class="relative pb-14 pl-12 md:pl-0">
+                        <span class="absolute top-6 left-2.5 z-10 size-3.5 rounded-full bg-section ring-4 ring-paper md:hidden" aria-hidden="true"></span>
+
+                        <div class="relative mx-auto max-w-md rotate-[-1.5deg] rounded-sm bg-paper-deep p-5 pt-7 text-center shadow-[0_10px_22px_-12px_rgb(60_40_20/0.5)] dark:shadow-[0_10px_22px_-10px_rgb(0_0_0/0.85)]">
+                            <span class="tape -top-3 left-1/2 -translate-x-1/2 -rotate-3"></span>
+                            <p class="font-mono text-xs text-ink-faint"><span aria-hidden="true">✈️</span> {{ $stop['years'] }}</p>
+                            <p class="mt-1 font-display text-3xl font-extrabold text-section-ink">{{ $stop['place'] }}</p>
+                            <h3 class="mt-1 font-hand text-2xl font-bold">{{ $stop['title'] }}</h3>
+                            <p class="mt-2 text-ink-soft">{{ $stop['text'] }}</p>
+                        </div>
+                    </li>
+                @else
+                    <li class="relative pb-12 pl-12 md:grid md:grid-cols-2 md:gap-16 md:pl-0">
+                        <span class="absolute top-1.5 left-2.5 z-10 size-3.5 rounded-full bg-section ring-4 ring-paper md:left-1/2 md:-translate-x-1/2" aria-hidden="true"></span>
+
+                        <div @class(['md:pr-6 md:text-right' => $loop->odd, 'md:col-start-2 md:pl-6' => $loop->even])>
+                            <p class="font-mono text-xs text-ink-faint">{{ $stop['years'] }} · {{ $stop['place'] }}</p>
+                            <h3 class="mt-1 font-display text-xl leading-tight font-semibold">{{ $stop['title'] }}</h3>
+                            <p class="mt-1.5 text-ink-soft">{{ $stop['text'] }}</p>
+                        </div>
+                    </li>
+                @endif
+            @endforeach
+        </ol>
+    </section>
+
+    {{-- Now --}}
+    <section class="mt-10" aria-labelledby="su-an">
+        <h2 id="su-an" class="font-display text-3xl font-semibold">Şu an</h2>
+        <p class="font-hand text-lg text-ink-faint">bu liste diğer sayfalardan kendiliğinden güncellenir</p>
+
+        <ul class="mt-6 flex flex-col gap-3 text-lg">
+            <li class="flex gap-3">
+                <span aria-hidden="true">🛠️</span>
+                <span><a href="{{ $now['project']['url'] }}" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">{{ $now['project']['name'] }}</a> üzerinde çalışıyorum.</span>
+            </li>
+
+            @if ($now['series'])
+                <li class="flex gap-3">
+                    <span aria-hidden="true">📺</span>
+                    <span><a href="{{ $now['series']['url'] }}" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">{{ $now['series']['title'] }}</a> izliyorum <span class="font-mono text-sm text-ink-soft">(S{{ $now['series']['season'] }} · B{{ $now['series']['episode'] }})</span></span>
+                </li>
+            @endif
+
+            @if ($now['chain'])
+                <li class="flex gap-3">
+                    <span aria-hidden="true">🔥</span>
+                    <span>“{{ $now['chain']['title'] }}” zincirinde {{ $now['chain']['streak'] }}. gündeyim. <a href="{{ route('goals.index') }}" class="text-base text-ink-soft underline decoration-dotted underline-offset-4 hover:text-ink">hedeflerim →</a></span>
+                </li>
+            @endif
+
+            @if ($now['books'])
+                <li class="flex gap-3">
+                    <span aria-hidden="true">📚</span>
+                    <span>Bu yılki kitap hedefi: <span class="font-mono text-base">{{ $now['books']['current'] }} / {{ $now['books']['target'] }}</span></span>
+                </li>
+            @endif
+
+            <li class="flex gap-3">
+                <span aria-hidden="true">✍️</span>
+                <span>Son yazım: <a href="{{ $now['post']['url'] }}" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">{{ $now['post']['title'] }}</a></span>
+            </li>
+        </ul>
+    </section>
+
+    {{-- Toolbox --}}
+    <section class="mt-16" aria-labelledby="alet-cantam">
+        <h2 id="alet-cantam" class="font-display text-3xl font-semibold">Alet çantam</h2>
+        <p class="font-hand text-lg text-ink-faint">defterin kapağına yapıştırılmış stickerlar</p>
+
+        <div class="mt-6 rounded-md bg-paper-deep p-6 sm:p-8">
+            <p class="font-hand text-xl text-section-ink">her gün</p>
+            <ul class="mt-3 flex flex-wrap gap-3" aria-label="Her gün kullandıklarım">
+                @foreach ($toolbox['daily'] as $tool)
+                    <li class="sticker" style="--sticker-color: {{ $stickerColors[$loop->index % count($stickerColors)] }}; rotate: {{ $stickerTilts[$loop->index % count($stickerTilts)] }}deg">{{ $tool }}</li>
+                @endforeach
+            </ul>
+
+            <p class="mt-6 font-hand text-xl text-section-ink">ara sıra</p>
+            <ul class="mt-3 flex flex-wrap gap-3" aria-label="Ara sıra kullandıklarım">
+                @foreach ($toolbox['sometimes'] as $tool)
+                    <li class="sticker text-sm opacity-80 [--sticker-color:var(--color-rule)]" style="rotate: {{ $stickerTilts[($loop->index + 3) % count($stickerTilts)] }}deg">{{ $tool }}</li>
+                @endforeach
+            </ul>
+
+            <p class="mt-6 font-hand text-xl text-section-ink">konuştuğum diller</p>
+            <p class="mt-1">{{ implode(' · ', $toolbox['languages']) }}</p>
+        </div>
+    </section>
+
+    {{-- Contact --}}
+    <section class="mt-16" aria-labelledby="iletisim">
+        <h2 id="iletisim" class="font-display text-3xl font-semibold">İletişim</h2>
+
+        <div class="relative mt-8 max-w-lg rotate-[0.8deg] rounded-sm bg-paper-deep p-6 pt-8 shadow-[0_10px_22px_-12px_rgb(60_40_20/0.5)] dark:shadow-[0_10px_22px_-10px_rgb(0_0_0/0.85)]">
+            <span class="tape -top-3 -left-3 -rotate-12"></span>
+
+            <p class="font-hand text-2xl">Bir merhaba, bir soru ya da bir film önerisi: hepsine açığım.</p>
+
+            <dl class="mt-5 grid grid-cols-[6rem_1fr] items-baseline gap-x-4 gap-y-3">
+                <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">E-posta</dt>
+                <dd><a href="mailto:info@kadirguelec.de" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">info@kadirguelec.de</a></dd>
+
+                <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">GitHub</dt>
+                <dd><a href="https://github.com/kadirgulec" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">github.com/kadirgulec</a></dd>
+
+                <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">CV</dt>
+                <dd><a href="https://kadir.guelec.eu" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">kadir.guelec.eu</a> <span class="text-sm text-ink-soft">Almanca/İngilizce profesyonel CV için →</span></dd>
+            </dl>
+        </div>
+    </section>
+</x-layouts::site>

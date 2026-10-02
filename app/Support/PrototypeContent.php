@@ -493,7 +493,7 @@ expect($invoice->total())->toBe(119.00);',
                     'Dram',
                 ],
                 'runtimeMinutes' => 125,
-                'overview' => 'Tokyo’nun umumi tuvaletlerini temizleyen Hirayama, bir yandan müzik, edebiyat ve fotoğraf tutkusunun peşinden gittiği hayatından memnundur. Geçmişiyle yeniden bağ kurmasına yol açan beklenmedik karşılaşmalar, hayatının düzenini yavaş yavaş bozmaya başlar.',
+                'overview' => 'Tokyo\'nun umumi tuvaletlerini temizleyen Hirayama, bir yandan müzik, edebiyat ve fotoğraf tutkusunun peşinden gittiği hayatından memnundur. Geçmişiyle yeniden bağ kurmasına yol açan beklenmedik karşılaşmalar, hayatının düzenini yavaş yavaş bozmaya başlar.',
                 'cast' => [
                     [
                         'name' => 'Kōji Yakusho',
@@ -717,7 +717,7 @@ expect($invoice->total())->toBe(119.00);',
                     'Suç',
                 ],
                 'runtimeMinutes' => 151,
-                'overview' => 'Dünya prömiyerini yaptığı Cannes Film Festivali’nde Altın Palmiye\'nin sahibi olan bu "Hitchcockvari mahkeme filmi" bir evliliğin dinamiklerini mercek altına yatıran bir psikolojik gerilim. "Birinin özel hayatı başkasının cehennemidir" fikrinden yola çıkan Bir Düşüşün Anatomisi, Fransız Alpleri\'nde bir kulübede kocası Samuel ve görme engelli oğluyla izole bir yaşam süren Alman yazar Sandra\'yı izliyor. Samuel yüksekten düşerek ölür fakat soruşturma sonucunda ölüm nedeninin intihar mı kaza mı olduğu kesinleşmeyince Sandra cinayet suçlamasıyla tutuklanır. Samuel\'in ölümünün sorgulandığı mahkeme süreci, çiftin çalkantılı ilişkilerinin de derinine inen rahatsız edici ve tatsız bir psikolojik yolculuğa dönüşür.',
+                'overview' => 'Dünya prömiyerini yaptığı Cannes Film Festivali\'nde Altın Palmiye\'nin sahibi olan bu "Hitchcockvari mahkeme filmi" bir evliliğin dinamiklerini mercek altına yatıran bir psikolojik gerilim. "Birinin özel hayatı başkasının cehennemidir" fikrinden yola çıkan Bir Düşüşün Anatomisi, Fransız Alpleri\'nde bir kulübede kocası Samuel ve görme engelli oğluyla izole bir yaşam süren Alman yazar Sandra\'yı izliyor. Samuel yüksekten düşerek ölür fakat soruşturma sonucunda ölüm nedeninin intihar mı kaza mı olduğu kesinleşmeyince Sandra cinayet suçlamasıyla tutuklanır. Samuel\'in ölümünün sorgulandığı mahkeme süreci, çiftin çalkantılı ilişkilerinin de derinine inen rahatsız edici ve tatsız bir psikolojik yolculuğa dönüşür.',
                 'cast' => [
                     [
                         'name' => 'Sandra Hüller',
@@ -820,7 +820,7 @@ expect($invoice->total())->toBe(119.00);',
                     'Dram',
                 ],
                 'runtimeMinutes' => null,
-                'overview' => 'Oceanic Havayolları’nın Sidney-Los Angeles seferini yapan 815 sefer sayılı uçağı, okyanus üzerinden geçerken, manyetik bir alana kapılarak büyük bir adaya düşer. Fakat önceleri sıradan, tropik bir ada gibi görünen bu kara parçasının, kazazedelerin her birinin hayatını farklı biçimde değiştireceğinden habersizdirler.',
+                'overview' => 'Oceanic Havayolları\'nın Sidney-Los Angeles seferini yapan 815 sefer sayılı uçağı, okyanus üzerinden geçerken, manyetik bir alana kapılarak büyük bir adaya düşer. Fakat önceleri sıradan, tropik bir ada gibi görünen bu kara parçasının, kazazedelerin her birinin hayatını farklı biçimde değiştireceğinden habersizdirler.',
                 'cast' => [
                     [
                         'name' => 'Matthew Fox',
@@ -1666,6 +1666,39 @@ expect($invoice->total())->toBe(119.00);',
                 'caseStudy' => [],
                 'devlog' => [],
             ],
+        ];
+    }
+
+    /**
+     * Stops on the road from Ankara to Düren. Facts follow the CV on kadir.guelec.eu;
+     * the personal sentences are placeholders for Kadir to rewrite.
+     *
+     * @return list<array{years: string, place: string, title: string, text: string, isTurningPoint: bool}>
+     */
+    public static function lifeStops(): array
+    {
+        return [
+            ['years' => '2001–2005', 'place' => 'Ankara', 'title' => 'Lise', 'text' => 'Bilgisayarla ilk tanışmam: oyunlardan çok, onların nasıl çalıştığını merak ediyordum.', 'isTurningPoint' => false],
+            ['years' => '2005–2009', 'place' => 'Ankara', 'title' => 'Güvenlik Bilimleri, lisans', 'text' => 'Disiplin, düzen ve sorumluluk. Bunların yazılımda da işe yarayacağını o zaman bilmiyordum.', 'isTurningPoint' => false],
+            ['years' => '2009–2016', 'place' => 'Türkiye', 'title' => 'İçişleri Bakanlığı, memur', 'text' => 'Yedi yıl dosyalar, prosedürler ve insanlar. Bu arada Anadolu Üniversitesi\'nde Kamu Yönetimi okudum (2009–2013).', 'isTurningPoint' => false],
+            ['years' => '2016', 'place' => 'Ankara → Düren', 'title' => 'Yeni bir sayfa', 'text' => 'Bir valiz, yeni bir dil ve sıfırdan bir hayat. Defterin asıl hikâyesi burada başlıyor.', 'isTurningPoint' => true],
+            ['years' => '2016–2022', 'place' => 'Düren', 'title' => 'Almanca ve yeni bir hayat', 'text' => 'Dil kursları, ilk işler ve akşamları kendi kendime kod öğrenmeye çalıştığım yıllar.', 'isTurningPoint' => false],
+            ['years' => '2022–2024', 'place' => 'Düren', 'title' => 'Yeniden çırak: Fachinformatiker', 'text' => 'EVB\'de yeniden eğitim ve aks-Service GmbH\'de çıraklık. 2025\'te Bonn\'da IHK sınavı.', 'isTurningPoint' => false],
+            ['years' => '2024–', 'place' => 'Düren', 'title' => 'Yazılım geliştirici, aks-Service GmbH', 'text' => 'Laravel ve Livewire ile, sıkıcı işleri kontrol altında tutan web uygulamaları yapıyorum.', 'isTurningPoint' => false],
+        ];
+    }
+
+    /**
+     * The toolbox stickers: daily tools first, then the ones used now and then.
+     *
+     * @return array{daily: list<string>, sometimes: list<string>, languages: list<string>}
+     */
+    public static function toolbox(): array
+    {
+        return [
+            'daily' => ['PHP', 'Laravel', 'Livewire', 'Alpine.js', 'Tailwind CSS', 'MySQL', 'Git', 'JavaScript', 'HTML', 'CSS', 'Claude'],
+            'sometimes' => ['Python', 'Java', 'SQL', 'Linux'],
+            'languages' => ['Türkçe', 'Almanca', 'İngilizce'],
         ];
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Section;
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\GoalsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostsController;
@@ -18,7 +19,7 @@ Route::get('izlediklerim/{type}/{slug}', [WatchedController::class, 'show'])
 Route::get('hedefler', GoalsController::class)->name('goals.index');
 Route::get('projeler', [ProjectsController::class, 'index'])->name('projects.index');
 Route::get('projeler/{slug}', [ProjectsController::class, 'show'])->name('projects.show');
-Route::view('hakkimda', 'site.placeholder', ['section' => Section::About])->name('about');
+Route::get('hakkimda', AboutController::class)->name('about');
 
 if (! app()->isProduction()) {
     Route::view('stil', 'site.styleguide', ['section' => Section::Home])->name('styleguide');
