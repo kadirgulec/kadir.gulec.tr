@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Account\DataExportController;
 use App\Http\Controllers\Account\UnsubscribeController;
 use Illuminate\Support\Facades\Route;
 
@@ -8,6 +9,7 @@ use Illuminate\Support\Facades\Route;
  */
 Route::middleware(['auth'])->group(function () {
     Route::livewire('hesap', 'pages::settings.profile')->name('profile.edit');
+    Route::get('hesap/verilerim', DataExportController::class)->middleware('throttle:6,1')->name('account.export');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

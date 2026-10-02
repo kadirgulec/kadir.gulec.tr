@@ -111,6 +111,12 @@ new #[Layout('layouts::account'), Title('Profil')] class extends Component {
         </form>
     </section>
 
+    <section class="space-y-3 border-t-2 border-dashed border-rule pt-10">
+        <h2 class="font-display text-2xl font-extrabold">Verilerim</h2>
+        <p class="text-ink-soft">Hesabın, yorumların ve takiplerin tek bir JSON dosyasında. Şifre ve güvenlik anahtarları dosyada yer almaz.</p>
+        <x-site.form.button variant="secondary" :href="route('account.export')">Verilerimi indir</x-site.form.button>
+    </section>
+
     @if ($this->showDeleteUser)
         <livewire:pages::settings.delete-user-form />
     @endif
