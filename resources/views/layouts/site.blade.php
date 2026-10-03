@@ -85,9 +85,8 @@
 
                     <div class="flex min-h-[85dvh] flex-col pr-5 pl-10 sm:pr-10 sm:pl-20">
                         <header class="flex items-center justify-between gap-4 pt-5 sm:pt-7">
-                            <a href="{{ route('home') }}" class="group flex items-center gap-3" aria-label="Kadir Gülec, ana sayfa">
-                                <x-site.logo class="stamp size-11 -rotate-12 text-home-ink transition-transform duration-200 group-hover:-rotate-3" />
-                                <span class="font-hand text-2xl font-bold text-ink">Kadir Gülec</span>
+                            <a href="{{ route('home') }}" class="group" aria-label="Kadir Gülec, ana sayfa">
+                                <x-site.signature class="stamp h-14 w-auto sm:h-16 -rotate-6 text-home-ink transition-transform duration-200 group-hover:-rotate-2" />
                             </a>
 
                             <x-site.lamp />
