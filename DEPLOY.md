@@ -56,7 +56,7 @@ Siteyi ilk kez yayına almadan önce bu listedeki her madde işaretlenmiş olmal
 
 - [ ] `/admin/yedekler`'den bir yedek oluştur ve indir (kuyruk çalışıyor mu?).
 - [ ] `/sitemap.xml`, `/robots.txt`, `/yazilar/rss` açılıyor; bir yazının bağlantısı paylaşıldığında OG görseli görünüyor.
-- [ ] Taslak bir yazı ziyaretçiye 404 veriyor; `/admin/stil` production'da kapalı.
+- [ ] Taslak bir yazı ziyaretçiye 404 veriyor; `/stil` ve `/admin/stil` production'da 404 veriyor.
 - [ ] Kayıt ve iletişim formunda Turnstile kutusu görünüyor ve gönderim çalışıyor.
 
 ## Her deploy'da
