@@ -6,7 +6,7 @@
     $stickerTilts = [-4, 3, -2, 5, -3, 2, -5, 4];
 @endphp
 
-<x-layouts::site :section="Section::About" title="Hakkımda" description="Ankara'da memurdum, Düren'de yazılımcıyım. Arada bir sürü şey oldu, burası o defter.">
+<x-layouts::site :section="Section::About" title="Hakkımda" description="Ankara'da memurdum, Düren'de yazılımcıyım. Burası benim karalama defterim: hedef koyup kendimi motive ettiğim, yarınki beni daha iyi yapmaya çalıştığım yer.">
     {{-- Intro --}}
     <section class="grid items-start gap-8 md:grid-cols-[1fr_auto]">
         <div>
@@ -25,7 +25,16 @@
                 </span>
             </h1>
 
-            <p class="mt-8 font-hand text-3xl text-ink-soft">Arada bir sürü şey oldu, burası o defter.</p>
+            <p class="mt-8 max-w-2xl font-hand text-2xl text-ink-soft sm:text-3xl">
+                Burası benim karalama defterim: kendime hedefler koyup motivasyon bulduğum, yarınki beni bugünkünden daha iyi yapmaya çalıştığım yer.
+                Bu serüvene katılmak isteyen herkesi
+                @guest
+                    <a href="{{ route('register') }}" class="text-section-ink underline decoration-section decoration-wavy underline-offset-6 [text-decoration-skip-ink:none]">üyeliğe</a>
+                @else
+                    üyeliğe
+                @endguest
+                beklerim.
+            </p>
         </div>
 
         <x-site.logo class="stamp mt-4 mr-2 hidden size-32 rotate-12 text-section-ink md:block" />

@@ -17,7 +17,7 @@ new class extends Component {
 
 <div class="inline-flex">
     @guest
-        <a href="{{ route('register') }}" class="font-hand text-xl text-section-ink underline decoration-wavy decoration-section underline-offset-4">yeni yazılardan haberdar olmak için kayıt ol</a>
+        <a href="{{ route('register') }}" class="font-hand text-xl text-section-ink underline decoration-wavy decoration-section underline-offset-6 [text-decoration-skip-ink:none]">yeni yazılardan haberdar olmak için kayıt ol</a>
     @else
         @if (auth()->user()->hasVerifiedEmail())
             <button type="button" wire:click="toggle" aria-pressed="{{ auth()->user()->notify_new_posts ? 'true' : 'false' }}" @class([
