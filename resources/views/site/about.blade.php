@@ -12,16 +12,16 @@
         <div>
             <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">Hakkımda</p>
 
-            <h1 class="mt-4 max-w-3xl font-display text-4xl leading-[1.12] font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl">
+            <h1 class="mt-4 max-w-3xl font-display text-4xl leading-[1.3] font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl">
                 Ankara'da
-                <span class="relative inline-block">
+                <span class="relative inline-block leading-none">
                     memurdum,
-                    <x-site.scribble class="absolute -bottom-2 left-0 h-3 w-[92%] text-section" />
+                    <x-site.scribble class="absolute -bottom-3 left-0 h-3 w-[92%] text-section" />
                 </span>
                 Düren'de
-                <span class="relative inline-block px-1">
+                <span class="relative inline-block px-1 leading-none">
                     yazılımcıyım.
-                    <x-site.scribble variant="circle" class="absolute -inset-x-4 -inset-y-3 h-[calc(100%+1.5rem)] w-[calc(100%+2rem)] text-pen-red" />
+                    <x-site.scribble variant="circle" class="absolute -inset-x-4 -top-2.5 h-[calc(100%+1.75rem)] w-[calc(100%+2rem)] text-pen-red" />
                 </span>
             </h1>
 
