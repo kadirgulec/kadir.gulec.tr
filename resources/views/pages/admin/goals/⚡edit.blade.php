@@ -202,7 +202,8 @@ new #[Layout('layouts::admin')] class extends Component {
     $daily = ($goal?->chain_period ?? ChainPeriod::Day) === ChainPeriod::Day;
     $unit = $goal?->chain_period->unit() ?? 'gün';
     $currentPeriod = $goal && $kind === GoalKind::Chain && ! $daily ? $goal->chainPeriodAt() : null;
-    $gridStart = $today->startOfYear()->startOfWeek();
+    $gridStart = $today->startOfYear()->subDays($today->startOfYear()->dayOfWeekIso - 1);
+    $weekCount = (int) ceil(($gridStart->diffInDays($today->endOfYear()->startOfDay()) + 1) / 7);
     $publicUrl = match (true) {
         $goal === null => null,
         $kind === GoalKind::Chain => route('goals.chain', $goal->slug),
@@ -273,31 +274,62 @@ new #[Layout('layouts::admin')] class extends Component {
                     </x-admin.text>
                     <x-admin.error :message="$errors->first('date')" class="mb-3" />
 
-                    <div class="overflow-x-auto pb-2">
-                        <div class="grid w-max grid-flow-col grid-rows-7 gap-1">
-                            @for ($day = $gridStart; $day->lessThanOrEqualTo($today->endOfYear()); $day = $day->addDay())
-                                @php
-                                    $key = $day->toDateString();
-                                    $state = $history->get($key)['state'] ?? null;
-                                    $locked = $day->isFuture() || $day->year !== $today->year || ($goal->started_on && $day->lessThan($goal->started_on)) || ($goal->ended_on && $day->greaterThan($goal->ended_on));
-                                @endphp
-                                <button
-                                    type="button"
-                                    wire:key="day-{{ $key }}"
-                                    @if ($locked) disabled @else wire:click="cycleDay('{{ $key }}')" @endif
-                                    title="{{ $day->locale('tr')->translatedFormat('j F') }}: {{ ['done' => 'tamam', 'excused' => 'mazeretli', 'missed' => $daily ? 'kopuk' : 'boş'][$state] ?? ($day->isToday() ? 'bugün, henüz işaretlenmedi' : '—') }}"
-                                    aria-label="{{ $day->locale('tr')->translatedFormat('j F') }}"
-                                    @class([
-                                        'size-3.5 rounded-[3px] transition',
-                                        'cursor-pointer hover:ring-2 hover:ring-accent/40' => ! $locked,
-                                        'bg-section-goals' => $state === 'done',
-                                        'bg-amber-300 dark:bg-amber-500/60' => $state === 'excused',
-                                        'bg-zinc-200 dark:bg-zinc-700' => $state === 'missed' || ($state === null && ! $locked),
-                                        'bg-zinc-100 dark:bg-zinc-800/50' => $locked,
-                                        'ring-2 ring-accent' => $day->isToday(),
-                                    ])
-                                ></button>
-                            @endfor
+                    {{-- One column per week (Monday first), months on top. The vertical padding keeps today's ring inside the scroller, which clips. --}}
+                    <div class="relative overflow-x-auto py-1 pr-1 pb-3" x-data x-init="const today = $el.querySelector('[data-today]'); if (today) $el.scrollLeft = today.offsetLeft - $el.clientWidth / 2">
+                        <div class="inline-flex flex-col gap-1">
+                            <div class="flex gap-1" aria-hidden="true">
+                                <span class="sticky left-0 z-10 w-8 shrink-0 bg-white dark:bg-zinc-900"></span>
+                                @for ($week = 0; $week < $weekCount; $week++)
+                                    @php
+                                        // A month is named over the week its first Sunday ends.
+                                        $weekEnd = $gridStart->addWeeks($week)->addDays(6);
+                                    @endphp
+                                    <span class="w-3.5 overflow-visible text-[10px] leading-none whitespace-nowrap text-zinc-500">
+                                        {{ $weekEnd->day <= 7 && $weekEnd->year === $today->year ? $weekEnd->locale('tr')->translatedFormat('M') : '' }}
+                                    </span>
+                                @endfor
+                            </div>
+
+                            <div class="flex gap-1">
+                                {{-- Sticky: the scroller opens at today, the weekday names stay in view. --}}
+                                <div class="sticky left-0 z-10 grid w-8 grid-rows-7 gap-1 bg-white text-[10px] leading-3.5 text-zinc-500 dark:bg-zinc-900" aria-hidden="true">
+                                    <span>Pzt</span><span></span><span>Çar</span><span></span><span>Cum</span><span></span><span>Paz</span>
+                                </div>
+
+                                @for ($week = 0; $week < $weekCount; $week++)
+                                    <div class="grid grid-rows-7 gap-1">
+                                        @for ($weekday = 0; $weekday < 7; $weekday++)
+                                            @php
+                                                $day = $gridStart->addWeeks($week)->addDays($weekday);
+                                                $key = $day->toDateString();
+                                                $state = $history->get($key)['state'] ?? null;
+                                                $locked = $day->isFuture() || $day->year !== $today->year || ($goal->started_on && $day->lessThan($goal->started_on)) || ($goal->ended_on && $day->greaterThan($goal->ended_on));
+                                            @endphp
+                                            @if ($day->year !== $today->year)
+                                                <span class="size-3.5"></span>
+                                            @else
+                                                <button
+                                                    type="button"
+                                                    wire:key="day-{{ $key }}"
+                                                    @if ($day->isToday()) data-today @endif
+                                                    @if ($locked) disabled @else wire:click="cycleDay('{{ $key }}')" @endif
+                                                    title="{{ $day->locale('tr')->translatedFormat('j F l') }}: {{ ['done' => 'tamam', 'excused' => 'mazeretli', 'missed' => $daily ? 'kopuk' : 'boş'][$state] ?? ($day->isToday() ? 'bugün, henüz işaretlenmedi' : '—') }}"
+                                                    aria-label="{{ $day->locale('tr')->translatedFormat('j F') }}"
+                                                    @class([
+                                                        'size-3.5 rounded-[3px] transition',
+                                                        'cursor-pointer hover:ring-2 hover:ring-accent/40' => ! $locked,
+                                                        'bg-section-goals' => $state === 'done',
+                                                        'bg-amber-300 dark:bg-amber-500/60' => $state === 'excused',
+                                                        'bg-zinc-200 dark:bg-zinc-700' => $state === 'missed' || ($state === null && ! $locked),
+                                                        'bg-zinc-100 dark:bg-zinc-800/50' => $locked,
+                                                        'ring-2 ring-accent' => $day->isToday(),
+                                                    ])
+                                                ></button>
+                                            @endif
+                                        @endfor
+                                    </div>
+                                @endfor
+                            </div>
                         </div>
                     </div>
                     <div class="mt-3 flex flex-wrap gap-4 text-xs text-zinc-500">
