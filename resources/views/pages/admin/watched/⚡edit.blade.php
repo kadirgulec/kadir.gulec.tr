@@ -339,7 +339,14 @@ new #[Layout('layouts::admin')] class extends Component {
             </x-admin.card>
 
             <x-admin.card>
-                <x-slot:heading>İzleyeceğim</x-slot:heading>
+                <x-slot:heading>
+                    <span class="inline-flex items-center gap-1.5">
+                        İzleyeceğim
+                        <x-admin.tooltip label="İzleyeceğim listesi: yardım">
+                            Listedeki kayıtlar sitede İzlediklerim'deki "Sırada" bölümünde, senin belirlediğin sırayla görünür (ilk 6'sı hep açık). Sıra ve notlar İzleyeceğim ekranında düzenlenir. İlk izlemeyi eklediğinde kayıt listeden kendiliğinden düşer.
+                        </x-admin.tooltip>
+                    </span>
+                </x-slot:heading>
                 @if ($watchable->isOnWatchlist())
                     <x-admin.text>Sırada. İlk izlemeyi eklediğinde listeden kendiliğinden düşer.</x-admin.text>
                     <div class="mt-4 flex flex-wrap gap-2">

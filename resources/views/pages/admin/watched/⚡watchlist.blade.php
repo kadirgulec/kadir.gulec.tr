@@ -65,6 +65,12 @@ new #[Layout('layouts::admin'), Title('İzleyeceğim · İzlediklerim')] class e
 <div>
     <x-admin.page-header heading="İzleyeceğim" description="İzlediklerim sayfasındaki 'Sırada' listesi. Sırayı sürükleyerek değiştir; ilk izlemeyi eklediğinde kayıt listeden kendiliğinden düşer." :dot="Section::Watched->adminDotClass()">
         <x-slot:actions>
+            <x-admin.tooltip label="İzleyeceğim listesi nasıl çalışır?">
+                <strong>Sitede:</strong> İzlediklerim sayfasındaki "Sırada" bölümü bu listeyi aynı sırayla gösterir. İlk 6 kayıt hep görünür, kalanlar "hepsini göster" ile açılır. Not, afişin altında el yazısıyla çıkar.<br><br>
+                <strong>Bağlantı yok:</strong> Kayıtlar henüz izlenmediği (çoğu zaman taslak olduğu) için afişler bir sayfaya bağlanmaz.<br><br>
+                <strong>İzleyince:</strong> Kaydın düzenleme ekranında ilk izlemeyi eklediğinde kayıt listeden kendiliğinden düşer. Puanı ve yayını sonra her zamanki gibi verirsin.<br><br>
+                <strong>Listeden çıkarmak</strong> kaydı silmez; kayıt İzlediklerim'de taslak olarak kalır.
+            </x-admin.tooltip>
             <x-admin.button :href="route('admin.watched.index')" icon="arrow-left" variant="ghost" wire:navigate>İzlediklerim</x-admin.button>
             <x-admin.button variant="primary" icon="plus" :href="route('admin.watched.create')" wire:navigate>Film / dizi ekle</x-admin.button>
         </x-slot:actions>

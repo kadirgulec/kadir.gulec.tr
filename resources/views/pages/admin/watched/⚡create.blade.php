@@ -109,6 +109,13 @@ new #[Layout('layouts::admin'), Title('Film / dizi ekle · İzlediklerim')] clas
                 @if ($results === [])
                     <x-admin.text>Sonuç yok. Başka bir yazım dene ya da aşağıdan elle ekle.</x-admin.text>
                 @else
+                    <p class="mb-3 flex items-center gap-1.5 text-sm text-zinc-500">
+                        Her sonuç için iki seçenek: <strong class="font-semibold text-zinc-700 dark:text-zinc-300">İzledim, aktar</strong> ya da <strong class="font-semibold text-zinc-700 dark:text-zinc-300">İzleyeceğim</strong>
+                        <x-admin.tooltip label="İki seçeneğin farkı">
+                            <strong>İzledim, aktar:</strong> Bilgileri ve afişi kopyalar, düzenleme ekranını açar. Orada puanı ve izlediğin günü eklersin.<br><br>
+                            <strong>İzleyeceğim:</strong> Bilgileri ve afişi taslak olarak kopyalar ve İzleyeceğim listesinin sonuna ekler. Sitede İzlediklerim'deki "Sırada" bölümünde görünür. Kayıt zaten varsa yenisi açılmaz, var olan listeye girer.
+                        </x-admin.tooltip>
+                    </p>
                     <ul class="grid gap-3 sm:grid-cols-2">
                         @foreach ($results as $result)
                             <li wire:key="result-{{ $result['id'] }}" class="flex gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
