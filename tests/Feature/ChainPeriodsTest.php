@@ -217,3 +217,10 @@ describe('site and followers', function () {
         expect($member->notificationItems()->sole()->title)->toBe('Spor: zincir koptu (3 hafta sürdü)');
     });
 });
+
+it('shows a chain page before its first day is marked', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-10-05 19:00'));
+    $chain = periodChain(ChainPeriod::Week, 2, '2026-10-05');
+
+    $this->get(route('goals.chain', $chain->slug))->assertOk()->assertSee('haftada 2');
+});

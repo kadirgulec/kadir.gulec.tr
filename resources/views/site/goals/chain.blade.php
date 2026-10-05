@@ -4,8 +4,9 @@
 @php
     // Calendar grid: one column per week (Monday first), one row per weekday.
     $statesByDate = collect($history)->mapWithKeys(fn (array $day): array => [$day['date']->toDateString() => $day['state']]);
-    $firstDay = $history[0]['date'];
-    $lastDay = end($history)['date'];
+    // A chain started today and not marked yet has no days: its grid is just this week.
+    $firstDay = $history[0]['date'] ?? \Carbon\CarbonImmutable::today();
+    $lastDay = $history === [] ? $firstDay : end($history)['date'];
     $gridStart = $firstDay->startOfWeek();
     $weekCount = (int) ceil(($gridStart->diffInDays($lastDay) + 1) / 7);
 
