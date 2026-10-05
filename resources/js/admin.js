@@ -1,3 +1,5 @@
+import './pwa.js';
+
 /**
  * Admin panel behavior. Alpine comes with Livewire, so this file only adds
  * the theme switch and small helpers the components share.

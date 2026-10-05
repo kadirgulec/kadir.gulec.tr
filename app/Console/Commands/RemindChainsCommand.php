@@ -3,9 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Actions\Contact\SendContactMessage;
+use App\Enums\Permission;
 use App\Mail\ChainReminder;
 use App\Models\Goal;
 use App\Support\ChainReminders;
+use App\Support\Push\PushNotifier;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -17,7 +19,7 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 #[Description('Mail Kadir the chains that need him today, each reminder once')]
 class RemindChainsCommand extends Command
 {
-    public function handle(): int
+    public function handle(PushNotifier $push): int
     {
         $evening = (bool) $this->option('evening');
         $recipient = SendContactMessage::recipient();
@@ -35,19 +37,28 @@ class RemindChainsCommand extends Command
         }
 
         if ($recipient === '') {
-            $this->error('No address for Kadir: set MAIL_CONTACT_TO or legal.email.');
+            $this->error('No address for Kadir: set MAIL_CONTACT_ADDRESS or legal.email.');
 
             return self::FAILURE;
         }
 
+        $mail = new ChainReminder(array_values($entries->all()));
+
         try {
-            Mail::to($recipient)->send(new ChainReminder(array_values($entries->all())));
+            Mail::to($recipient)->send($mail);
         } catch (TransportExceptionInterface $exception) {
             // Not recorded: the reminder is tried again at the next run.
             report($exception);
 
             return self::FAILURE;
         }
+
+        $push->toPermitted(Permission::ManageGoals, [
+            'title' => (string) $mail->envelope()->subject,
+            'body' => $entries->map(fn (array $entry): string => '🔥 '.$entry['chain']->title.': '.$entry['text'])->implode("\n"),
+            'url' => route('admin.dashboard'),
+            'tag' => 'chains',
+        ]);
 
         DB::table('chain_reminders')->insertOrIgnore($entries->map(fn (array $entry): array => [
             'goal_id' => $entry['chain']->id,

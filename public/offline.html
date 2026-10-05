@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="tr">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="robots" content="noindex" />
+        <title>Bağlantı yok · Kadir Gülec</title>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <meta name="theme-color" content="#fbf7ee" />
+        <!-- Shown by the service worker (sw.js) when a page cannot be loaded. Inline styles only: nothing else may be reachable. -->
+        <style>
+            :root { --paper: #fbf7ee; --paper-deep: #f3ecdd; --ink: #2b2420; --ink-soft: #5e5249; --rule: #e4dac8; --accent: #26386b; color-scheme: light; }
+            @media (prefers-color-scheme: dark) {
+                :root { --paper: #1c1a17; --paper-deep: #26231f; --ink: #f1ebdd; --ink-soft: #c9bfae; --rule: #3a352e; --accent: #a9b8ff; color-scheme: dark; }
+            }
+            body { margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 24px 16px; box-sizing: border-box; background: var(--paper-deep); color: var(--ink); font-family: 'Nunito Sans', 'Segoe UI', Helvetica, Arial, sans-serif; }
+            main { max-width: 30rem; background: var(--paper); padding: 32px 28px; border-radius: 3px; box-shadow: 3px 3px 0 var(--rule); background-image: repeating-linear-gradient(transparent 0 31px, var(--rule) 31px 32px); }
+            .hand { font-family: 'Caveat', 'Comic Sans MS', cursive; font-size: 1.6rem; color: var(--accent); margin: 0; }
+            h1 { font-family: 'Fraunces', Georgia, serif; font-size: 2.25rem; line-height: 1.1; margin: 8px 0 16px; text-wrap: balance; }
+            p { line-height: 2rem; margin: 0 0 16px; color: var(--ink-soft); }
+            button { font: inherit; font-weight: 700; cursor: pointer; border: 0; border-radius: 6px; padding: 10px 16px; background: var(--ink); color: var(--paper); box-shadow: 2px 2px 0 var(--accent); }
+            button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        </style>
+    </head>
+    <body>
+        <main>
+            <p class="hand">kg · defter</p>
+            <h1>Bağlantı yok</h1>
+            <p>Defterin bu sayfası şu an açılamıyor, internet bağlantın kopmuş görünüyor. Bağlantı gelince tekrar dene.</p>
+            <button type="button" onclick="location.reload()">Tekrar dene</button>
+        </main>
+    </body>
+</html>

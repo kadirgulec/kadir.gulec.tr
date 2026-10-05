@@ -1,6 +1,10 @@
 <?php
 
 use App\Enums\NotificationFrequency;
+use App\Listeners\ForgetPushDevice;
+use App\Models\PushSubscription;
+use App\Support\Push\PushNotifier;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -30,6 +34,52 @@ new #[Layout('layouts::account'), Title('Bildirimler')] class extends Component 
 
         $this->status = 'Kaydedildi.';
     }
+
+    /**
+     * This device's push subscription (PushSubscription::toJSON() in the browser).
+     * Called again on every visit, so a device that changed hands follows its new owner.
+     *
+     * @param  array<string, mixed>  $subscription
+     */
+    public function enablePush(array $subscription): void
+    {
+        $data = validator($subscription, [
+            'endpoint' => ['required', 'string', 'url:https', 'max:2000'],
+            'keys.p256dh' => ['required', 'string', 'max:255'],
+            'keys.auth' => ['required', 'string', 'max:255'],
+            'contentEncoding' => ['nullable', Rule::in(['aes128gcm', 'aesgcm'])],
+        ])->validate();
+
+        $hash = PushSubscription::hashOf($data['endpoint']);
+        $device = PushSubscription::query()->firstOrNew(['endpoint_hash' => $hash]);
+        $device->forceFill([
+            'user_id' => auth()->id(),
+            'endpoint' => $data['endpoint'],
+            'public_key' => $data['keys']['p256dh'],
+            'auth_token' => $data['keys']['auth'],
+            'content_encoding' => $data['contentEncoding'] ?? 'aes128gcm',
+            'user_agent' => mb_substr((string) request()->userAgent(), 0, 255) ?: null,
+        ])->save();
+
+        // Five years: the cookie only tells the logout which device this is.
+        Cookie::queue(ForgetPushDevice::COOKIE, $hash, 60 * 24 * 365 * 5);
+    }
+
+    public function disablePush(string $endpoint): void
+    {
+        auth()->user()->pushSubscriptions()->where('endpoint_hash', PushSubscription::hashOf($endpoint))->delete();
+        Cookie::queue(Cookie::forget(ForgetPushDevice::COOKIE));
+    }
+
+    public function testPush(PushNotifier $push): void
+    {
+        $push->toUser(auth()->user(), [
+            'title' => 'Bildirimler açık ✓',
+            'body' => 'Bir e-posta geldiğinde bu cihaza da haber gelecek.',
+            'url' => route('notifications.edit'),
+            'tag' => 'test',
+        ]);
+    }
 }; ?>
 
 <div class="space-y-6">
@@ -58,4 +108,59 @@ new #[Layout('layouts::account'), Title('Bildirimler')] class extends Component 
             <x-site.form.status :message="$status" />
         </div>
     </form>
+
+    @if (PushNotifier::publicKey())
+        {{-- Push on this device: the browser holds the subscription, the server a copy for sending. --}}
+        <section
+            class="space-y-3 border-t border-dashed border-rule pt-6"
+            aria-labelledby="bu-cihaz"
+            wire:ignore
+            x-cloak
+            x-data="{
+                state: 'loading',
+                async init() {
+                    if (! window.kgPush?.supported) { this.state = 'unsupported'; return }
+                    if (Notification.permission === 'denied') { this.state = 'denied'; return }
+                    const current = await window.kgPush.current()
+                    if (current) await $wire.enablePush(window.kgPush.serialize(current))
+                    this.state = current ? 'on' : 'off'
+                },
+                async enable() {
+                    this.state = 'busy'
+                    try {
+                        const subscription = await window.kgPush.subscribe(@js(PushNotifier::publicKey()))
+                        if (subscription) await $wire.enablePush(subscription)
+                        this.state = subscription ? 'on' : (Notification.permission === 'denied' ? 'denied' : 'off')
+                    } catch (error) {
+                        this.state = 'failed'
+                    }
+                },
+                async disable() {
+                    this.state = 'busy'
+                    const endpoint = await window.kgPush.unsubscribe()
+                    if (endpoint) await $wire.disablePush(endpoint)
+                    this.state = 'off'
+                },
+            }"
+        >
+            <h2 id="bu-cihaz" class="font-display text-2xl font-semibold">Bu cihaz</h2>
+            <p class="text-ink-soft">Sana bir e-posta gittiğinde bu cihaza da bildirim gelsin. Bu cihazda çıkış yapınca kendiliğinden kapanır.</p>
+
+            <div class="flex flex-wrap items-center gap-4">
+                <x-site.form.button x-show="state === 'off' || state === 'failed'" x-on:click="enable">Bu cihazda bildirimleri aç</x-site.form.button>
+                <x-site.form.button x-show="state === 'busy'" disabled>Bekle…</x-site.form.button>
+                <template x-if="state === 'on'">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <span class="font-hand text-xl text-section-ink">✓ bu cihazda açık</span>
+                        <x-site.form.button variant="secondary" x-on:click="$wire.testPush()">Deneme bildirimi gönder</x-site.form.button>
+                        <x-site.form.button variant="link" x-on:click="disable">Kapat</x-site.form.button>
+                    </div>
+                </template>
+            </div>
+
+            <p x-show="state === 'failed'" class="text-sm text-pen-red">Bildirim açılamadı. Sayfayı yenileyip tekrar dene.</p>
+            <p x-show="state === 'denied'" class="text-sm text-ink-faint">Bu sitenin bildirimleri tarayıcıda engellenmiş. Tarayıcının site ayarlarından izin verirsen burada açabilirsin.</p>
+            <p x-show="state === 'unsupported'" class="text-sm text-ink-faint">Bu tarayıcı bildirim desteklemiyor. iPhone ya da iPad'de önce siteyi ana ekrana ekle (Paylaş → Ana Ekrana Ekle), sonra oradan aç.</p>
+        </section>
+    @endif
 </div>

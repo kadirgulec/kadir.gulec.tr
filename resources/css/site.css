@@ -111,6 +111,11 @@
 }
 
 @layer base {
+    /* Alpine parts that would flash their every state before it starts. */
+    [x-cloak] {
+        display: none !important;
+    }
+
     [data-section='home'] {
         --color-section: var(--color-home);
         --color-section-ink: var(--color-home-ink);

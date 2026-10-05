@@ -39,6 +39,14 @@ return [
         'token' => env('TMDB_API_TOKEN'),
     ],
 
+    // Push notifications (PWA). Keys: php artisan push:vapid
+    'webpush' => [
+        'public_key' => env('VAPID_PUBLIC_KEY'),
+        'private_key' => env('VAPID_PRIVATE_KEY'),
+        // mailto: or an https address the push services can reach Kadir at; PushNotifier falls back to legal.email.
+        'subject' => env('VAPID_SUBJECT'),
+    ],
+
     'turnstile' => [
         'site_key' => env('TURNSTILE_SITE_KEY'),
         'secret_key' => env('TURNSTILE_SECRET_KEY'),

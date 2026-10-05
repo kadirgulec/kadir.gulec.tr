@@ -18,6 +18,7 @@
         "league/commonmark": "^2.10",
         "livewire/blaze": "^1.0",
         "livewire/livewire": "^4.1",
+        "minishlink/web-push": "*",
         "spatie/laravel-permission": "^8.3",
         "tempest/highlight": "^2.28"
     },

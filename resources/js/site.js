@@ -1,3 +1,5 @@
+import './pwa.js';
+
 /**
  * Public site behavior: the desk lamp theme switch and hand-drawn strokes.
  * The initial theme is applied by an inline script in the <head> to avoid a flash.

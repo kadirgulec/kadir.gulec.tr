@@ -7,7 +7,7 @@
 @endphp
 
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-signed-in="true">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -35,6 +35,8 @@
 
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <meta name="theme-color" content="#26386b">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <x-pwa-head />
 
         @fonts(['nunito-sans', 'jetbrains-mono', 'fraunces'])
 

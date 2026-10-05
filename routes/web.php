@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\MarkdownPreviewController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\GoalsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\OgImageController;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\ProjectsController;
@@ -32,6 +33,7 @@ Route::get('hakkimda', AboutController::class)->name('about');
 Route::view('gizlilik', 'site.legal.privacy')->name('privacy');
 Route::get('sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
+Route::get('manifest.webmanifest', ManifestController::class)->name('manifest');
 Route::get('og/{kind}/{key}.png', OgImageController::class)->where('key', '[a-z0-9-]+')->name('og');
 Route::view('kunye', 'site.legal.imprint')->name('imprint');
 

@@ -16,7 +16,8 @@
 @endphp
 
 <!DOCTYPE html>
-<html lang="tr">
+{{-- data-signed-in: a signed-out page drops this browser's push subscription (resources/js/pwa.js). --}}
+<html lang="tr" data-signed-in="{{ auth()->check() ? 'true' : 'false' }}">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -54,6 +55,9 @@
 
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <meta name="theme-color" content="#fbf7ee" media="(prefers-color-scheme: light)">
+        <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+        <x-pwa-head />
 
         @fonts(['fraunces', 'nunito-sans', 'caveat', 'jetbrains-mono'])
 

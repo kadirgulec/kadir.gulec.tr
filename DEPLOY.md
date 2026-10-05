@@ -54,6 +54,13 @@ Siteyi ilk kez yayına almadan önce bu listedeki her madde işaretlenmiş olmal
 - [x] Taslak bir yazı ziyaretçiye 404 veriyor; `/stil` ve `/admin/stil` production'da 404 veriyor.
 - [x] Kayıt ve iletişim formunda Turnstile kutusu görünüyor ve gönderim çalışıyor.
 
+## 7. PWA ve push bildirimleri
+
+- [ ] `php artisan push:vapid` **bir kez** çalıştır, çıkan `VAPID_PUBLIC_KEY` ve `VAPID_PRIVATE_KEY`'i production `.env`'e yaz (`VAPID_SUBJECT` opsiyonel; boşsa `mailto:` + `LEGAL_EMAIL`). Anahtarlar sonradan değişirse bütün cihaz abonelikleri sessizce düşer. Anahtar yoksa site normal çalışır, sadece push gitmez ve "Bu cihaz" bölümü görünmez.
+- [ ] `.env` elle değiştiği için ardından `php8.4 artisan optimize` (config önbelleği).
+- [x] Sunucuda PHP `curl`, `openssl`, `mbstring` ve `gmp` ya da `bcmath` eklentileri (şifreleme için; `gmp` daha hızlı). Kontrol edildi 2026-10-05: PHP 8.4 CLI ve FPM'de `bcmath`, `curl`, `openssl`, `mbstring` var, `gmp` yok (kurmak `sudo` ister, gerek yok: `bcmath` ile şifreleme + imza yerelde ~20 ms).
+- [ ] Gerçek cihaz denemesi: Android'de Chrome → "Ana ekrana ekle"; iPhone'da Safari → Paylaş → "Ana Ekrana Ekle", sonra uygulamadan aç. Hesabım → Bildirimler → "Bu cihazda bildirimleri aç" → "Deneme bildirimi gönder". Çıkış yapınca bildirim gelmemeli.
+
 ## Her deploy'da
 
 `master`'a her push'ta `.github/workflows/deploy.yml` testleri çalıştırır; geçerse composer (`--no-dev`) ve `npm run build` CI'da yapılır, dosyalar `rsync` ile `~/web/kadir.gulec.tr/public_html`'e gider (`.env`, `storage/` ve `public/storage` dokunulmaz), sonra sunucuda `deployment/remote.sh`: `down` → `migrate --force` → `permissions:sync` → `optimize` → `queue:restart` → `up`. Bir adım hata verirse site yine açılır, workflow kırmızı olur. Elle de çalıştırılabilir (Actions → CI/CD → Run workflow).

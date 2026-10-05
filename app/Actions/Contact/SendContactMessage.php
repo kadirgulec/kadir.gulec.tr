@@ -2,16 +2,20 @@
 
 namespace App\Actions\Contact;
 
+use App\Enums\Permission;
 use App\Mail\ContactMessageReceived;
 use App\Models\ContactMessage;
+use App\Support\Push\PushNotifier;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 /**
  * Saves a message from the contact form to the admin inbox and mails it to
- * Kadir. The message is saved first, so a mail server hiccup loses nothing.
+ * Kadir, with a push to the devices of whoever reads the messages. The
+ * message is saved first, so a mail server hiccup loses nothing.
  * The IP address only feeds a short-lived rate limit counter (hashed).
  */
 class SendContactMessage
@@ -35,6 +39,13 @@ class SendContactMessage
         } catch (TransportExceptionInterface $exception) {
             report($exception);
         }
+
+        app(PushNotifier::class)->toPermitted(Permission::ReadMessages, [
+            'title' => 'İletişim formu: '.$contactMessage->name,
+            'body' => Str::limit($contactMessage->body, 140),
+            'url' => route('admin.messages.index'),
+            'tag' => 'contact-'.$contactMessage->id,
+        ]);
 
         return $contactMessage;
     }
