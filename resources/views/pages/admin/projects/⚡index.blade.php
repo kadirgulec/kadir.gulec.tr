@@ -30,6 +30,7 @@ new #[Layout('layouts::admin'), Title('Projeler')] class extends Component {
 <div>
     <x-admin.page-header heading="Projeler" description="Sitedeki sırayı tutup sürükleyerek değiştir." :dot="Section::Projects->adminDotClass()">
         <x-slot:actions>
+            <x-admin.button variant="ghost" icon="sticky-note" :href="route('admin.projects.toolbox')" wire:navigate>Alet çantası</x-admin.button>
             <x-admin.button variant="primary" icon="plus" :href="route('admin.projects.create')" wire:navigate>Yeni proje</x-admin.button>
         </x-slot:actions>
     </x-admin.page-header>

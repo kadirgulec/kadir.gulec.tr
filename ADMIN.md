@@ -86,7 +86,7 @@ Bu dosya, admin paneli ve üyelik aşamasının kararlarını, adımlarını ve 
 
 ### Hakkımda
 
-- Metinler kodda kalır (Blade + config). Alet çantası `technologies.in_toolbox`'tan gelir.
+- Metinler kodda kalır (Blade + config). Alet çantası `technologies.toolbox_group` ve `toolbox_order`'dan gelir; admin'de Projeler → Alet çantası (`/admin/projeler/alet-cantasi`) ile düzenlenir.
 
 ### Prototip verileri
 

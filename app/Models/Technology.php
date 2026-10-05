@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
@@ -51,6 +52,49 @@ class Technology extends Model
         }
 
         return $ids;
+    }
+
+    /**
+     * Puts the technology at the end of a toolbox group, or takes it out of
+     * the toolbox (null). It stays on its projects either way.
+     */
+    public function placeInToolbox(?ToolboxGroup $group): void
+    {
+        $last = $group === null ? null : static::query()
+            ->where('toolbox_group', $group)
+            ->whereKeyNot($this->getKey())
+            ->max('toolbox_order');
+
+        $this->toolbox_group = $group;
+        $this->toolbox_order = $group === null ? 0 : (int) ($last ?? -1) + 1;
+        $this->save();
+    }
+
+    /**
+     * Moves the technology to a zero-based position within its toolbox group
+     * and renumbers the group.
+     */
+    public function moveInToolbox(int $position): void
+    {
+        if ($this->toolbox_group === null) {
+            return;
+        }
+
+        DB::transaction(function () use ($position): void {
+            $ids = static::query()
+                ->where('toolbox_group', $this->toolbox_group)
+                ->whereKeyNot($this->getKey())
+                ->orderBy('toolbox_order')
+                ->orderBy('name')
+                ->pluck('id')
+                ->all();
+
+            array_splice($ids, max(0, min($position, count($ids))), 0, [$this->getKey()]);
+
+            foreach ($ids as $order => $id) {
+                static::query()->whereKey($id)->update(['toolbox_order' => $order]);
+            }
+        });
     }
 
     /**
