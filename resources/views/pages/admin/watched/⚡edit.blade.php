@@ -158,6 +158,18 @@ new #[Layout('layouts::admin')] class extends Component {
         $this->redirectRoute('admin.watched.index', navigate: true);
     }
 
+    public function addToWatchlist(): void
+    {
+        $this->watchable()->addToWatchlist();
+        $this->dispatch('toast', text: 'İzleyeceğim listesine eklendi.');
+    }
+
+    public function removeFromWatchlist(): void
+    {
+        $this->watchable()->removeFromWatchlist();
+        $this->dispatch('toast', text: 'İzleyeceğim listesinden çıktı.');
+    }
+
     private function watchable(): Watchable
     {
         return $this->form->watchable ?? abort(404);
@@ -324,6 +336,20 @@ new #[Layout('layouts::admin')] class extends Component {
                     <x-admin.textarea wire:model="form.meta_description" label="SEO açıklaması" rows="2" description="Boşsa özetin başı kullanılır." />
                     <x-admin.button type="submit" variant="primary" class="w-full">Kaydet</x-admin.button>
                 </div>
+            </x-admin.card>
+
+            <x-admin.card>
+                <x-slot:heading>İzleyeceğim</x-slot:heading>
+                @if ($watchable->isOnWatchlist())
+                    <x-admin.text>Sırada. İlk izlemeyi eklediğinde listeden kendiliğinden düşer.</x-admin.text>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <x-admin.button size="sm" :href="route('admin.watched.watchlist')" wire:navigate>Listeye git</x-admin.button>
+                        <x-admin.button size="sm" variant="ghost" wire:click="removeFromWatchlist">Listeden çıkar</x-admin.button>
+                    </div>
+                @else
+                    <x-admin.text>İzlemek istiyorsan listeye ekle; sitede "Sırada" bölümünde görünür.</x-admin.text>
+                    <x-admin.button size="sm" icon="list" class="mt-4" wire:click="addToWatchlist">İzleyeceğim listesine ekle</x-admin.button>
+                @endif
             </x-admin.card>
 
             <x-admin.card>

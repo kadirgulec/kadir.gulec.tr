@@ -79,6 +79,30 @@ class WatchedContent
     }
 
     /**
+     * The watchlist ("sırada"), in Kadir's order. Entries are often drafts, so
+     * they carry no link to a detail page.
+     *
+     * @return list<array{title: string, type: WatchableType, year: ?int, posterUrl: ?string, posterColors: array{0: string, 1: string}, note: ?string}>
+     */
+    public function watchlist(): array
+    {
+        $fallback = app(PosterPalette::class)->palette(PosterPalette::FALLBACK_ACCENT)['colors'];
+
+        return array_values(Watchable::query()->onWatchlist()->get()->map(function (Watchable $watchable) use ($fallback): array {
+            $palette = $watchable->poster_colors ?? $fallback;
+
+            return [
+                'title' => $watchable->title,
+                'type' => $watchable->type,
+                'year' => $watchable->year,
+                'posterUrl' => $watchable->posterUrl(480),
+                'posterColors' => [(string) $palette[0], (string) $palette[1]],
+                'note' => $watchable->watchlist_note,
+            ];
+        })->all());
+    }
+
+    /**
      * A published film or series, or a draft when the viewer may manage them.
      *
      * @return WatchedEntry|null

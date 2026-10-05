@@ -28,6 +28,16 @@ class Viewing extends Model
     /** @use HasFactory<ViewingFactory> */
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        // Watched it: the film or series leaves the watchlist.
+        static::created(function (Viewing $viewing): void {
+            if ($viewing->watchable->isOnWatchlist()) {
+                $viewing->watchable->removeFromWatchlist();
+            }
+        });
+    }
+
     /**
      * @return BelongsTo<Watchable, $this>
      */

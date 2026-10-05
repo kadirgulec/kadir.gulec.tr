@@ -59,6 +59,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::middleware('can:'.Permission::ManageWatched->value)->group(function () {
         Route::livewire('izlediklerim', 'pages::admin.watched.index')->name('watched.index');
         Route::livewire('izlediklerim/ekle', 'pages::admin.watched.create')->name('watched.create');
+        Route::livewire('izlediklerim/izleyecegim', 'pages::admin.watched.watchlist')->name('watched.watchlist');
         Route::livewire('izlediklerim/{watchable}', 'pages::admin.watched.edit')->name('watched.edit');
     });
 

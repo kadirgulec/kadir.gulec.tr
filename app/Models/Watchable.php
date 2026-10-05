@@ -12,10 +12,13 @@ use App\Support\Images\ImageStore;
 use Carbon\CarbonImmutable;
 use Database\Factories\WatchableFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\DB;
 
 /**
  * A film or a series: its facts (mostly from TMDB, stored locally) and
@@ -45,6 +48,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property SeriesStatus|null $series_status
  * @property int|null $current_season
  * @property int|null $current_episode
+ * @property int|null $watchlist_position
+ * @property string|null $watchlist_note
  * @property string|null $meta_description
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
@@ -52,7 +57,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 #[Fillable([
     'type', 'slug', 'tmdb_id', 'title', 'original_title', 'year', 'creator', 'genres', 'runtime_minutes', 'overview', 'cast',
     'rating', 'is_favorite', 'review', 'review_published_at', 'series_status', 'current_season', 'current_episode',
-    'meta_description', 'published_at',
+    'meta_description', 'published_at', 'watchlist_note',
 ])]
 class Watchable extends Model
 {
@@ -103,6 +108,66 @@ class Watchable extends Model
             && ! $this->review_published_at->isFuture();
     }
 
+    /**
+     * The watchlist ("izleyeceğim"), in Kadir's order.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function onWatchlist(Builder $query): void
+    {
+        $query->whereNotNull('watchlist_position')->orderBy('watchlist_position')->orderBy('id');
+    }
+
+    public function isOnWatchlist(): bool
+    {
+        return $this->watchlist_position !== null;
+    }
+
+    /**
+     * Puts the film or series at the end of the watchlist (a note can say who recommended it).
+     */
+    public function addToWatchlist(?string $note = null): void
+    {
+        if (! $this->isOnWatchlist()) {
+            $last = static::query()->whereNotNull('watchlist_position')->whereKeyNot($this->getKey())->max('watchlist_position');
+            $this->watchlist_position = (int) ($last ?? -1) + 1;
+        }
+
+        if ($note !== null) {
+            $this->watchlist_note = $note !== '' ? $note : null;
+        }
+
+        $this->save();
+    }
+
+    public function removeFromWatchlist(): void
+    {
+        $this->watchlist_position = null;
+        $this->watchlist_note = null;
+        $this->save();
+    }
+
+    /**
+     * Moves the film or series to a zero-based position on the watchlist and renumbers the list.
+     */
+    public function moveInWatchlist(int $position): void
+    {
+        if (! $this->isOnWatchlist()) {
+            return;
+        }
+
+        DB::transaction(function () use ($position): void {
+            $ids = static::query()->onWatchlist()->whereKeyNot($this->getKey())->pluck('id')->all();
+
+            array_splice($ids, max(0, min($position, count($ids))), 0, [$this->getKey()]);
+
+            foreach ($ids as $order => $id) {
+                static::query()->whereKey($id)->update(['watchlist_position' => $order]);
+            }
+        });
+    }
+
     public function posterUrl(int $width = 960): ?string
     {
         return ImageStore::url($this->poster_path, $width);
@@ -138,6 +203,7 @@ class Watchable extends Model
             'tmdb_id' => 'integer',
             'current_season' => 'integer',
             'current_episode' => 'integer',
+            'watchlist_position' => 'integer',
             'review_published_at' => 'immutable_datetime',
         ];
     }

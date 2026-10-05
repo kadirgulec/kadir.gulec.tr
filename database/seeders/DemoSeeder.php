@@ -13,8 +13,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
 /**
- * The sample content of the design prototype (posts, and in later steps
- * films and goals), so the site looks filled on a local machine.
+ * The sample content of the design prototype (posts, films and series, the
+ * watchlist and goals), so the site looks filled on a local machine.
  * DatabaseSeeder only calls it outside production.
  */
 class DemoSeeder extends Seeder
@@ -23,6 +23,7 @@ class DemoSeeder extends Seeder
     {
         $this->seedPosts();
         $this->seedWatched($storePoster);
+        $this->seedWatchlist();
         $this->seedGoals();
     }
 
@@ -99,6 +100,35 @@ class DemoSeeder extends Seeder
             } else {
                 $watchable->forceFill(['accent' => $data['accent'], 'poster_colors' => $data['poster_colors']])->save();
             }
+        }
+    }
+
+    /**
+     * Films and series on the watchlist ("Sırada"), in the order of the data file.
+     */
+    private function seedWatchlist(): void
+    {
+        /** @var list<array{type: string, slug: string, title: string, original_title: ?string, year: int, creator: string, genres: list<string>, overview: string, poster_colors: array{0: string, 1: string}, accent: string, note: ?string}> $entries */
+        $entries = require __DIR__.'/data/demo-watchlist.php';
+
+        foreach ($entries as $data) {
+            if (Watchable::query()->where('type', $data['type'])->where('slug', $data['slug'])->exists()) {
+                continue;
+            }
+
+            $watchable = Watchable::query()->create([
+                'type' => $data['type'],
+                'slug' => $data['slug'],
+                'title' => $data['title'],
+                'original_title' => $data['original_title'],
+                'year' => $data['year'],
+                'creator' => $data['creator'],
+                'genres' => $data['genres'],
+                'overview' => $data['overview'],
+            ]);
+
+            $watchable->forceFill(['accent' => $data['accent'], 'poster_colors' => $data['poster_colors']])->save();
+            $watchable->addToWatchlist($data['note']);
         }
     }
 

@@ -58,6 +58,20 @@ new #[Layout('layouts::admin'), Title('Film / dizi ekle · İzlediklerim')] clas
         $this->redirectRoute('admin.watched.edit', $watchable, navigate: true);
     }
 
+    /**
+     * Not watched yet: the film or series goes to the end of the watchlist.
+     */
+    public function addToWatchlist(int $tmdbId, ImportFromTmdb $import): void
+    {
+        $watchable = Watchable::query()->where('type', $this->type)->where('tmdb_id', $tmdbId)->first()
+            ?? $import->handle(WatchableType::from($this->type), $tmdbId);
+
+        $watchable->addToWatchlist();
+
+        session()->flash('toast', ['text' => "{$watchable->title} izleyeceğim listesine eklendi.", 'variant' => 'success']);
+        $this->redirectRoute('admin.watched.watchlist', navigate: true);
+    }
+
     public function createManually(StorePoster $storePoster): void
     {
         $this->validate([
@@ -109,7 +123,10 @@ new #[Layout('layouts::admin'), Title('Film / dizi ekle · İzlediklerim')] clas
                                         <p class="text-xs text-zinc-500 italic">{{ $result['originalTitle'] }}</p>
                                     @endif
                                     <p class="mt-1 line-clamp-2 text-sm text-zinc-600 dark:text-zinc-400">{{ $result['overview'] }}</p>
-                                    <x-admin.button size="sm" icon="download" class="mt-2" wire:click="import({{ $result['id'] }})">Aktar</x-admin.button>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        <x-admin.button size="sm" icon="download" wire:click="import({{ $result['id'] }})">İzledim, aktar</x-admin.button>
+                                        <x-admin.button size="sm" variant="ghost" icon="list" wire:click="addToWatchlist({{ $result['id'] }})">İzleyeceğim</x-admin.button>
+                                    </div>
                                 </div>
                             </li>
                         @endforeach

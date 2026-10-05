@@ -76,6 +76,40 @@
         </ul>
     </section>
 
+    {{-- Watchlist: the first six, the rest behind "hepsini göster" (a plain <details>, no script needed) --}}
+    @if ($watchlist !== [])
+        @php
+            [$watchlistFirst, $watchlistRest] = [array_slice($watchlist, 0, 6), array_slice($watchlist, 6)];
+            $stripClasses = '-mx-2 flex snap-x gap-6 overflow-x-auto px-2 pt-4 pb-6 sm:flex-wrap sm:overflow-visible';
+        @endphp
+
+        <section class="mt-16" aria-labelledby="sirada">
+            <h2 id="sirada" class="font-display text-2xl font-semibold">Sırada</h2>
+            <p class="font-hand text-xl text-ink-faint">izleyeceklerim, sırasıyla</p>
+
+            <ol class="mt-4 {{ $stripClasses }}">
+                @foreach ($watchlistFirst as $index => $entry)
+                    <x-site.watchlist-entry :entry="$entry" :tilt="$posterTilts[($index + 2) % count($posterTilts)]" />
+                @endforeach
+            </ol>
+
+            @if ($watchlistRest !== [])
+                <details class="group">
+                    <summary class="inline-block cursor-pointer list-none font-hand text-2xl text-section-ink underline decoration-section decoration-wavy underline-offset-6 [text-decoration-skip-ink:none] [&::-webkit-details-marker]:hidden">
+                        <span class="group-open:hidden">hepsini göster ({{ count($watchlistRest) }} tane daha)</span>
+                        <span class="hidden group-open:inline">daha az göster</span>
+                    </summary>
+
+                    <ol start="7" class="mt-2 {{ $stripClasses }}">
+                        @foreach ($watchlistRest as $index => $entry)
+                            <x-site.watchlist-entry :entry="$entry" :tilt="$posterTilts[($index + 8) % count($posterTilts)]" />
+                        @endforeach
+                    </ol>
+                </details>
+            @endif
+        </section>
+    @endif
+
     {{-- Diary --}}
     <section class="mt-16" aria-labelledby="gunluk">
         <h2 id="gunluk" class="font-display text-2xl font-semibold">Günlük</h2>
