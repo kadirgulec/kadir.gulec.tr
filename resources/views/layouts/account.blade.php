@@ -23,7 +23,6 @@
                         <li>
                             <a
                                 href="{{ route($routeName) }}"
-                                wire:navigate
                                 @if (request()->routeIs($routeName)) aria-current="page" @endif
                                 @class([
                                     'font-semibold underline-offset-[6px] hover:text-ink',

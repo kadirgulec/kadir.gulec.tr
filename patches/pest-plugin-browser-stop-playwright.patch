@@ -1,0 +1,11 @@
+--- a/src/ServerManager.php
++++ b/src/ServerManager.php
+@@ -64,7 +64,7 @@
+ 
+         $this->playwright ??= PlaywrightNpmServer::create(
+             PackageJsonDirectory::find(),
+-            '.'.DIRECTORY_SEPARATOR.'node_modules'.DIRECTORY_SEPARATOR.'.bin'.DIRECTORY_SEPARATOR.'playwright run-server --host %s --port %d --mode launchServer',
++            'exec .'.DIRECTORY_SEPARATOR.'node_modules'.DIRECTORY_SEPARATOR.'.bin'.DIRECTORY_SEPARATOR.'playwright run-server --host %s --port %d --mode launchServer',
+             $host,
+             $port,
+             'Listening on',

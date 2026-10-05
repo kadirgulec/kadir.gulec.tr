@@ -40,3 +40,4 @@ yarn-error.log
 
 # Third-party poster images, local design prototype only
 /public/images/prototype
+/tests/Browser/Screenshots

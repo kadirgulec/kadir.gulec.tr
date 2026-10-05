@@ -1,0 +1,17 @@
+{
+    "_hash": "29dcbee9249b2e2b726db519e1f2f8b1e35ca2fefb0b621111426e5c92a0c096",
+    "patches": {
+        "pestphp/pest-plugin-browser": [
+            {
+                "package": "pestphp/pest-plugin-browser",
+                "description": "Stop the Playwright server itself, not only the sh wrapper around it",
+                "url": "patches/pest-plugin-browser-stop-playwright.patch",
+                "sha256": "783e4683dfb9c8f092af83b4211926931692c8104bef7b363ba5205f086b8375",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            }
+        ]
+    }
+}

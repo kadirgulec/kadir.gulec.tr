@@ -16,13 +16,20 @@
 
         <title>{{ filled($title ?? null) ? $title.' · Admin' : 'Admin' }} · kadir.gulec.tr</title>
 
-        {{-- Runs before the first paint so dark mode never flashes white. --}}
+        {{--
+            Runs before the first paint so dark mode never flashes white. wire:navigate
+            copies the new page's <html> attributes, dropping "dark", so apply it again on every swap.
+        --}}
         <script>
             (() => {
-                let stored = null;
-                try { stored = localStorage.getItem('theme'); } catch (e) {}
-                const isDark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-                document.documentElement.classList.toggle('dark', isDark);
+                const apply = () => {
+                    let stored = null;
+                    try { stored = localStorage.getItem('theme'); } catch (e) {}
+                    const isDark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+                    document.documentElement.classList.toggle('dark', isDark);
+                };
+                apply();
+                document.addEventListener('livewire:navigating', (event) => event.detail.onSwap(apply));
             })();
         </script>
 
