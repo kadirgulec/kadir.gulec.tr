@@ -86,7 +86,7 @@ new #[Layout('layouts::admin'), Title('İzleyeceğim · İzlediklerim')] class e
             </x-admin.empty>
         </x-admin.card>
     @else
-        <ul wire:sort="sort" class="divide-y divide-zinc-100 overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xs dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
+        <ul wire:sort="sort" class="divide-y divide-zinc-100 rounded-xl border border-zinc-200 bg-white shadow-xs dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
             @foreach ($this->watchables as $watchable)
                 <li wire:key="watchlist-{{ $watchable->id }}" wire:sort:item="{{ $watchable->id }}" class="flex items-start gap-3 px-3 py-3 sm:gap-4 sm:px-4">
                     <button type="button" wire:sort:handle class="mt-3 cursor-grab text-zinc-400 hover:text-zinc-700 active:cursor-grabbing dark:hover:text-zinc-200" aria-label="{{ $watchable->title }} sırasını değiştir">
