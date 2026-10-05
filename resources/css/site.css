@@ -214,6 +214,20 @@
 }
 
 /* Washi tape strip with torn, zigzag ends. Position it with utilities. */
+/*
+ * A page torn out of the notebook: the bottom edge is ripped (error pages).
+ */
+@utility torn-edge {
+    clip-path: polygon(
+        0 0, 100% 0, 100% calc(100% - 14px),
+        96% 100%, 92% calc(100% - 10px), 87% calc(100% - 2px), 83% calc(100% - 13px), 78% calc(100% - 4px),
+        74% calc(100% - 15px), 69% calc(100% - 3px), 64% calc(100% - 11px), 60% 100%, 55% calc(100% - 12px),
+        51% calc(100% - 3px), 46% calc(100% - 14px), 41% calc(100% - 5px), 37% calc(100% - 12px), 32% 100%,
+        27% calc(100% - 10px), 23% calc(100% - 2px), 18% calc(100% - 14px), 13% calc(100% - 4px),
+        9% calc(100% - 12px), 4% calc(100% - 1px), 0 calc(100% - 11px)
+    );
+}
+
 @utility tape {
     position: absolute;
     height: 1.6rem;
