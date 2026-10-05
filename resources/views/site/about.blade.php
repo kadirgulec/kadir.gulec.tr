@@ -104,7 +104,7 @@
             @if ($now['chain'])
                 <li class="flex gap-3">
                     <span aria-hidden="true">🔥</span>
-                    <span>“{{ $now['chain']['title'] }}” zincirinde {{ $now['chain']['streak'] }}. gündeyim. <a href="{{ route('goals.index') }}" class="text-base text-ink-soft underline decoration-dotted underline-offset-4 hover:text-ink">hedeflerim →</a></span>
+                    <span>“{{ $now['chain']['title'] }}” zincirinde {{ $now['chain']['period']->atCount($now['chain']['streak']) }}. <a href="{{ route('goals.index') }}" class="text-base text-ink-soft underline decoration-dotted underline-offset-4 hover:text-ink">hedeflerim →</a></span>
                 </li>
             @endif
 

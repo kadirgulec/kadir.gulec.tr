@@ -27,12 +27,6 @@ use Carbon\CarbonImmutable;
  */
 class Announcements
 {
-    /** Streak lengths worth an e-mail. */
-    public const STREAK_MILESTONES = [30, 100, 365];
-
-    /** A new record is only news after a real streak. */
-    private const RECORD_MINIMUM = 7;
-
     public function __construct(private Notifier $notifier) {}
 
     public static function register(): void
@@ -197,56 +191,60 @@ class Announcements
     }
 
     /**
-     * A marked day may complete a round streak or set a new record (once per run).
+     * A marked day may complete a link, and that a round streak or a new record (once per run).
+     * The counts are in the chain's own links: 10 weeks, 6 months.
      */
     public function chainDay(ChainDay $day): void
     {
         $chain = $day->goal->load('chainDays');
-        $history = $chain->chainHistory();
-        $states = array_column($history, 'state');
+        $period = $chain->chain_period;
+        $links = $chain->chainLinks();
+        $states = array_column($links, 'state');
         $streak = ChainStats::currentStreak($states);
-        $runStart = $this->runStart($history)?->toDateString() ?? 'start';
+        $runStart = $this->runStart($links)?->toDateString() ?? 'start';
 
-        if (in_array($streak, self::STREAK_MILESTONES, true)) {
+        if (in_array($streak, $period->milestones(), true)) {
             $this->notifier->toFollowers($chain, 'streak-'.$streak.'-'.$runStart, fn (User $user): array => [
-                'title' => $this->notifier->goalTitle($chain, $user).': 🔥 '.$streak.' gün!',
+                'title' => $this->notifier->goalTitle($chain, $user).': 🔥 '.$streak.' '.$period->unit().'!',
                 'url' => $this->goalUrl($chain, $user),
             ]);
         }
 
         $bestBefore = ChainStats::bestStreak(array_slice($states, 0, max(0, count($states) - $streak)));
 
-        if ($streak > $bestBefore && $bestBefore >= self::RECORD_MINIMUM) {
+        if ($streak > $bestBefore && $bestBefore >= $period->recordMinimum()) {
             $this->notifier->toFollowers($chain, 'record-'.$runStart, fn (User $user): array => [
-                'title' => $this->notifier->goalTitle($chain, $user).': yeni rekor seri ('.$bestBefore.' günü geçti)',
+                'title' => $this->notifier->goalTitle($chain, $user).': yeni rekor seri ('.$period->accusative($bestBefore).' geçti)',
                 'url' => $this->goalUrl($chain, $user),
             ]);
         }
     }
 
     /**
-     * A chain that was missed yesterday after a streak of at least three days (called daily).
+     * A chain whose link ended yesterday (a day, a week, a month) and did not hold,
+     * after a streak of at least three links (called daily).
      */
     public function chainBreak(Goal $chain): void
     {
         $yesterday = CarbonImmutable::yesterday()->toDateString();
-        $states = array_column(array_filter(
-            $chain->chainHistory(),
-            fn (array $day): bool => $day['date']->toDateString() <= $yesterday,
-        ), 'state');
+        $links = array_values(array_filter(
+            $chain->chainLinks(),
+            fn (array $link): bool => $link['end']->toDateString() <= $yesterday,
+        ));
+        $last = end($links);
 
-        if (end($states) !== 'missed') {
+        if ($last === false || $last['state'] !== 'missed' || $last['end']->toDateString() !== $yesterday) {
             return;
         }
 
-        $lost = ChainStats::currentStreak(array_slice($states, 0, -1));
+        $lost = ChainStats::currentStreak(array_slice(array_column($links, 'state'), 0, -1));
 
         if ($lost < 3) {
             return;
         }
 
         $this->notifier->toFollowers($chain, 'break-'.$yesterday, fn (User $user): array => [
-            'title' => $this->notifier->goalTitle($chain, $user).': zincir koptu ('.$lost.' gün sürdü)',
+            'title' => $this->notifier->goalTitle($chain, $user).': zincir koptu ('.$lost.' '.$chain->chain_period->unit().' sürdü)',
             'url' => $this->goalUrl($chain, $user),
         ]);
     }
@@ -284,18 +282,18 @@ class Announcements
     }
 
     /**
-     * @param  list<array{date: CarbonImmutable, state: string}>  $history
+     * @param  list<array{start: CarbonImmutable, state: string}>  $links
      */
-    private function runStart(array $history): ?CarbonImmutable
+    private function runStart(array $links): ?CarbonImmutable
     {
         $start = null;
 
-        foreach (array_reverse($history) as $day) {
-            if ($day['state'] === 'missed') {
+        foreach (array_reverse($links) as $link) {
+            if ($link['state'] === 'missed') {
                 break;
             }
 
-            $start = $day['date'];
+            $start = $link['start'];
         }
 
         return $start;

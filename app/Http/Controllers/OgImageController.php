@@ -142,7 +142,7 @@ class OgImageController extends Controller
 
         $censored = $goal->visibility === GoalVisibility::Censored;
         $subtitle = $goal->kind === GoalKind::Chain
-            ? ChainStats::currentStreak(array_column($goal->load('chainDays')->chainHistory(), 'state')).' günlük seri'
+            ? ChainStats::currentStreak(array_column($goal->load('chainDays')->chainLinks(), 'state')).' '.$goal->chain_period->adjective().' seri'
             : strip_tags((string) $goal->why_html);
 
         return [[

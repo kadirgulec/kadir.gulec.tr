@@ -33,21 +33,21 @@ use Illuminate\Support\HtmlString;
 class GoalContent
 {
     /**
-     * Chains that run today, in Kadir's order, with their last days.
+     * Chains that run today, in Kadir's order, with their last links.
      *
      * @return list<array<string, mixed>>
      */
-    public function chains(int $days = 21): array
+    public function chains(int $links = 21): array
     {
         $chains = $this->visible(GoalKind::Chain)->activeChains()->with(['chainDays', 'parent'])->get();
 
-        return array_values($chains->map(fn (Goal $chain): array => $this->chain($chain, $days))->all());
+        return array_values($chains->map(fn (Goal $chain): array => $this->chain($chain, $links))->all());
     }
 
     /**
-     * A visible chain with its days since the start of the year (or its own start).
+     * A visible chain with its days and links since the start of the year (or its own start).
      *
-     * @return array{chain: array<string, mixed>, history: list<array{date: CarbonImmutable, state: 'done'|'missed'|'excused'}>, parentGoal: array{title: ?string, titleLength: ?int, anchor: string}|null}|null
+     * @return array{chain: array<string, mixed>, history: list<array{date: CarbonImmutable, state: 'done'|'missed'|'excused'}>, links: list<array{start: CarbonImmutable, end: CarbonImmutable, state: 'done'|'missed'|'excused', done: int, excused: int}>, parentGoal: array{title: ?string, titleLength: ?int, anchor: string}|null}|null
      */
     public function findChain(string $slug): ?array
     {
@@ -58,8 +58,9 @@ class GoalContent
         }
 
         return [
-            'chain' => [...$this->chain($chain, 21), 'allStates' => array_column($chain->chainHistory(), 'state')],
+            'chain' => [...$this->chain($chain, 21), 'allStates' => array_column($chain->chainLinks(), 'state')],
             'history' => $chain->chainHistory(CarbonImmutable::today()->startOfYear()),
+            'links' => $chain->chainLinks(CarbonImmutable::today()->startOfYear()),
             'parentGoal' => $this->chip($chain->parent, onGoalsPage: false),
         ];
     }
@@ -241,9 +242,9 @@ class GoalContent
     /**
      * @return array<string, mixed>
      */
-    private function chain(Goal $chain, int $days): array
+    private function chain(Goal $chain, int $links): array
     {
-        $history = array_column($chain->chainHistory(), 'state');
+        $history = array_column($chain->chainLinks(), 'state');
 
         return [
             ...$this->censor([
@@ -252,7 +253,9 @@ class GoalContent
                 'title' => $chain->title,
                 'visibility' => $chain->visibility,
                 'parent' => $chain->parent ? $this->slugFor($chain->parent) : null,
-                'days' => array_slice($history, -$days),
+                'days' => array_slice($history, -$links),
+                'period' => $chain->chain_period,
+                'cadence' => $chain->chain_period->cadence($chain->chain_target),
                 'streak' => ChainStats::currentStreak($history),
                 'bestStreak' => ChainStats::bestStreak($history),
             ]),

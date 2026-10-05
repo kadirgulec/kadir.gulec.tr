@@ -41,20 +41,20 @@ class GoalsController extends Controller
 
         abort_if($found === null, 404);
 
-        // The grid shows this year; the streaks count the whole history.
-        $days = array_column($found['history'], 'state');
-        $allDays = $found['chain']['allStates'];
+        // The grid shows this year's days; the counts are this year's links, the streaks the whole history.
+        $links = array_column($found['links'], 'state');
+        $allLinks = $found['chain']['allStates'];
 
         return view('site.goals.chain', [
             'chain' => $found['chain'],
             'history' => $found['history'],
             'parentGoal' => $found['parentGoal'],
             'stats' => [
-                'streak' => ChainStats::currentStreak($allDays),
-                'bestStreak' => ChainStats::bestStreak($allDays),
-                'done' => ChainStats::count($days, 'done'),
-                'excused' => ChainStats::count($days, 'excused'),
-                'successRate' => ChainStats::successRate($days),
+                'streak' => ChainStats::currentStreak($allLinks),
+                'bestStreak' => ChainStats::bestStreak($allLinks),
+                'done' => ChainStats::count($links, 'done'),
+                'excused' => ChainStats::count($links, 'excused'),
+                'successRate' => ChainStats::successRate($links),
             ],
         ]);
     }

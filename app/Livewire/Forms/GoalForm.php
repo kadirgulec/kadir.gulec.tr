@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use App\Enums\ChainPeriod;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
 use App\Enums\GoalVisibility;
@@ -48,6 +49,10 @@ class GoalForm extends Form
 
     public string $ended_on = '';
 
+    public string $chain_period = 'day';
+
+    public int $chain_target = 1;
+
     public function forKind(GoalKind $kind): void
     {
         $this->kind = $kind->value;
@@ -73,6 +78,8 @@ class GoalForm extends Form
         $this->started_year = $goal->started_year;
         $this->started_on = $goal->started_on?->toDateString() ?? '';
         $this->ended_on = $goal->ended_on?->toDateString() ?? '';
+        $this->chain_period = $goal->chain_period->value;
+        $this->chain_target = $goal->chain_target;
     }
 
     public function kind(): GoalKind
@@ -104,6 +111,11 @@ class GoalForm extends Form
             'started_year' => ['nullable', 'integer', 'between:1980,2100'],
             'started_on' => $kind === GoalKind::Chain ? ['required', 'date'] : ['nullable'],
             'ended_on' => ['nullable', 'date', 'after_or_equal:started_on'],
+            'chain_period' => $kind === GoalKind::Chain ? ['required', Rule::enum(ChainPeriod::class)] : ['nullable'],
+            // A daily chain has no target to count up to; store() keeps it at one.
+            'chain_target' => $kind === GoalKind::Chain && $this->chain_period !== ChainPeriod::Day->value
+                ? ['required', 'integer', 'min:1', 'max:'.(ChainPeriod::tryFrom($this->chain_period) ?? ChainPeriod::Day)->maxTarget()]
+                : ['nullable'],
         ];
     }
 
@@ -118,6 +130,8 @@ class GoalForm extends Form
             'started_on' => 'başlangıç',
             'ended_on' => 'bitiş',
             'started_year' => 'başlangıç yılı',
+            'chain_period' => 'birim',
+            'chain_target' => 'hedef',
         ];
     }
 
@@ -154,6 +168,8 @@ class GoalForm extends Form
             'started_year' => $kind === GoalKind::LongTerm ? $this->started_year : null,
             'started_on' => $kind === GoalKind::Chain && $this->started_on !== '' ? CarbonImmutable::parse($this->started_on) : null,
             'ended_on' => $kind === GoalKind::Chain && $this->ended_on !== '' ? CarbonImmutable::parse($this->ended_on) : null,
+            'chain_period' => $kind === GoalKind::Chain ? $this->chain_period : ChainPeriod::Day->value,
+            'chain_target' => $kind === GoalKind::Chain && $this->chain_period !== ChainPeriod::Day->value ? $this->chain_target : 1,
         ]);
 
         if ($isNew) {

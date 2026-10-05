@@ -70,10 +70,12 @@ Bu dosya, admin paneli ve üyelik aşamasının kararlarını, adımlarını ve 
 
 ### Hedefler
 
-- Tek `goals` tablosu: kind (zincir / yıllık / uzun vade), title, slug, visibility, parent_id, sort_order; yıllık: year, measure (sayısal / kilometre taşlı / evet-hayır), target, unit, achieved_at, show_progress_notes; uzun vade: why/why_html, image_path, started_year; zincir: started_on, ended_on.
-- `goal_milestones`: title, done_at, sort_order. `goal_progress`: date, amount, note (sayısal hedeflerde `current` bunların toplamı). `chain_days`: date, state (tamam / mazeretli), note. Kopuk günler saklanmaz.
+- Tek `goals` tablosu: kind (zincir / yıllık / uzun vade), title, slug, visibility, parent_id, sort_order; yıllık: year, measure (sayısal / kilometre taşlı / evet-hayır), target, unit, achieved_at, show_progress_notes; uzun vade: why/why_html, image_path, started_year; zincir: started_on, ended_on, chain_period (gün / hafta / ay), chain_target (dönem başına kaç kez).
+- `goal_milestones`: title, done_at, sort_order. `goal_progress`: date, amount, note (sayısal hedeflerde `current` bunların toplamı). `chain_days`: date, state (tamam / mazeretli), note. Kopuk günler saklanmaz. `chain_reminders`: goal_id, key (Kadir'e giden bir hatırlatma bir kez gider).
 - Üst hedef sadece uzun vadeli bir hedef olabilir, uzun vadenin üstü olmaz (tek seviye).
 - **Saat dilimi:** `Europe/Berlin`. Panoda "Bugün" kartı: her aktif zincir için Tamam/Mazeret, dün de işaretlenebilir, tekrar tıklama geri alır. Zincir düzenleme ekranında yıllık ızgara tıklanabilir (kopuk → tamam → mazeretli → kopuk), gelecek kilitli.
+- **Haftalık ve aylık zincirler:** Günler yine tek tek işaretlenir; `Goal::chainLinks()` onları dönemlere toplar. Halka, `chain_target` gün tamamsa tutar; tamam + mazeret hedefe yetiyorsa bantlıdır (tek başına mazeret haftayı kurtarmaz). Bitmemiş dönem ve zincirin yarısını kapsadığı dönem (ör. çarşamba başlayan haftalık zincirin ilk haftası) ancak tutarsa görünür. Seri, rekor, 10/26/52 hafta ve 6/12/24 ay bildirimleri ve kopma bu halkalarla sayılır.
+- **Hatırlatmalar (sadece Kadir'e, `chains:remind`):** Sabah 08:00, haftalık ve aylık zincirlerde *kalan gün ≤ 2 × kalan kez* olunca ("bu hafta 0/2, 4 günde 2 kez daha"); dönem ve kalan kez başına bir kez. Aylık zincirde ayrıca 15'inden itibaren hedefin yarısına gelinmediyse tempo uyarısı. Akşam 20:00 (`--evening`), günlük zincirde bugün işaretlenmediyse. Gizli zincirler dahil. Adres `SendContactMessage::recipient()`. Panodaki "Bugün" kartı aynı hesabı rozetle gösterir (`App\Support\ChainReminders`).
 - **Yıl sonu:** Hiçbir şey taşınmaz; başarı hesaplanır. Ocak'ta "Geçen yılın hedeflerini kopyala".
 - **Görünürlük kuralları:**
   1. Sansürlü hedefin başlığı, nedeni, güncellemeleri, taş adları ve ilerleme notları izinsiz kişiye gönderilmez; sayılar ve şekiller görünür.

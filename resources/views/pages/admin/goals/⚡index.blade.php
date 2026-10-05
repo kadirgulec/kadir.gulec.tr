@@ -113,20 +113,18 @@ new #[Layout('layouts::admin'), Title('Hedefler')] class extends Component {
     <section class="space-y-3">
         <x-admin.heading>Zincirler</x-admin.heading>
         @if ($this->chains->isEmpty())
-            <x-admin.card padding="p-0"><x-admin.empty icon="flame" heading="Zincir yok">Her gün yapmak istediğin bir şey için bir zincir başlat.</x-admin.empty></x-admin.card>
+            <x-admin.card padding="p-0"><x-admin.empty icon="flame" heading="Zincir yok">Her gün, her hafta ya da her ay yapmak istediğin bir şey için bir zincir başlat.</x-admin.empty></x-admin.card>
         @else
             <ul wire:sort="sort" class="divide-y divide-zinc-100 overflow-hidden rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
                 @foreach ($this->chains as $chain)
-                    @php($states = array_column($chain->chainHistory(), 'state'))
+                    @php($states = array_column($chain->chainLinks(), 'state'))
                     <li wire:key="goal-{{ $chain->id }}" wire:sort:item="{{ $chain->id }}" class="flex items-center gap-3 px-4 py-3">
                         <button type="button" wire:sort:handle class="cursor-grab text-zinc-400" aria-label="Sırasını değiştir"><x-admin.icon name="grip-vertical" /></button>
                         <a href="{{ route('admin.goals.edit', $chain) }}" wire:navigate class="min-w-0 flex-1 font-bold hover:text-accent">
                             <span class="truncate">{{ $chain->title }}</span>
-                            @if ($chain->parent)
-                                <span class="block text-xs font-normal text-zinc-500">↑ {{ $chain->parent->title }}</span>
-                            @endif
+                            <span class="block text-xs font-normal text-zinc-500">{{ $chain->chain_period->cadence($chain->chain_target) }}@if ($chain->parent) · ↑ {{ $chain->parent->title }}@endif</span>
                         </a>
-                        <span class="font-mono text-sm">🔥 {{ ChainStats::currentStreak($states) }}</span>
+                        <span class="font-mono text-sm">🔥 {{ ChainStats::currentStreak($states) }} {{ $chain->chain_period->unit() }}</span>
                         @if ($chain->ended_on)
                             <x-admin.badge>bitti</x-admin.badge>
                         @endif
