@@ -17,10 +17,10 @@
 
         <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm font-semibold">
             @if ($project['demoUrl'])
-                <a href="{{ $project['demoUrl'] }}" class="rounded-sm bg-section px-3 py-1.5 text-section-on shadow-[2px_2px_0_rgb(0_0_0/0.15)] hover:-translate-y-0.5">demoyu aç ↗</a>
+                <a href="{{ $project['demoUrl'] }}" target="_blank" rel="noopener" class="rounded-sm bg-section px-3 py-1.5 text-section-on shadow-[2px_2px_0_rgb(0_0_0/0.15)] hover:-translate-y-0.5">demoyu aç ↗</a>
             @endif
             @if ($project['repoUrl'])
-                <a href="{{ $project['repoUrl'] }}" class="text-ink-soft underline decoration-dotted underline-offset-4 hover:text-ink">GitHub ↗</a>
+                <a href="{{ $project['repoUrl'] }}" target="_blank" rel="noopener" class="text-ink-soft underline decoration-dotted underline-offset-4 hover:text-ink">GitHub ↗</a>
             @endif
             <livewire:site.follow-button type="project" :id="$project['id']" />
             @if ($goal)

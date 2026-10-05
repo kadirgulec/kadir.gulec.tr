@@ -50,3 +50,11 @@ it('counts reading minutes at 200 words per minute', function () {
     expect($markdown->readingMinutes('kısa'))->toBe(1)
         ->and($markdown->readingMinutes(str_repeat('çalışkan öğrenci ', 250)))->toBe(3);
 });
+
+it('opens links to other sites in a new tab, but not links within the site', function () {
+    $html = app(Markdown::class)->toHtml('[Video](https://www.youtube.com/watch?v=x) ve [hedefler](/hedefler).');
+
+    expect($html)
+        ->toContain('<a rel="noopener" target="_blank" href="https://www.youtube.com/watch?v=x">Video</a>')
+        ->toContain('<a href="/hedefler">hedefler</a>');
+});

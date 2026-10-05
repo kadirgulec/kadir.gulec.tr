@@ -5,7 +5,7 @@ namespace App\Support;
 /**
  * Comments are plain text: line breaks and links work, nothing else.
  * The text is escaped first; only the links and breaks become markup.
- * Links get rel="nofollow ugc noopener", so they pass no search ranking.
+ * Links open in a new tab and get rel="nofollow ugc noopener", so they pass no search ranking.
  */
 class CommentFormatter
 {
@@ -28,7 +28,7 @@ class CommentFormatter
                 $url = rtrim($match[0], '.,;:!?)');
                 $rest = substr($match[0], strlen($url));
 
-                return '<a href="'.$url.'" rel="nofollow ugc noopener" class="underline decoration-section decoration-2 underline-offset-4">'.$url.'</a>'.$rest;
+                return '<a href="'.$url.'" target="_blank" rel="nofollow ugc noopener" class="underline decoration-section decoration-2 underline-offset-4">'.$url.'</a>'.$rest;
             },
             $escaped,
         ) ?? $escaped;

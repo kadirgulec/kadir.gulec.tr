@@ -152,7 +152,7 @@ it('escapes HTML and turns links into nofollow links', function () {
         ->not->toContain('<script>')
         ->toContain('&lt;script&gt;')
         ->toContain('<br>')
-        ->toContain('<a href="https://kadir.guelec.eu" rel="nofollow ugc noopener"')
+        ->toContain('<a href="https://kadir.guelec.eu" target="_blank" rel="nofollow ugc noopener"')
         ->toContain('</a>.');
 });
 

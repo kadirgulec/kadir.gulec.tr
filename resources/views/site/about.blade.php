@@ -165,10 +165,10 @@
 
                 <dl class="mt-4 grid grid-cols-1 items-baseline gap-y-1 [&_dd]:[overflow-wrap:anywhere] [&_dt:not(:first-child)]:mt-3">
                     <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">GitHub</dt>
-                    <dd><a href="https://github.com/kadirgulec" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">github.com/kadirgulec</a></dd>
+                    <dd><a href="https://github.com/kadirgulec" target="_blank" rel="noopener" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">github.com/kadirgulec</a></dd>
 
                     <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">CV</dt>
-                    <dd><a href="https://kadir.guelec.eu" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">kadir.guelec.eu</a> <span class="text-sm text-ink-soft">Almanca/İngilizce profesyonel CV için →</span></dd>
+                    <dd><a href="https://kadir.guelec.eu" target="_blank" rel="noopener" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">kadir.guelec.eu</a> <span class="text-sm text-ink-soft">Almanca/İngilizce profesyonel CV için →</span></dd>
                 </dl>
             </div>
         </div>

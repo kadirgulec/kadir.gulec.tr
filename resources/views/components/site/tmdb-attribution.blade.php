@@ -7,7 +7,7 @@
 ])
 
 <p {{ $attributes->class(['flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-ink-faint', 'text-[10px]' => $compact, 'text-[11px]' => ! $compact]) }}>
-    <a href="https://www.themoviedb.org" rel="noopener" class="shrink-0" aria-label="The Movie Database (TMDB)">
+    <a href="https://www.themoviedb.org" target="_blank" rel="noopener" class="shrink-0" aria-label="The Movie Database (TMDB)">
         <img src="/images/tmdb.svg" alt="TMDB" @class(['w-auto', 'h-2.5' => $compact, 'h-3' => ! $compact]) loading="lazy" />
     </a>
     <span>

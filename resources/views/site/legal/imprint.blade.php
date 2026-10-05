@@ -20,7 +20,7 @@
 
             <h2>İçerik ve linkler</h2>
             <p>Yazılar, yorumlar ve puanlar kişisel görüşümdür. Dış sitelere verdiğim linklerin içeriğinden o sitelerin sahipleri sorumludur. Üyelerin yorumlarından yazarları sorumludur; hukuka aykırı bir yorum görürsen bana yaz, kaldırırım.</p>
-            <p>Film ve dizi bilgileri: <a href="https://www.themoviedb.org" rel="noopener">The Movie Database (TMDB)</a>. Bu site TMDB tarafından onaylanmış veya desteklenmemektedir.</p>
+            <p>Film ve dizi bilgileri: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">The Movie Database (TMDB)</a>. Bu site TMDB tarafından onaylanmış veya desteklenmemektedir.</p>
         </div>
     </article>
 </x-layouts::site>

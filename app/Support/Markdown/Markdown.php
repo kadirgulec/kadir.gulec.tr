@@ -32,7 +32,7 @@ use League\CommonMark\Node\Block\Paragraph;
  *   :::spoiler … :::         a spoiler crossed out with marker
  *   :::replik Kişi … :::     a favorite line on a post-it
  *
- * Raw HTML is escaped and unsafe links are dropped, so nothing typed into a
+ * Links to other sites open in a new tab. Raw HTML is escaped and unsafe links are dropped, so nothing typed into a
  * text field can inject markup. HTML is produced once when a model is saved
  * (see RendersMarkdown), never on page views.
  */
@@ -100,7 +100,7 @@ class Markdown
             'max_nesting_level' => 20,
             'external_link' => [
                 'internal_hosts' => [parse_url((string) config('app.url'), PHP_URL_HOST) ?: 'localhost'],
-                'open_in_new_window' => false,
+                'open_in_new_window' => true,
                 'nofollow' => '',
                 'noopener' => 'external',
                 'noreferrer' => '',

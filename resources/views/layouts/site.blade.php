@@ -114,7 +114,7 @@
                                 @if (Route::has('styleguide'))
                                     <a href="{{ route('styleguide') }}" class="underline decoration-dotted underline-offset-4 hover:text-ink">stil rehberi</a>
                                 @endif
-                                <a href="https://kadir.guelec.eu" class="underline decoration-dotted underline-offset-4 hover:text-ink">CV (DE/EN) ↗</a>
+                                <a href="https://kadir.guelec.eu" target="_blank" rel="noopener" class="underline decoration-dotted underline-offset-4 hover:text-ink">CV (DE/EN) ↗</a>
                             </div>
                         </footer>
                     </div>
