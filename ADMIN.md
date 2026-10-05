@@ -111,7 +111,7 @@ Bu dosya, admin paneli ve üyelik aşamasının kararlarını, adımlarını ve 
 
 ## 5. Altyapı
 
-- **Sunucu:** Kendi VPS'i. Kuyruk Supervisor ile, scheduler cron ile, görseller yerel diskte.
+- **Sunucu:** Kendi VPS'i (HestiaCP, MariaDB 11.4, PHP 8.4). Supervisor yok: kuyruk her dakika scheduler'dan, scheduler cron ile; görseller yerel diskte. Deploy GitHub Actions ile (`DEPLOY.md`).
 - **Veritabanı:** MySQL 8, `utf8mb4_tr_0900_ai_ci`. Testler ayrı `kadir_gulec_tr_testing` MySQL veritabanında.
 - **Dil:** `APP_LOCALE=tr`, `APP_FALLBACK_LOCALE=en`, `APP_FAKER_LOCALE=tr_TR`. `lang/tr` elle Türkçeleştirilir (paket yok). Site mesajları samimi, admin mesajları düz.
 - **Paylaşım/SEO:** Meta açıklamaları; kayıtta bir kere üretilen defter tarzı 1200×630 OG görselleri (`intervention/image`); `/yazilar/rss` (Atom, tam metin); `/sitemap.xml` (sadece yayında, açık içerik); robots.txt (`/admin`, giriş, profil hariç).

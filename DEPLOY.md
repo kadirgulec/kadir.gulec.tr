@@ -24,7 +24,7 @@ Siteyi ilk kez yayına almadan önce bu listedeki her madde işaretlenmiş olmal
 - [ ] `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://kadir.gulec.tr`
 - [ ] `APP_KEY` üretildi (`php artisan key:generate`), yerelinkiyle aynı değil.
 - [ ] `LOG_LEVEL=warning` (ya da `error`)
-- [ ] `DB_*`: MySQL 8, veritabanı `utf8mb4` / `utf8mb4_tr_0900_ai_ci`.
+- [ ] `DB_*`: sunucuda MariaDB 11.4 var, `utf8mb4_tr_0900_ai_ci` orada yok: `DB_COLLATION=utf8mb4_uca1400_turkish_ai_ci`, veritabanı `utf8mb4` / aynı sıralama.
 - [ ] `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY`: **gerçek** anahtarlar (yereldeki `1x000…` test anahtarları her şeyi geçirir), Cloudflare'de alan adı `kadir.gulec.tr`.
 - [ ] `TMDB_API_TOKEN`
 - [ ] `QUEUE_CONNECTION=database`
@@ -36,18 +36,13 @@ Siteyi ilk kez yayına almadan önce bu listedeki her madde işaretlenmiş olmal
 - [ ] `mysqldump` ve `mysql` istemcileri kurulu (yedekleme ve geri yükleme bunları çağırır).
 - [ ] Yükleme sınırları yedek arşivleri için yeterli: PHP `upload_max_filesize` / `post_max_size` ve web sunucusu (`client_max_body_size`) en az 100 MB.
 - [ ] HTTPS sertifikası, `http` → `https` yönlendirmesi.
-- [ ] Kuyruk worker'ı Supervisor ile: `php artisan queue:work --tries=3` (yedek oluşturma bunu bekler).
-- [ ] Cron: `* * * * * cd /yol && php artisan schedule:run >> /dev/null 2>&1` (bildirimler ve duyurular).
+- [ ] Cron (Hestia'da): `* * * * * cd ~/web/kadir.gulec.tr/public_html && php8.4 artisan schedule:run >> /dev/null 2>&1`. Bildirimler ve duyurular bununla çalışır; sunucuda Supervisor olmadığı için kuyruk da her dakika buradan boşaltılır (`routes/console.php`, yedek oluşturma bunu bekler).
 - [ ] `storage/` ve `bootstrap/cache/` web sunucusu kullanıcısına yazılabilir.
 
 ## 5. İlk kurulum komutları
 
-- [ ] `admin` dalı `master`'a birleştirildi, CI yeşil.
-- [ ] `composer install --no-dev --optimize-autoloader`
-- [ ] `npm ci && npm run build`
-- [ ] `php artisan migrate --force`
-- [ ] `php artisan permissions:sync`
-- [ ] `php artisan storage:link`
+- [ ] `admin` dalı `master`'a birleştirildi, CI yeşil. İlk otomatik deploy kodu yükler, `migrate`, `permissions:sync`, `storage:link` ve `optimize`'ı çalıştırır (`deployment/remote.sh`).
+- [ ] `php8.4 artisan key:generate`, ardından `php8.4 artisan optimize`
 - [ ] `php artisan db:seed --class=RealContentSeeder --force` (bir kere; `DemoSeeder` production'da **çalıştırılmaz**)
 - [ ] `php artisan user:create-admin`, ardından ilk girişte 2FA ya da passkey kur (production'da admin paneli bunu ister).
 - [ ] `php artisan optimize` (config, route, view, event önbellekleri)
@@ -61,7 +56,6 @@ Siteyi ilk kez yayına almadan önce bu listedeki her madde işaretlenmiş olmal
 
 ## Her deploy'da
 
-- [ ] Testler ve CI yeşil.
-- [ ] `composer install --no-dev --optimize-autoloader` · `npm ci && npm run build`
-- [ ] `php artisan down` → `php artisan migrate --force` → `php artisan permissions:sync` → `php artisan optimize` → `php artisan queue:restart` → `php artisan up`
+`master`'a her push'ta `.github/workflows/deploy.yml` testleri çalıştırır; geçerse composer (`--no-dev`) ve `npm run build` CI'da yapılır, dosyalar `rsync` ile `~/web/kadir.gulec.tr/public_html`'e gider (`.env`, `storage/` ve `public/storage` dokunulmaz), sonra sunucuda `deployment/remote.sh`: `down` → `migrate --force` → `permissions:sync` → `optimize` → `queue:restart` → `up`. Bir adım hata verirse site yine açılır, workflow kırmızı olur. Elle de çalıştırılabilir (Actions → CI/CD → Run workflow).
+
 - [ ] Büyük bir değişiklikten önce `/admin/yedekler`'den yedek al.
