@@ -354,8 +354,20 @@
     view-transition-name: page;
 }
 
+/*
+ * The mobile tab bar is its own layer, drawn above the turning page: otherwise
+ * the page snapshot slides over the fixed bar while it animates.
+ */
+.vt-bar {
+    view-transition-name: bottom-bar;
+}
+
+::view-transition-group(bottom-bar) {
+    z-index: 1;
+}
+
 /* While the lamp animates, the whole page must be one snapshot */
-html.theme-switching .vt-page {
+html.theme-switching :is(.vt-page, .vt-bar) {
     view-transition-name: none;
 }
 

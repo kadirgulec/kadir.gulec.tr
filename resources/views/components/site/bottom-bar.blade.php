@@ -1,7 +1,7 @@
 @props(['current'])
 
 {{-- Mobile: the divider tabs become a colored tab bar at the bottom. --}}
-<nav aria-label="Bölümler" class="fixed inset-x-0 bottom-0 z-30 border-t border-rule bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm lg:hidden">
+<nav aria-label="Bölümler" class="vt-bar fixed inset-x-0 bottom-0 z-30 border-t border-rule bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm lg:hidden">
     <ul class="mx-auto grid max-w-lg grid-cols-6">
         @foreach (\App\Enums\Section::cases() as $item)
             @php($isCurrent = $item === $current)

@@ -15,7 +15,7 @@ Siteyi ilk kez yayına almadan önce bu listedeki her madde işaretlenmiş olmal
 
 - [x] Bir e-posta servisi seç (ör. Resend, AB bölgesi) ve gönderen adresi belirle.
 - [x] DNS'e SPF, DKIM ve DMARC kayıtlarını ekle.
-- [x] `.env`: `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME`.
+- [x] `.env`: `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME`. `MAIL_HOST` sertifikadaki adla aynı olmalı (`server1.guelec.eu`; `mail.gulec.tr`'nin kendi sertifikası yok, STARTTLS reddediliyor).
 - [x] `.env`: `MAIL_CONTACT_ADDRESS` (iletişim formu mesajlarının gideceği adres; boşsa `LEGAL_EMAIL`).
 - [x] Gerçek bir deneme: kayıt doğrulama e-postası, şifre yenileme, iletişim formu, bildirim özeti (`php artisan notifications:send instant`).
 
