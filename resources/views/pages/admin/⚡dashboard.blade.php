@@ -9,6 +9,8 @@ use App\Models\Goal;
 use App\Models\Post;
 use App\Models\Project;
 use App\Models\Watchable;
+use App\Enums\ChainPeriod;
+use App\Support\ChainReminders;
 use App\Support\ChainStats;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection;
@@ -106,12 +108,22 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
                             $todayState = $marks->get($today->toDateString())?->state;
                             $yesterdayState = $marks->get($yesterday->toDateString())?->state;
                             $canMarkYesterday = ! $chain->started_on || $chain->started_on->lessThanOrEqualTo($yesterday);
-                            $streak = ChainStats::currentStreak(array_column($chain->chainHistory(), 'state'));
+                            $streak = ChainStats::currentStreak(array_column($chain->chainLinks(), 'state'));
+                            $period = $chain->chain_period === ChainPeriod::Day ? null : $chain->chainPeriodAt($today);
                         @endphp
                         <li wire:key="chain-{{ $chain->id }}" class="flex flex-wrap items-center gap-x-3 gap-y-2 py-3 first:pt-0">
                             <div class="min-w-0 flex-1 basis-40">
                                 <a href="{{ route('admin.goals.edit', $chain) }}" wire:navigate class="block truncate font-bold hover:text-accent">{{ $chain->title }}</a>
-                                <span class="font-mono text-xs text-zinc-500">🔥 {{ $streak }}</span>
+                                <span class="font-mono text-xs text-zinc-500">🔥 {{ $streak }} {{ $chain->chain_period->unit() }}</span>
+                                @if ($period)
+                                    @if ($period['needed'] === 0)
+                                        <x-admin.badge color="green">{{ ChainReminders::progress($chain, $period) }} ✓</x-admin.badge>
+                                    @elseif (ChainReminders::isDue($period))
+                                        <x-admin.badge color="red">{{ ChainReminders::progress($chain, $period) }} · {{ $period['daysLeft'] }} günde {{ $period['needed'] }} kez</x-admin.badge>
+                                    @else
+                                        <x-admin.badge>{{ ChainReminders::progress($chain, $period) }} · {{ $period['daysLeft'] }} gün kaldı</x-admin.badge>
+                                    @endif
+                                @endif
                             </div>
 
                             <div class="flex items-center gap-1.5">

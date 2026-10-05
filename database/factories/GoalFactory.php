@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ChainPeriod;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
 use App\Enums\GoalVisibility;
@@ -49,6 +50,14 @@ class GoalFactory extends Factory
                 }
             }
         });
+    }
+
+    /**
+     * A chain counted in weeks or months: a link holds at $target marked days.
+     */
+    public function per(ChainPeriod $period, int $target): static
+    {
+        return $this->state(fn (array $attributes) => ['chain_period' => $period, 'chain_target' => $target]);
     }
 
     public function yearly(GoalMeasure $measure = GoalMeasure::Numeric, ?int $year = null): static

@@ -2,12 +2,14 @@
 
 use App\Actions\Goals\MarkChainDay;
 use App\Enums\ChainDayState;
+use App\Enums\ChainPeriod;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
 use App\Enums\GoalVisibility;
 use App\Enums\Section;
 use App\Livewire\Forms\GoalForm;
 use App\Models\Goal;
+use App\Support\ChainReminders;
 use App\Support\ChainStats;
 use App\Support\Images\ImageStore;
 use Carbon\CarbonImmutable;
@@ -195,7 +197,11 @@ new #[Layout('layouts::admin')] class extends Component {
     $visibilityOptions = collect(GoalVisibility::cases())->mapWithKeys(fn ($visibility) => [$visibility->value => $visibility->label()])->all();
     $today = CarbonImmutable::today();
     $history = $goal && $kind === GoalKind::Chain ? collect($goal->chainHistory())->keyBy(fn ($day) => $day['date']->toDateString()) : collect();
-    $states = $history->pluck('state')->all();
+    // The grid shows days; the numbers count links (days, weeks or months).
+    $states = $goal && $kind === GoalKind::Chain ? array_column($goal->chainLinks(), 'state') : [];
+    $daily = ($goal?->chain_period ?? ChainPeriod::Day) === ChainPeriod::Day;
+    $unit = $goal?->chain_period->unit() ?? 'gün';
+    $currentPeriod = $goal && $kind === GoalKind::Chain && ! $daily ? $goal->chainPeriodAt() : null;
     $gridStart = $today->startOfYear()->startOfWeek();
     $publicUrl = match (true) {
         $goal === null => null,
@@ -228,6 +234,12 @@ new #[Layout('layouts::admin')] class extends Component {
                     @if ($kind === GoalKind::Chain)
                         <x-admin.input wire:model="form.started_on" type="date" label="Başlangıç" />
                         <x-admin.input wire:model="form.ended_on" type="date" label="Bitiş" description="Bıraktığın zincir silinmez, sitede listeden düşer." />
+                        <x-admin.select wire:model.live="form.chain_period" label="Birim" :options="collect(ChainPeriod::cases())->mapWithKeys(fn ($period) => [$period->value => $period->label()])->all()" description="Günleri yine tek tek işaretlersin; haftalık ve aylık zincirde her halka bir dönem." />
+                        @if ($form->chain_period !== ChainPeriod::Day->value)
+                            <x-admin.input wire:model="form.chain_target" type="number" min="1" :max="ChainPeriod::from($form->chain_period)->maxTarget()" :label="$form->chain_period === ChainPeriod::Week->value ? 'Haftada kaç kez' : 'Ayda kaç kez'" description="Mazeretli günler de sayılır. Günler azalınca sabah 08:00'de sana e-posta gelir." />
+                        @else
+                            <x-admin.text class="self-end pb-2">Her gün işaretlenmezse akşam 20:00'de sana hatırlatma gelir.</x-admin.text>
+                        @endif
                     @elseif ($kind === GoalKind::Yearly)
                         <x-admin.input wire:model="form.year" type="number" label="Yıl" />
                         <x-admin.select wire:model.live="form.measure" label="Ölçü" :options="collect(GoalMeasure::cases())->mapWithKeys(fn ($measure) => [$measure->value => $measure->label()])->all()" />
@@ -248,10 +260,17 @@ new #[Layout('layouts::admin')] class extends Component {
                 <x-admin.card>
                     <x-slot:heading>{{ $today->year }} ızgarası</x-slot:heading>
                     <x-slot:actions>
-                        <span class="font-mono text-sm">🔥 {{ ChainStats::currentStreak($states) }} · en uzun {{ ChainStats::bestStreak($states) }} · %{{ ChainStats::successRate($states) }}</span>
+                        <span class="font-mono text-sm">🔥 {{ ChainStats::currentStreak($states) }} {{ $unit }} · en uzun {{ ChainStats::bestStreak($states) }} · %{{ ChainStats::successRate($states) }}</span>
                     </x-slot:actions>
 
-                    <x-admin.text class="mb-4">Bir güne tıkla: kopuk → tamam → mazeretli → kopuk. Gelecek kilitli.</x-admin.text>
+                    <x-admin.text class="mb-4">
+                        Bir güne tıkla: {{ $daily ? 'kopuk' : 'boş' }} → tamam → mazeretli → {{ $daily ? 'kopuk' : 'boş' }}. Gelecek kilitli.
+                        @if ($currentPeriod)
+                            <span @class(['font-semibold', 'text-red-600 dark:text-red-400' => ChainReminders::isDue($currentPeriod)])>
+                                {{ ChainReminders::progress($goal, $currentPeriod) }}{{ $currentPeriod['needed'] > 0 ? ', '.$currentPeriod['daysLeft'].' günde '.$currentPeriod['needed'].' kez daha' : ' ✓' }}
+                            </span>
+                        @endif
+                    </x-admin.text>
                     <x-admin.error :message="$errors->first('date')" class="mb-3" />
 
                     <div class="overflow-x-auto pb-2">
@@ -266,7 +285,7 @@ new #[Layout('layouts::admin')] class extends Component {
                                     type="button"
                                     wire:key="day-{{ $key }}"
                                     @if ($locked) disabled @else wire:click="cycleDay('{{ $key }}')" @endif
-                                    title="{{ $day->locale('tr')->translatedFormat('j F') }}: {{ ['done' => 'tamam', 'excused' => 'mazeretli', 'missed' => 'kopuk'][$state] ?? ($day->isToday() ? 'bugün, henüz işaretlenmedi' : '—') }}"
+                                    title="{{ $day->locale('tr')->translatedFormat('j F') }}: {{ ['done' => 'tamam', 'excused' => 'mazeretli', 'missed' => $daily ? 'kopuk' : 'boş'][$state] ?? ($day->isToday() ? 'bugün, henüz işaretlenmedi' : '—') }}"
                                     aria-label="{{ $day->locale('tr')->translatedFormat('j F') }}"
                                     @class([
                                         'size-3.5 rounded-[3px] transition',
@@ -284,7 +303,7 @@ new #[Layout('layouts::admin')] class extends Component {
                     <div class="mt-3 flex flex-wrap gap-4 text-xs text-zinc-500">
                         <span class="flex items-center gap-1.5"><span class="size-3 rounded-[3px] bg-section-goals"></span> tamam</span>
                         <span class="flex items-center gap-1.5"><span class="size-3 rounded-[3px] bg-amber-300"></span> mazeretli</span>
-                        <span class="flex items-center gap-1.5"><span class="size-3 rounded-[3px] bg-zinc-200 dark:bg-zinc-700"></span> kopuk</span>
+                        <span class="flex items-center gap-1.5"><span class="size-3 rounded-[3px] bg-zinc-200 dark:bg-zinc-700"></span> {{ $daily ? 'kopuk' : 'boş' }}</span>
                     </div>
                 </x-admin.card>
             @endif

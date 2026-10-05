@@ -64,7 +64,7 @@
                                     <a href="{{ route('goals.chain', $chain['slug']) }}" class="hover:text-section-ink">↳ {{ $chain['title'] ?? 'sansürlü zincir' }}</a>
                                     <span class="font-mono text-sm text-section-ink">🔥 {{ $chain['streak'] }}</span>
                                 </div>
-                                <x-site.chain :days="$chain['days']" class="mt-2" />
+                                <x-site.chain :days="$chain['days']" :unit="$chain['period']->unit()" class="mt-2" />
                             </div>
                         @endforeach
                     </li>
@@ -74,10 +74,10 @@
                     <li class="rounded-sm bg-paper-deep p-5">
                         <div class="flex items-baseline justify-between gap-3">
                             <a href="{{ route('goals.chain', $chain['slug']) }}" class="font-display text-lg font-semibold hover:text-section-ink">{{ $chain['title'] ?? 'sansürlü zincir' }}</a>
-                            <span class="font-mono text-sm text-section-ink">🔥 {{ $chain['streak'] }} gün</span>
+                            <span class="font-mono text-sm text-section-ink">🔥 {{ $chain['streak'] }} {{ $chain['period']->unit() }}</span>
                         </div>
-                        <p class="font-mono text-xs text-ink-faint">her gün</p>
-                        <x-site.chain :days="$chain['days']" class="mt-2" />
+                        <p class="font-mono text-xs text-ink-faint">{{ $chain['cadence'] }}</p>
+                        <x-site.chain :days="$chain['days']" :unit="$chain['period']->unit()" class="mt-2" />
                     </li>
                 @endforeach
             </ul>

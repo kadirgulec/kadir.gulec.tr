@@ -1,7 +1,7 @@
-@props(['days'])
+@props(['days', 'unit' => 'gün'])
 
 {{--
-    "Don't break the chain": one ring per day, oldest first.
+    "Don't break the chain": one ring per link (a day, a week or a month), oldest first.
     done = a solid link, missed = a broken link, excused = a link patched with tape.
 
     The chain fits its own box, not the screen: the list is a size container and each
@@ -39,7 +39,7 @@
     ];
 @endphp
 
-<ol class="reveal @container flex items-center pl-1.5" aria-label="Son {{ count($days) }} gün: {{ $doneCount }} gün tamam" {{ $attributes }}>
+<ol class="reveal @container flex items-center pl-1.5" aria-label="Son {{ count($days) }} {{ $unit }}: {{ $doneCount }} {{ $unit }} tamam" {{ $attributes }}>
     @foreach ($days as $index => $day)
         <li class="-ml-1.5 shrink-0 {{ $hideBelow[count($days) - $index] ?? 'hidden' }}" style="--i: {{ $index }}">
             <svg viewBox="0 0 24 16" class="h-4 w-6 overflow-visible" aria-hidden="true">

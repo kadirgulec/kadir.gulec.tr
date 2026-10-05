@@ -199,6 +199,7 @@ class DemoSeeder extends Seeder
             $goal = Goal::query()->create([
                 'kind' => GoalKind::Chain, 'slug' => $chain['slug'], 'title' => $chain['title'], 'visibility' => $chain['visibility'],
                 'parent_id' => $ids[$chain['parent']] ?? null, 'started_on' => $start, 'sort_order' => $order,
+                'chain_period' => $chain['period'] ?? 'day', 'chain_target' => $chain['target'] ?? 1,
             ]);
 
             $rows = [];

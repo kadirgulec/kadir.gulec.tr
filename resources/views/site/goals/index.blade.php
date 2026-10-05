@@ -29,9 +29,9 @@
         <span class="shrink-0 font-mono text-xs text-ink-soft">%{{ round($yearShare * 100) }}</span>
     </div>
 
-    {{-- Floor 1: daily chains --}}
+    {{-- Floor 1: chains (daily, weekly, monthly habits) --}}
     <section class="mt-16" aria-labelledby="zincirler">
-        <p class="font-hand text-xl text-section-ink">1 · her gün</p>
+        <p class="font-hand text-xl text-section-ink">1 · alışkanlıklar</p>
         <h2 id="zincirler" class="font-display text-3xl font-semibold">Zincirler</h2>
 
         @unless ($chains)
@@ -51,18 +51,19 @@
                                     <x-site.censored :length="$chain['titleLength']" label="sansürlü zincir" />
                                 @endif
                             </a>
+                            <span class="block font-mono text-[11px] font-normal text-ink-faint">{{ $chain['cadence'] }}</span>
                         </h3>
 
                         <p class="shrink-0 text-right leading-none">
                             <span class="font-display text-3xl font-extrabold text-section-ink">🔥 {{ $chain['streak'] }}</span>
-                            <span class="block font-mono text-[11px] text-ink-faint">gün</span>
+                            <span class="block font-mono text-[11px] text-ink-faint">{{ $chain['period']->unit() }}</span>
                         </p>
                     </div>
 
-                    <x-site.chain :days="$chain['days']" class="mt-3" />
+                    <x-site.chain :days="$chain['days']" :unit="$chain['period']->unit()" class="mt-3" />
 
                     <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
-                        <a href="{{ route('goals.chain', $chain['slug']) }}" class="font-mono text-[11px] text-ink-faint hover:text-section-ink">en uzun seri: {{ $chain['bestStreak'] }} gün · yıllık görünüm →</a>
+                        <a href="{{ route('goals.chain', $chain['slug']) }}" class="font-mono text-[11px] text-ink-faint hover:text-section-ink">en uzun seri: {{ $chain['bestStreak'] }} {{ $chain['period']->unit() }} · yıllık görünüm →</a>
                         @if ($chain['parentGoal'])
                             <x-site.parent-chip :parent="$chain['parentGoal']" />
                         @endif
@@ -72,8 +73,9 @@
         </div>
 
         <p class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-1 font-hand text-lg text-ink-faint">
-            <span class="flex items-center gap-2"><span class="inline-block h-3 w-1.5 rotate-[28deg] bg-ink-faint/55" aria-hidden="true"></span> bantlı halka = mazeretli gün</span>
-            <span>kopuk halka = kaçırılan gün</span>
+            <span class="flex items-center gap-2"><span class="inline-block h-3 w-1.5 rotate-[28deg] bg-ink-faint/55" aria-hidden="true"></span> bantlı halka = mazeretli (zinciri kırmaz)</span>
+            <span>kopuk halka = kaçırıldı</span>
+            <span>haftalık ve aylık zincirlerde her halka bir dönem</span>
         </p>
     </section>
 

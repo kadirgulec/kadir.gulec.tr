@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ChainDayState;
+use App\Enums\ChainPeriod;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
 use App\Enums\GoalVisibility;
@@ -23,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
- * A goal of any kind: a daily chain, a yearly goal (numeric, milestones or
+ * A goal of any kind: a chain (daily, weekly or monthly), a yearly goal (numeric, milestones or
  * yes/no) or a long-term goal. Chains and yearly goals may serve one
  * long-term goal (parent_id); long-term goals have no parent.
  *
@@ -46,12 +47,14 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property int|null $started_year
  * @property CarbonImmutable|null $started_on
  * @property CarbonImmutable|null $ended_on
+ * @property ChainPeriod $chain_period
+ * @property int $chain_target
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
 #[Fillable([
     'kind', 'title', 'slug', 'visibility', 'parent_id', 'sort_order', 'year', 'measure', 'target', 'unit',
-    'achieved_at', 'show_progress_notes', 'why', 'started_year', 'started_on', 'ended_on',
+    'achieved_at', 'show_progress_notes', 'why', 'started_year', 'started_on', 'ended_on', 'chain_period', 'chain_target',
 ])]
 class Goal extends Model
 {
@@ -67,6 +70,8 @@ class Goal extends Model
         'visibility' => 'hidden',
         'sort_order' => 0,
         'show_progress_notes' => false,
+        'chain_period' => 'day',
+        'chain_target' => 1,
     ];
 
     protected static function booted(): void
@@ -234,6 +239,88 @@ class Goal extends Model
         return $history;
     }
 
+    /**
+     * The links of a chain from its start (or the period around $from) to today,
+     * oldest first. A daily chain has one link per day of chainHistory(). A weekly
+     * or monthly link holds when chain_target of its days are done, and counts as
+     * excused when excused days make up the rest. A period that is not over yet,
+     * or that the chain only partly covers (started or ended halfway), is left out
+     * until it holds: it can still be reached, or was never fully asked for.
+     *
+     * @return list<array{start: CarbonImmutable, end: CarbonImmutable, state: 'done'|'missed'|'excused', done: int, excused: int}>
+     */
+    public function chainLinks(?CarbonImmutable $from = null): array
+    {
+        if ($this->chain_period === ChainPeriod::Day) {
+            return array_map(fn (array $day): array => [
+                'start' => $day['date'],
+                'end' => $day['date'],
+                'state' => $day['state'],
+                'done' => (int) ($day['state'] === 'done'),
+                'excused' => (int) ($day['state'] === 'excused'),
+            ], $this->chainHistory($from));
+        }
+
+        $today = CarbonImmutable::today();
+        $end = $this->ended_on !== null && $this->ended_on->lessThan($today) ? $this->ended_on : $today;
+        $start = $this->started_on ?? $this->chainDays->first()->date ?? $end;
+        $first = $this->chain_period->start($from !== null && $from->greaterThan($start) ? $from : $start);
+        $links = [];
+
+        for ($periodStart = $first; $periodStart->lessThanOrEqualTo($end); $periodStart = $this->chain_period->next($periodStart)) {
+            $link = $this->chainPeriodAt($periodStart);
+            $whole = $link['start']->greaterThanOrEqualTo($start)
+                && $link['end']->lessThan($today)
+                && ($this->ended_on === null || $link['end']->lessThanOrEqualTo($this->ended_on));
+
+            if ($link['state'] !== null || $whole) {
+                $links[] = [...$link, 'state' => $link['state'] ?? 'missed'];
+            }
+        }
+
+        return $links;
+    }
+
+    /**
+     * Where the chain stands in the period around $date (today by default):
+     * what is marked, what is still needed and how many days are left for it,
+     * today included. A daily chain's period is the day itself.
+     *
+     * @return array{start: CarbonImmutable, end: CarbonImmutable, state: 'done'|'excused'|null, done: int, excused: int, target: int, needed: int, daysLeft: int, partial: bool}
+     */
+    public function chainPeriodAt(?CarbonImmutable $date = null): array
+    {
+        $date ??= CarbonImmutable::today();
+        $start = $this->chain_period->start($date);
+        $end = $this->chain_period->end($start);
+        $last = $this->ended_on !== null && $this->ended_on->lessThan($end) ? $this->ended_on : $end;
+        $target = max(1, $this->chain_target);
+        $done = 0;
+        $excused = 0;
+
+        foreach ($this->chainDays as $day) {
+            if ($day->date->betweenIncluded($start, $end)) {
+                $day->state === ChainDayState::Done ? $done++ : $excused++;
+            }
+        }
+
+        return [
+            'start' => $start,
+            'end' => $end,
+            'state' => match (true) {
+                $done >= $target => 'done',
+                $done + $excused >= $target => 'excused',
+                default => null,
+            },
+            'done' => $done,
+            'excused' => $excused,
+            'target' => $target,
+            'needed' => max(0, $target - $done - $excused),
+            'daysLeft' => max(0, (int) $date->startOfDay()->diffInDays($last) + 1),
+            'partial' => ($this->started_on !== null && $this->started_on->greaterThan($start)) || $last->lessThan($end),
+        ];
+    }
+
     public function imageUrl(int $width = 960): ?string
     {
         return ImageStore::url($this->image_path, $width);
@@ -279,6 +366,8 @@ class Goal extends Model
             'achieved_at' => 'immutable_datetime',
             'started_on' => 'immutable_date',
             'ended_on' => 'immutable_date',
+            'chain_period' => ChainPeriod::class,
+            'chain_target' => 'integer',
         ];
     }
 }

@@ -111,16 +111,16 @@
                                         <x-site.censored :length="$chain['titleLength']" label="sansürlü zincir" />
                                     @endif
                                 </span>
-                                <span class="shrink-0 font-mono text-sm font-semibold text-section-ink">🔥 {{ $chain['streak'] }} gün</span>
+                                <span class="shrink-0 font-mono text-sm font-semibold text-section-ink">🔥 {{ $chain['streak'] }} {{ $chain['period']->unit() }}</span>
                             </div>
-                            <x-site.chain :days="$chain['days']" class="mt-2" />
+                            <x-site.chain :days="$chain['days']" :unit="$chain['period']->unit()" class="mt-2" />
                         </li>
                     @endforeach
                 </ul>
 
                 <p class="mt-5 flex items-center gap-2 font-hand text-lg text-ink-faint">
                     <span class="inline-block h-3 w-1.5 rotate-[28deg] bg-ink-faint/55" aria-hidden="true"></span>
-                    bantlı halka = mazeretli gün
+                    bantlı halka = mazeretli
                 </p>
             </x-site.note>
             @endif

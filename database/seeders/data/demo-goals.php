@@ -2,7 +2,8 @@
 
 /*
  * Sample goals of the design prototype, for local development only (DemoSeeder).
- * A chain pattern lists its days up to today, oldest first: x done, e excused, - missed.
+ * A chain pattern lists its days up to today, oldest first: x done, e excused, - missed
+ * (in a weekly or monthly chain, "-" is just a day without a mark).
  */
 
 return [
@@ -19,6 +20,8 @@ return [
             'title' => 'Spor',
             'visibility' => 'public',
             'parent' => 'formda-50',
+            'period' => 'week',
+            'target' => 3,
             'pattern' => 'xx--xxxx-xxx-x-xxx-xxxxxx-xx-xx--xxx-xex-xxxxxxxxxxxx-x-xexxx-x-xx-xxxxxxx-x-xxxx-xx-xxxxxxx-x-xxxxx-xxxxxxxxxx-xxxxex--xx--xxxxxx--x-xxxx-xxxx-xxxxxxxx-exxxxx--xx-xxx-xxx-xxxx-xx-xxxexxxx-xx-xx-xx-x-xxxxxxxxxx-xxxexxxxx-xxxxx-xx-xxx--xxx-xxxxxxxx-xxxxx-xxxxx-xxx-xxxx-xxxxxx',
         ],
         2 => [
