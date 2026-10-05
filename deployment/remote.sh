@@ -7,7 +7,7 @@
 # The server has no Supervisor: one cron entry runs the scheduler every minute,
 # and the scheduler also drains the queue (routes/console.php):
 #
-#     * * * * * cd ~/web/kadir.gulec.tr/public_html && php8.4 artisan schedule:run >> /dev/null 2>&1
+#     * * * * * /usr/bin/php8.4 ~/web/kadir.gulec.tr/public_html/artisan schedule:run >> /dev/null 2>&1
 #
 set -euo pipefail
 cd "$(dirname "$0")/.."

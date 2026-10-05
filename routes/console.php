@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Schedule;
 
 /*
  * Notifications: publications whose time came, broken chains, then the e-mails.
- * On the server: * * * * * cd /path && php artisan schedule:run
+ * On the server (Hestia cron, every minute): /usr/bin/php8.4 ~/web/kadir.gulec.tr/public_html/artisan schedule:run >> /dev/null 2>&1
  */
 Schedule::command('notifications:announce')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('notifications:announce --chain-breaks')->dailyAt('00:30')->withoutOverlapping();

@@ -8,7 +8,7 @@ Siteyi ilk kez yayına almadan önce bu listedeki her madde işaretlenmiş olmal
 
 - [x] **Gerçek cihaz testi** (ADMIN.md Adım 9): telefon, Firefox, Safari, ekran okuyucu.
 - [x] **Gizlilik ve künye** metinlerini bir Datenschutz-Generator'la ya da hukukçuyla kontrol ettir. Seçilen e-posta servisinin adını gizlilik notundaki yer tutucuya yaz (`resources/views/site/legal/privacy.blade.php`), `config/legal.php`'deki `updated_at`'i güncelle.
-- [ ] **Künye adresi:** `LEGAL_ADDRESS` (künyede posta adresi zorunlu; boşsa yer tutucu görünür).
+- [x] **Künye adresi:** `LEGAL_ADDRESS` (künyede posta adresi zorunlu; boşsa yer tutucu görünür). Şimdilik sadece "Düren", Kadir'in kararı.
 - [x] **Hakkımda'nın gerçek metinleri** (`resources/views/site/about.blade.php`, `config/about.php`).
 
 ## 2. E-posta
@@ -22,7 +22,7 @@ Siteyi ilk kez yayına almadan önce bu listedeki her madde işaretlenmiş olmal
 ## 3. Production `.env`
 
 - [x] `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://kadir.gulec.tr`
-- [ ] `APP_KEY` üretildi (`php artisan key:generate`), yerelinkiyle aynı değil.
+- [x] `APP_KEY` üretildi (`php artisan key:generate`), yerelinkiyle aynı değil.
 - [x] `LOG_LEVEL=warning` (ya da `error`)
 - [x] `DB_*`: sunucuda MariaDB 11.4 var, `utf8mb4_tr_0900_ai_ci` orada yok: `DB_COLLATION=utf8mb4_uca1400_turkish_ai_ci`, veritabanı `utf8mb4` / aynı sıralama.
 - [x] `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY`: **gerçek** anahtarlar (yereldeki `1x000…` test anahtarları her şeyi geçirir), Cloudflare'de alan adı `kadir.gulec.tr`.
@@ -36,23 +36,23 @@ Siteyi ilk kez yayına almadan önce bu listedeki her madde işaretlenmiş olmal
 - [x] `mysqldump` ve `mysql` istemcileri kurulu (yedekleme ve geri yükleme bunları çağırır).
 - [x] Yükleme sınırları yedek arşivleri için yeterli: PHP `upload_max_filesize` / `post_max_size` ve web sunucusu (`client_max_body_size`) en az 100 MB.
 - [x] HTTPS sertifikası, `http` → `https` yönlendirmesi.
-- [x] Cron (Hestia'da): `* * * * * cd ~/web/kadir.gulec.tr/public_html && php8.4 artisan schedule:run >> /dev/null 2>&1`. Bildirimler ve duyurular bununla çalışır; sunucuda Supervisor olmadığı için kuyruk da her dakika buradan boşaltılır (`routes/console.php`, yedek oluşturma bunu bekler).
+- [x] Cron (Hestia'da, her dakika): `/usr/bin/php8.4 ~/web/kadir.gulec.tr/public_html/artisan schedule:run >> /dev/null 2>&1`. Hestia'nın cron alanı `cd … &&` kabul etmediği için PHP'nin ve `artisan`'ın tam yolu yazılır. Bildirimler ve duyurular bununla çalışır; sunucuda Supervisor olmadığı için kuyruk da her dakika buradan boşaltılır (`routes/console.php`, yedek oluşturma bunu bekler).
 - [x] `storage/` ve `bootstrap/cache/` web sunucusu kullanıcısına yazılabilir.
 
 ## 5. İlk kurulum komutları
 
-- [ ] `admin` dalı `master`'a birleştirildi, CI yeşil. İlk otomatik deploy kodu yükler, `migrate`, `permissions:sync`, `storage:link` ve `optimize`'ı çalıştırır (`deployment/remote.sh`).
-- [ ] `php8.4 artisan key:generate`, ardından `php8.4 artisan optimize`
-- [ ] `php artisan db:seed --class=RealContentSeeder --force` (bir kere; `DemoSeeder` production'da **çalıştırılmaz**)
-- [ ] `php artisan user:create-admin`, ardından ilk girişte 2FA ya da passkey kur (production'da admin paneli bunu ister).
-- [ ] `php artisan optimize` (config, route, view, event önbellekleri)
+- [x] `admin` dalı `master`'a birleştirildi, CI yeşil. İlk otomatik deploy kodu yükler, `migrate`, `permissions:sync`, `storage:link` ve `optimize`'ı çalıştırır (`deployment/remote.sh`).
+- [x] `php8.4 artisan key:generate`, ardından `php8.4 artisan optimize`
+- [x] ~~`php artisan db:seed --class=RealContentSeeder --force`~~ Çalıştırılmadı: projeler ve alet çantası admin panelinden elle dolduruluyor. (`DemoSeeder` production'da **çalıştırılmaz**.)
+- [x] `php artisan user:create-admin`, ardından ilk girişte 2FA ya da passkey kur (production'da admin paneli bunu ister).
+- [x] `php artisan optimize` (config, route, view, event önbellekleri); her deploy'da `remote.sh` da çalıştırıyor.
 
 ## 6. Yayından sonra
 
-- [ ] `/admin/yedekler`'den bir yedek oluştur ve indir (kuyruk çalışıyor mu?).
-- [ ] `/sitemap.xml`, `/robots.txt`, `/yazilar/rss` açılıyor; bir yazının bağlantısı paylaşıldığında OG görseli görünüyor.
-- [ ] Taslak bir yazı ziyaretçiye 404 veriyor; `/stil` ve `/admin/stil` production'da 404 veriyor.
-- [ ] Kayıt ve iletişim formunda Turnstile kutusu görünüyor ve gönderim çalışıyor.
+- [x] `/admin/yedekler`'den bir yedek oluştur ve indir (kuyruk çalışıyor mu?).
+- [x] `/sitemap.xml`, `/robots.txt`, `/yazilar/rss` açılıyor; bir yazının bağlantısı paylaşıldığında OG görseli görünüyor.
+- [x] Taslak bir yazı ziyaretçiye 404 veriyor; `/stil` ve `/admin/stil` production'da 404 veriyor.
+- [x] Kayıt ve iletişim formunda Turnstile kutusu görünüyor ve gönderim çalışıyor.
 
 ## Her deploy'da
 
