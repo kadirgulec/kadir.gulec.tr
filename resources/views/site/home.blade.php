@@ -57,7 +57,9 @@
                         <p class="mt-2 font-hand text-xl text-ink-soft">{{ \App\Support\TurkishDate::onDayMonth($lastWatched['watchedAt']) }} izledim</p>
 
                         <div class="mt-3 flex items-center gap-2">
-                            <x-site.grade :value="$lastWatched['rating']" />
+                            @if ($lastWatched['rating'] !== null)
+                                <x-site.grade :value="$lastWatched['rating']" />
+                            @endif
                             @if ($lastWatched['isFavorite'])
                                 <x-site.favorite-star class="-mt-6" />
                             @endif

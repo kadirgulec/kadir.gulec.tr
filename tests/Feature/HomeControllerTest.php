@@ -32,3 +32,9 @@ it('tells when the last film was watched in Turkish', function () {
 
     $response->assertSeeText("30 Eylül'de izledim");
 });
+
+it('shows the last watched title without a mark when it has no rating yet', function () {
+    Watchable::factory()->series(SeriesStatus::Finished)->hasViewings(1, ['watched_on' => '2026-10-04'])->create(['title' => 'The 100', 'rating' => null]);
+
+    $this->get(route('home'))->assertOk()->assertSeeText('The 100');
+});
