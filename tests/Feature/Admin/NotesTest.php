@@ -22,6 +22,20 @@ function editorWithoutNotes(): User
     return $user;
 }
 
+/**
+ * An admin panel user whose role writes notes but keeps no chains.
+ */
+function editorWithNotesOnly(): User
+{
+    $role = Role::create(['name' => 'note-writer', 'label' => 'Not yazarı', 'guard_name' => 'web']);
+    $role->givePermissionTo([Permission::AccessAdmin->value, Permission::ManageNotes->value]);
+
+    $user = User::factory()->withTwoFactor()->create();
+    $user->assignRole($role);
+
+    return $user;
+}
+
 describe('editor', function () {
     beforeEach(function () {
         $this->actingAs(User::factory()->admin()->create());
@@ -141,9 +155,23 @@ describe('quick note', function () {
 describe('app shortcut', function () {
     it('offers "Yeni not" on the home screen icon only to whoever writes notes', function () {
         $visitorShortcuts = $this->get('/manifest.webmanifest')->json('shortcuts.*.name');
-        $writerShortcuts = $this->actingAs(User::factory()->admin()->create())->get('/manifest.webmanifest')->json('shortcuts.0');
+        $writerShortcuts = $this->actingAs(editorWithNotesOnly())->get('/manifest.webmanifest')->json('shortcuts.0');
 
         expect($visitorShortcuts)->not->toContain('Yeni not')
             ->and($writerShortcuts)->toBe(['name' => 'Yeni not', 'url' => '/admin/ogrendiklerim/yeni']);
+    });
+
+    it('puts the daily chores first for whoever keeps the chains and writes notes', function () {
+        $shortcuts = $this->actingAs(User::factory()->admin()->create())->get('/manifest.webmanifest')->json('shortcuts');
+
+        expect(array_slice($shortcuts, 0, 2))->toBe([
+            ['name' => 'Zincirler', 'url' => '/admin'],
+            ['name' => 'Yeni not', 'url' => '/admin/ogrendiklerim/yeni'],
+        ]);
+    });
+
+    it('keeps the chains shortcut away from visitors and note writers without the goals permission', function () {
+        expect($this->get('/manifest.webmanifest')->json('shortcuts.*.name'))->not->toContain('Zincirler')
+            ->and($this->actingAs(editorWithNotesOnly())->get('/manifest.webmanifest')->json('shortcuts.*.name'))->not->toContain('Zincirler');
     });
 });

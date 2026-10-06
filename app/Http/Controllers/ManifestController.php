@@ -38,9 +38,11 @@ class ManifestController extends Controller
     }
 
     /**
-     * Long-press menu of the home screen icon. Whoever writes notes gets
-     * "Yeni not" first; the manifest is requested with credentials for that
-     * (see components/pwa-head), and it differs per person, hence private.
+     * Long-press menu of the home screen icon. The daily chores come first:
+     * whoever keeps the chains gets "Zincirler" (the dashboard's "Bugün"
+     * card with Tamam / Mazeret), whoever writes notes gets "Yeni not". The
+     * manifest is requested with credentials for that (see
+     * components/pwa-head), and it differs per person, hence private.
      *
      * @return list<array{name: string, url: string}>
      */
@@ -53,10 +55,16 @@ class ManifestController extends Controller
             ['name' => 'İzlediklerim', 'url' => route('watched.index', absolute: false)],
         ];
 
-        if ($request->user()?->can(Permission::ManageNotes->value)) {
-            array_unshift($shortcuts, ['name' => 'Yeni not', 'url' => route('admin.notes.create', absolute: false)]);
+        $chores = [];
+
+        if ($request->user()?->can(Permission::ManageGoals->value)) {
+            $chores[] = ['name' => 'Zincirler', 'url' => route('admin.dashboard', absolute: false)];
         }
 
-        return $shortcuts;
+        if ($request->user()?->can(Permission::ManageNotes->value)) {
+            $chores[] = ['name' => 'Yeni not', 'url' => route('admin.notes.create', absolute: false)];
+        }
+
+        return [...$chores, ...$shortcuts];
     }
 }
