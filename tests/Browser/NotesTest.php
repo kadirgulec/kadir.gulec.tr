@@ -39,6 +39,26 @@ function stampVisibilityAt(int $scrollY): string
 /** The note counter under the editor, found by its "/ 250" text. */
 const NOTE_COUNTER = "[...document.querySelectorAll('p')].find(p => p.textContent.includes('/ 250'))";
 
+/**
+ * Checks the condition in the browser until it holds, for up to three
+ * seconds. Alpine and Livewire update the page a moment after an input, and
+ * Pest's assertScript() and assertSee() look only once.
+ */
+function eventually(string $condition): string
+{
+    return <<<JS
+        new Promise(resolve => {
+            const giveUpAt = Date.now() + 3000;
+            const check = () => {
+                let holds = false;
+                try { holds = Boolean({$condition}); } catch (error) {}
+                if (holds || Date.now() > giveUpAt) { resolve(holds); } else { requestAnimationFrame(check); }
+            };
+            check();
+        })
+        JS;
+}
+
 function tapTarget(string $selector): string
 {
     return '('.TAP_TARGET.')('.json_encode($selector).')';
@@ -63,10 +83,11 @@ describe('phone navigation', function () {
     });
 
     it('fits every tab name of the phone bar at 360 px', function () {
-        visit(route('notes.index'))
-            ->resize(360, 780)
-            ->assertScript("[...document.querySelectorAll('nav.vt-bar li span:last-child')].every(label => label.scrollWidth <= label.clientWidth)", true)
-            ->assertScript("document.querySelectorAll('nav.vt-bar li').length", 5);
+        $page = visit(route('notes.index'))->resize(360, 780);
+
+        // Measured once the web fonts are in: the fallback font has other widths.
+        expect($page->script("document.fonts.ready.then(() => [...document.querySelectorAll('nav.vt-bar li span:last-child')].every(label => label.scrollWidth <= label.clientWidth))"))->toBeTrue();
+        $page->assertScript("document.querySelectorAll('nav.vt-bar li').length", 5);
     });
 });
 
@@ -86,16 +107,17 @@ describe('post-it', function () {
     it('keeps long code inside the post-it on a phone', function () {
         noteOn('javascript', '`structuredClone()` derin kopya için yerleşik; `JSON.parse(JSON.stringify(birNesneninTamamı))` hilesi tarihe karışabilir.');
 
-        visit(route('notes.index'))
-            ->resize(360, 780)
-            ->assertScript(<<<'JS'
-                (() => {
-                    const card = document.querySelector('.post-it').getBoundingClientRect();
-                    return [...document.querySelectorAll('.post-it .inline-code')].every(code => {
-                        return [...code.getClientRects()].every(line => line.right <= card.right + 0.5);
-                    });
-                })()
-                JS, true);
+        $page = visit(route('notes.index'))->resize(360, 780);
+
+        // Measured once the web fonts are in: the fallback font has other widths.
+        expect($page->script(<<<'JS'
+            document.fonts.ready.then(() => {
+                const card = document.querySelector('.post-it').getBoundingClientRect();
+                return [...document.querySelectorAll('.post-it .inline-code')].every(code => {
+                    return [...code.getClientRects()].every(line => line.right <= card.right + 0.5);
+                });
+            })
+            JS))->toBeTrue();
     });
 });
 
@@ -104,21 +126,17 @@ describe('editor', function () {
         $this->actingAs(User::factory()->admin()->create());
         $page = visit(route('admin.notes.create'));
 
-        $page->type('#field-form-body', str_repeat('a', 120))
-            ->assertScript(NOTE_COUNTER.'.textContent.includes("120 / 250")', true)
-            ->assertScript(NOTE_COUNTER.'.className.includes("text-zinc-500")', true);
+        $page->type('#field-form-body', str_repeat('a', 120));
+        expect($page->script(eventually(NOTE_COUNTER.'.textContent.includes("120 / 250") && '.NOTE_COUNTER.'.className.includes("text-zinc-500")')))->toBeTrue();
 
-        $page->type('#field-form-body', str_repeat('a', 260))
-            ->assertSee('not uzuyor')
-            ->assertScript(NOTE_COUNTER.'.className.includes("text-amber-600")', true);
+        $page->type('#field-form-body', str_repeat('a', 260));
+        expect($page->script(eventually(NOTE_COUNTER.'.textContent.includes("not uzuyor") && '.NOTE_COUNTER.'.className.includes("text-amber-600")')))->toBeTrue();
 
-        $page->type('#field-form-body', str_repeat('a', 510))
-            ->assertSee('bu artık bir yazı olabilir')
-            ->assertScript(NOTE_COUNTER.'.className.includes("text-red-600")', true)
-            ->type('#field-form-tagname', 'uzun')
-            ->press('Kaydet')
-            ->assertSee('Not panoya yapıştı.');
+        $page->type('#field-form-body', str_repeat('a', 510));
+        expect($page->script(eventually(NOTE_COUNTER.'.textContent.includes("bu artık bir yazı olabilir") && '.NOTE_COUNTER.'.className.includes("text-red-600")')))->toBeTrue();
 
-        expect(Note::sole()->body)->toHaveLength(510);
+        $page->type('#field-form-tagname', 'uzun')->press('Kaydet');
+        expect($page->script(eventually('document.body.innerText.includes("Not panoya yapıştı.")')))->toBeTrue()
+            ->and(Note::sole()->body)->toHaveLength(510);
     });
 });
