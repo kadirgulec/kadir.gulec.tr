@@ -11,7 +11,6 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Mail;
 
 #[Signature('notifications:send {frequency : instant, daily or weekly}')]
@@ -37,7 +36,7 @@ class SendNotificationsCommand extends Command
                     ->whereHas('notificationItems', fn (Builder $query) => $query->whereNull('sent_at')->where('digest_only', true)))))
             ->whereHas('notificationItems', fn (Builder $query) => $this->waiting($query, $frequency))
             ->each(function (User $user) use ($frequency, $push): void {
-                $items = $this->waiting($user->notificationItems(), $frequency)->orderBy('created_at')->orderBy('id')->get();
+                $items = $this->waiting($user->notificationItems()->getQuery(), $frequency)->orderBy('created_at')->orderBy('id')->get();
 
                 if ($user->receivesNotifications()) {
                     $mail = new NotificationDigest($user, $items);
@@ -64,13 +63,11 @@ class SendNotificationsCommand extends Command
     /**
      * Unsent items; the instant run leaves the digest-only ones for the daily digest.
      *
-     * @template TQuery of Builder<NotificationItem>|HasMany<NotificationItem, User>
-     *
-     * @param  TQuery  $query
-     * @return TQuery
+     * @param  Builder<NotificationItem>  $query
+     * @return Builder<NotificationItem>
      */
-    private function waiting(Builder|HasMany $query, NotificationFrequency $frequency): Builder|HasMany
+    private function waiting(Builder $query, NotificationFrequency $frequency): Builder
     {
-        return $query->whereNull('sent_at')->when($frequency === NotificationFrequency::Instant, fn ($query) => $query->where('digest_only', false));
+        return $query->whereNull('sent_at')->when($frequency === NotificationFrequency::Instant, fn (Builder $query) => $query->where('digest_only', false));
     }
 }
