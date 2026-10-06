@@ -1,13 +1,17 @@
 <?php
 
 use App\Actions\Goals\MarkChainDay;
+use App\Actions\Notes\SaveNote;
 use App\Enums\ChainDayState;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
 use App\Enums\Permission;
+use App\Livewire\Forms\NoteForm;
 use App\Models\Goal;
+use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
+use App\Models\Tag;
 use App\Models\Watchable;
 use App\Enums\ChainPeriod;
 use App\Support\ChainReminders;
@@ -22,6 +26,9 @@ use Livewire\Component;
 new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
     /** @var array<int, string> Notes typed next to the +1 buttons, by goal id. */
     public array $progressNotes = [];
+
+    /** The "quick note" card: a note published the moment it is stuck on. */
+    public NoteForm $quickNote;
 
     /**
      * @return Collection<int, Goal>
@@ -44,16 +51,38 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
     }
 
     /**
-     * @return array{posts: int, projects: int, watched: int}
+     * @return array{posts: int, notes: int, projects: int, watched: int}
      */
     #[Computed]
     public function drafts(): array
     {
         return [
             'posts' => Post::query()->whereNull('published_at')->count(),
+            'notes' => Note::query()->whereNull('published_at')->count(),
             'projects' => Project::query()->whereNull('published_at')->count(),
             'watched' => Watchable::query()->whereNull('published_at')->count(),
         ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    #[Computed]
+    public function tagOptions(): array
+    {
+        return Tag::query()->orderBy('name')->pluck('name')->all();
+    }
+
+    public function addQuickNote(SaveNote $saveNote): void
+    {
+        $this->authorize(Permission::ManageNotes->value);
+
+        $this->quickNote->startNew();
+        $note = $this->quickNote->store($saveNote);
+        $this->quickNote->reset();
+
+        unset($this->tagOptions);
+        $this->dispatch('toast', text: 'Not #'.$note->id.' panoya yapıştı.', variant: 'success');
     }
 
     public function mark(int $chainId, string $day, string $state, MarkChainDay $markChainDay): void
@@ -160,10 +189,36 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
             </x-admin.card>
         @endcan
 
+        <div class="space-y-6">
+        @can(Permission::ManageNotes->value)
+            <x-admin.card>
+                <x-slot:heading>Hızlı not</x-slot:heading>
+                <x-slot:actions>
+                    <x-admin.link :href="route('admin.notes.index')" class="text-xs">Öğrendiklerim</x-admin.link>
+                </x-slot:actions>
+
+                <form wire:submit="addQuickNote" class="space-y-3">
+                    <div class="space-y-1.5">
+                        <x-admin.textarea wire:model="quickNote.body" rows="3" mono aria-label="Bugün ne öğrendin?" placeholder="Bugün ne öğrendin?" />
+                        <x-admin.char-counter field="quickNote.body" :soft="NoteForm::SOFT_LIMIT" :hard="NoteForm::HARD_HINT" />
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <x-admin.input wire:model="quickNote.tagName" list="quick-note-tags" autocomplete="off" placeholder="etiket" aria-label="Etiket" class="flex-1" />
+                        <datalist id="quick-note-tags">
+                            @foreach ($this->tagOptions as $tagName)
+                                <option value="{{ $tagName }}"></option>
+                            @endforeach
+                        </datalist>
+                        <x-admin.button type="submit" variant="primary" icon="sticky-note" class="mt-px">Yapıştır</x-admin.button>
+                    </div>
+                </form>
+            </x-admin.card>
+        @endcan
+
         <x-admin.card>
             <x-slot:heading>Taslaklar</x-slot:heading>
             <ul class="space-y-2 text-sm">
-                @foreach ([['admin.posts.index', 'Yazılar', 'posts', ['durum' => 'draft']], ['admin.projects.index', 'Projeler', 'projects', []], ['admin.watched.index', 'İzlediklerim', 'watched', []]] as [$routeName, $label, $key, $query])
+                @foreach ([['admin.posts.index', 'Yazılar', 'posts', ['durum' => 'draft']], ['admin.notes.index', 'Öğrendiklerim', 'notes', ['durum' => 'draft']], ['admin.projects.index', 'Projeler', 'projects', []], ['admin.watched.index', 'İzlediklerim', 'watched', []]] as [$routeName, $label, $key, $query])
                     @if (Route::has($routeName))
                         <li class="flex items-center justify-between">
                             <x-admin.link :href="route($routeName, $query)">{{ $label }}</x-admin.link>
@@ -173,5 +228,6 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
                 @endforeach
             </ul>
         </x-admin.card>
+        </div>
     </div>
 </div>

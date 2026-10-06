@@ -1,4 +1,4 @@
-{{-- Small status label. color: zinc | green | yellow | red | blue | accent | posts | watched | goals | projects --}}
+{{-- Small status label. color: zinc | green | yellow | red | blue | accent | posts | notes | watched | goals | projects --}}
 @props([
     'color' => 'zinc',
     'icon' => null,
@@ -13,6 +13,7 @@
         'blue' => 'bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300',
         'accent' => 'bg-accent-soft text-accent',
         'posts' => 'bg-section-posts/15 text-[#a8452b] dark:text-section-posts',
+        'notes' => 'bg-section-notes/15 text-[#236660] dark:text-section-notes',
         'watched' => 'bg-section-watched/15 text-[#c42452] dark:text-section-watched',
         'goals' => 'bg-section-goals/20 text-[#4f7000] dark:text-section-goals',
         'projects' => 'bg-section-projects/20 text-[#8a5800] dark:text-section-projects',

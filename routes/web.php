@@ -54,6 +54,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::livewire('yazilar/{post}', 'pages::admin.posts.edit')->name('posts.edit');
     });
 
+    Route::middleware('can:'.Permission::ManageNotes->value)->group(function () {
+        Route::livewire('ogrendiklerim', 'pages::admin.notes.index')->name('notes.index');
+        Route::livewire('ogrendiklerim/yeni', 'pages::admin.notes.edit')->name('notes.create');
+        Route::livewire('ogrendiklerim/{note}', 'pages::admin.notes.edit')->name('notes.edit');
+    });
+
     Route::livewire('etiketler', 'pages::admin.tags.index')->middleware('can:manage-tags')->name('tags.index');
 
     Route::middleware('can:'.Permission::ManageGoals->value)->group(function () {
