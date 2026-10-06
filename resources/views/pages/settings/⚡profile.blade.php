@@ -70,13 +70,6 @@ new #[Layout('layouts::account'), Title('Profil')] class extends Component {
     {
         return Auth::user() instanceof MustVerifyEmail && ! Auth::user()->hasVerifiedEmail();
     }
-
-    #[Computed]
-    public function showDeleteUser(): bool
-    {
-        return ! Auth::user() instanceof MustVerifyEmail
-            || (Auth::user() instanceof MustVerifyEmail && Auth::user()->hasVerifiedEmail());
-    }
 }; ?>
 
 <div class="space-y-12">
@@ -116,8 +109,4 @@ new #[Layout('layouts::account'), Title('Profil')] class extends Component {
         <p class="text-ink-soft">Hesabın, yorumların ve takiplerin tek bir JSON dosyasında. Şifre ve güvenlik anahtarları dosyada yer almaz.</p>
         <x-site.form.button variant="secondary" :href="route('account.export')">Verilerimi indir</x-site.form.button>
     </section>
-
-    @if ($this->showDeleteUser)
-        <livewire:pages::settings.delete-user-form />
-    @endif
 </div>

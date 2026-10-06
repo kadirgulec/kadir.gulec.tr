@@ -32,6 +32,17 @@ test('security settings page can be rendered', function () {
     $response->assertSee('İki adımlı doğrulamayı aç');
 });
 
+test('account deletion sits at the end of the security page, not on the profile', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $this->get(route('profile.edit'))->assertDontSee('Hesabımı sil');
+
+    $this->withSession(['auth.password_confirmed_at' => time()])
+        ->get(route('security.edit'))
+        ->assertSeeInOrder(["Passkey'ler", 'Hesabı sil', 'Hesabımı sil'], false);
+});
+
 test('security settings page requires password confirmation when enabled', function () {
     $user = User::factory()->create();
 

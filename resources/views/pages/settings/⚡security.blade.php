@@ -169,7 +169,7 @@ new #[Layout('layouts::account'), Title('Güvenlik')] class extends Component {
 <div class="space-y-12">
     <header class="space-y-1">
         <h1 class="font-display text-4xl font-extrabold tracking-tight">Güvenlik</h1>
-        <p class="text-ink-soft">Şifren, iki adımlı doğrulama ve passkey'lerin.</p>
+        <p class="text-ink-soft">Şifren, iki adımlı doğrulama, passkey'lerin ve hesabını silme.</p>
     </header>
 
     <x-site.form.status :message="session('status')" />
@@ -252,6 +252,9 @@ new #[Layout('layouts::account'), Title('Güvenlik')] class extends Component {
             <x-passkey-registration />
         </section>
     @endif
+
+    {{-- Kept here, at the very end and behind the password confirmation, rather than on the profile. --}}
+    <livewire:pages::settings.delete-user-form />
 
     <x-site.modal name="delete-passkey-modal" heading="Passkey kaldırılsın mı?" x-on:close="$wire.closeDeleteModal()">
         <p class="text-ink-soft">"{{ $deletingPasskeyName }}" ile artık giriş yapamazsın.</p>
