@@ -56,6 +56,21 @@
         </nav>
     @endif
 
+    @if ($notes)
+        <section class="mt-14" aria-labelledby="kucuk-notlar" data-section="notes">
+            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <h2 id="kucuk-notlar" class="font-display text-2xl font-semibold">Bu konuda küçük notlar</h2>
+                <a href="{{ route('notes.index') }}" class="text-sm font-semibold text-ink-soft underline decoration-section decoration-2 underline-offset-4 hover:text-ink">öğrendiklerim →</a>
+            </div>
+
+            <ul class="mt-10 grid items-start gap-x-8 gap-y-12 sm:grid-cols-2 xl:grid-cols-3">
+                @foreach ($notes as $note)
+                    <li><x-site.post-it :note="$note" /></li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
+
     @if ($related)
         <section class="mt-14 max-w-2xl" aria-labelledby="ilgili">
             <h2 id="ilgili" class="font-display text-2xl font-semibold">İlgili yazılar</h2>

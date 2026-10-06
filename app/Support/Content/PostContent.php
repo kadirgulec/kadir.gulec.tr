@@ -83,6 +83,18 @@ class PostContent
     }
 
     /**
+     * Published posts carrying this tag, newest first.
+     *
+     * @return list<PostData>
+     */
+    public function withTag(int $tagId, int $limit = 2): array
+    {
+        $posts = $this->published()->whereRelation('tags', 'tags.id', $tagId)->limit($limit)->get();
+
+        return array_values($posts->map($this->toArray(...))->all());
+    }
+
+    /**
      * The published neighbours of a post: [newer, older].
      *
      * @return array{0: PostData|null, 1: PostData|null}

@@ -36,6 +36,17 @@ class Tag extends Model
     }
 
     /**
+     * The washi tape color of a tag: a section color picked by the slug, so a
+     * tag looks the same on every page.
+     */
+    public static function tapeColor(string $slug): string
+    {
+        $colors = ['var(--color-posts)', 'var(--color-goals)', 'var(--color-about)', 'var(--color-projects)', 'var(--color-watched)', 'var(--color-home)'];
+
+        return $colors[crc32($slug) % count($colors)];
+    }
+
+    /**
      * The tags with these names, created when missing (in this order).
      *
      * @param  list<string>  $names

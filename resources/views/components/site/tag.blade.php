@@ -1,14 +1,9 @@
-@props(['name', 'slug', 'active' => false, 'count' => null])
+@props(['name', 'slug', 'active' => false, 'count' => null, 'route' => 'posts.index'])
 
-{{-- A tag as a strip of washi tape. The color is derived from the slug, so a tag looks the same everywhere. --}}
-@php
-    $tapeColors = ['var(--color-posts)', 'var(--color-goals)', 'var(--color-about)', 'var(--color-projects)', 'var(--color-watched)', 'var(--color-home)'];
-    $tapeColor = $tapeColors[crc32($slug) % count($tapeColors)];
-@endphp
-
+{{-- A tag as a strip of washi tape. The color is derived from the slug, so a tag looks the same everywhere. "route" is the list it filters. --}}
 <a
-    href="{{ route('posts.index', ['etiket' => $slug]) }}"
-    style="--tape-color: {{ $tapeColor }}"
+    href="{{ route($route, ['etiket' => $slug]) }}"
+    style="--tape-color: {{ \App\Models\Tag::tapeColor($slug) }}"
     @if ($active) aria-current="page" @endif
     {{ $attributes->class([
         'washi transition duration-150 hover:-translate-y-0.5 motion-reduce:transition-none',

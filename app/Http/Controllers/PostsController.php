@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\Content\NoteContent;
 use App\Support\Content\PostContent;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PostsController extends Controller
 {
-    public function __construct(private PostContent $posts) {}
+    public function __construct(private PostContent $posts, private NoteContent $notes) {}
 
     /**
      * Table of contents grouped by year, the two newest featured entries on top and a tag filter (?etiket=slug).
@@ -38,7 +39,7 @@ class PostsController extends Controller
     }
 
     /**
-     * A single post with the newer/older neighbours and up to three related posts.
+     * A single post with the newer/older neighbours, small notes on its tags and up to three related posts.
      */
     public function show(string $slug): View
     {
@@ -53,6 +54,7 @@ class PostsController extends Controller
             'postModel' => $post,
             'newer' => $newer,
             'older' => $older,
+            'notes' => $this->notes->forPost($post),
             'related' => $this->posts->related($post),
         ]);
     }

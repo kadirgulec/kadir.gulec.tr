@@ -642,6 +642,99 @@ html.lamp-off::view-transition-old(root) {
     clip-path: polygon(0 10%, 3% 0, 6% 12%, 3% 30%, 6% 50%, 2% 70%, 5% 88%, 2% 100%, 97% 100%, 100% 85%, 96% 66%, 99% 48%, 95% 30%, 98% 12%, 96% 0);
 }
 
+/*
+ * A note on a post-it (x-site.post-it). data-color picks one of five pastel
+ * papers; ink and soft text pass WCAG AA on each, in both themes.
+ */
+@layer components {
+    .post-it {
+        --postit-paper: #fff1a6;
+        --postit-ink: #3a3020;
+        --postit-soft: #6b5c3e;
+
+        background-color: var(--postit-paper);
+        color: var(--postit-ink);
+
+        &[data-color='pink'] {
+            --postit-paper: #ffd6de;
+            --postit-ink: #3d2228;
+            --postit-soft: #73444f;
+        }
+
+        &[data-color='blue'] {
+            --postit-paper: #cfe6ff;
+            --postit-ink: #1f2c3d;
+            --postit-soft: #485a73;
+        }
+
+        &[data-color='green'] {
+            --postit-paper: #d4f0c4;
+            --postit-ink: #23331c;
+            --postit-soft: #4d6343;
+        }
+
+        &[data-color='orange'] {
+            --postit-paper: #ffdcb8;
+            --postit-ink: #3d2a18;
+            --postit-soft: #74533a;
+        }
+
+        .dark & {
+            --postit-paper: #4a4322;
+            --postit-ink: #f6ecc6;
+            --postit-soft: #cfc29a;
+        }
+
+        .dark &[data-color='pink'] {
+            --postit-paper: #4d2a33;
+            --postit-ink: #ffdfe6;
+            --postit-soft: #d9aab5;
+        }
+
+        .dark &[data-color='blue'] {
+            --postit-paper: #233649;
+            --postit-ink: #dcebff;
+            --postit-soft: #a6bdd9;
+        }
+
+        .dark &[data-color='green'] {
+            --postit-paper: #2c4127;
+            --postit-ink: #def5d2;
+            --postit-soft: #a9c79c;
+        }
+
+        .dark &[data-color='orange'] {
+            --postit-paper: #4d3520;
+            --postit-ink: #ffe6cc;
+            --postit-soft: #d9b38f;
+        }
+
+        /* A post-it is narrow: long code or links break anywhere instead of sticking out */
+        .prose-notebook {
+            overflow-wrap: anywhere;
+        }
+
+        .inline-code {
+            color: var(--postit-ink);
+            background-color: color-mix(in oklab, var(--postit-ink) 10%, transparent);
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+        }
+
+        /* Links in the text stay clickable above the card's own link */
+        .prose-notebook a {
+            position: relative;
+            z-index: 1;
+            text-decoration-color: color-mix(in oklab, currentColor 45%, transparent);
+        }
+
+        .prose-notebook a:hover {
+            color: inherit;
+            text-decoration-color: currentColor;
+        }
+    }
+}
+
 /* The hand-drawn road of the "about" timeline: a wavy dashed line, repeated downwards */
 @utility road {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='80' viewBox='0 0 24 80'%3E%3Cpath d='M12 0 C 22 20, 2 40, 12 60 S 12 80, 12 80' fill='none' stroke='%23a08ce0' stroke-width='2.5' stroke-linecap='round' stroke-dasharray='6 7'/%3E%3C/svg%3E");
