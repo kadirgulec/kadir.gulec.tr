@@ -10,6 +10,7 @@ enum Section: string
 {
     case Home = 'home';
     case Posts = 'posts';
+    case Notes = 'notes';
     case Watched = 'watched';
     case Goals = 'goals';
     case Projects = 'projects';
@@ -23,6 +24,7 @@ enum Section: string
         return match ($this) {
             self::Home => 'Ana Sayfa',
             self::Posts => 'Yazılar',
+            self::Notes => 'Öğrendiklerim',
             self::Watched => 'İzlediklerim',
             self::Goals => 'Hedefler',
             self::Projects => 'Projeler',
@@ -38,11 +40,22 @@ enum Section: string
         return match ($this) {
             self::Home => 'home',
             self::Posts => 'posts.index',
+            self::Notes => 'notes.index',
             self::Watched => 'watched.index',
             self::Goals => 'goals.index',
             self::Projects => 'projects.index',
             self::About => 'about',
         };
+    }
+
+    /**
+     * Whether the section has a tab in the mobile bar, which only fits five.
+     * Home is reached through the "kg" stamp in the top left corner, About
+     * through the footer.
+     */
+    public function isInMobileBar(): bool
+    {
+        return ! in_array($this, [self::Home, self::About], true);
     }
 
     public function url(): string
@@ -58,6 +71,7 @@ enum Section: string
         return match ($this) {
             self::Home => 'bg-section-home',
             self::Posts => 'bg-section-posts',
+            self::Notes => 'bg-section-notes',
             self::Watched => 'bg-section-watched',
             self::Goals => 'bg-section-goals',
             self::Projects => 'bg-section-projects',

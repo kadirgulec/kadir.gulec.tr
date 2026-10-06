@@ -9,6 +9,7 @@ use App\Http\Controllers\FeedController;
 use App\Http\Controllers\GoalsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ManifestController;
+use App\Http\Controllers\NotesController;
 use App\Http\Controllers\OgImageController;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\ProjectsController;
@@ -20,6 +21,7 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('yazilar', [PostsController::class, 'index'])->name('posts.index');
 Route::get('yazilar/rss', [FeedController::class, 'posts'])->name('posts.feed');
 Route::get('yazilar/{slug}', [PostsController::class, 'show'])->name('posts.show');
+Route::get('ogrendiklerim', [NotesController::class, 'index'])->name('notes.index');
 Route::get('izlediklerim', [WatchedController::class, 'index'])->name('watched.index');
 Route::get('izlediklerim/{type}/{slug}', [WatchedController::class, 'show'])
     ->whereIn('type', ['film', 'dizi'])

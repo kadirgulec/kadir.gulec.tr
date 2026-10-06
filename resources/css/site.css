@@ -47,6 +47,9 @@
     --color-posts: #d9694a;
     --color-posts-ink: #a8452b;
     --color-posts-on: #2b2420;
+    --color-notes: #2a7671;
+    --color-notes-ink: #236660;
+    --color-notes-on: #fbf7ee;
     --color-watched: #f2577a;
     --color-watched-ink: #c42452;
     --color-watched-on: #2b2420;
@@ -92,6 +95,8 @@
         --color-home-ink: #a9bcff;
         --color-posts: #ff8f6b;
         --color-posts-ink: #ff9e80;
+        --color-notes: #5fd4c8;
+        --color-notes-ink: #7ee0d6;
         --color-watched: #ff6b8e;
         --color-watched-ink: #ff8aa6;
         --color-goals: #c8f25a;
@@ -103,6 +108,7 @@
 
         --color-home-on: #1c1a17;
         --color-posts-on: #1c1a17;
+        --color-notes-on: #1c1a17;
         --color-watched-on: #1c1a17;
         --color-goals-on: #1c1a17;
         --color-projects-on: #1c1a17;
@@ -126,6 +132,12 @@
         --color-section: var(--color-posts);
         --color-section-ink: var(--color-posts-ink);
         --color-section-on: var(--color-posts-on);
+    }
+
+    [data-section='notes'] {
+        --color-section: var(--color-notes);
+        --color-section-ink: var(--color-notes-ink);
+        --color-section-on: var(--color-notes-on);
     }
 
     [data-section='watched'] {
@@ -366,8 +378,17 @@
     z-index: 1;
 }
 
+/* The mobile "kg" stamp floats above the turning page for the same reason */
+.home-stamp {
+    view-transition-name: home-stamp;
+}
+
+::view-transition-group(home-stamp) {
+    z-index: 1;
+}
+
 /* While the lamp animates, the whole page must be one snapshot */
-html.theme-switching :is(.vt-page, .vt-bar) {
+html.theme-switching :is(.vt-page, .vt-bar, .home-stamp) {
     view-transition-name: none;
 }
 
@@ -482,6 +503,33 @@ html.lamp-off::view-transition-old(root) {
     to {
         opacity: 1;
         scale: 1;
+    }
+}
+
+/*
+ * The mobile "kg" stamp: hidden while the signature is on screen, pressed onto
+ * the corner once it scrolls away. `visibility` keeps it out of the tab order.
+ */
+.home-stamp {
+    visibility: hidden;
+    opacity: 0;
+    transition:
+        opacity 150ms ease-in,
+        visibility 0s linear 150ms;
+
+    &.is-shown {
+        visibility: visible;
+        opacity: 1;
+        transition: none;
+        animation: stamp-in 280ms cubic-bezier(0.2, 1.4, 0.5, 1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+
+        &.is-shown {
+            animation: none;
+        }
     }
 }
 

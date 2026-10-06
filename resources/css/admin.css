@@ -26,6 +26,7 @@
     /* Section dots, the same colors as the notebook tabs */
     --color-section-home: #26386b;
     --color-section-posts: #d9694a;
+    --color-section-notes: #2a7671;
     --color-section-watched: #f2577a;
     --color-section-goals: #9cc424;
     --color-section-projects: #f0b429;
@@ -41,6 +42,7 @@
 
         --color-section-home: #93aaff;
         --color-section-posts: #ff8f6b;
+        --color-section-notes: #5fd4c8;
         --color-section-watched: #ff6b8e;
         --color-section-goals: #c8f25a;
         --color-section-projects: #ffcb52;

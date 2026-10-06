@@ -12,6 +12,12 @@
                 <path d="m14 6.5 3.6 3.5" />
                 <path d="M5.4 15.1c1.3.2 2.6 1.4 3.6 3.5" />
                 @break
+            @case(\App\Enums\Section::Notes)
+                {{-- Post-it with a curled corner --}}
+                <path d="M4.6 5.3c0-.6.5-1.1 1.1-1.1l12.8.2c.6 0 1 .5 1 1.1l-.2 9.3-5.4 5.2-8.3-.1c-.6 0-1-.5-1-1.1V5.3Z" />
+                <path d="M19.3 14.8l-4.2.1c-.6 0-1 .5-1 1.1l-.2 3.9" />
+                <path d="M8 9.1h7.6M8 12.4h5" />
+                @break
             @case(\App\Enums\Section::Watched)
                 {{-- Clapperboard --}}
                 <path d="M4.2 10.2h15.6l-.3 8.6c0 .7-.6 1.2-1.3 1.2H5.8c-.7 0-1.3-.5-1.3-1.2l-.3-8.6Z" />

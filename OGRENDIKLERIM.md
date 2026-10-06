@@ -1,0 +1,81 @@
+# Öğrendiklerim Planı: kadir.gulec.tr
+
+Bu dosya, "Öğrendiklerim" bölümünün (küçük notlar) kararlarını, adımlarını ve uygulama notlarını tutar. Tasarım kararları `TASARIM.md`, admin ve üyelik kararları `ADMIN.md` içinde. Yeni bir oturumda önce bu dosyayı oku, sonra işaretlenmemiş ilk adımdan devam et.
+
+> Kararlar 2026-10-06 tarihli soru-cevap oturumunda alındı. Bütün adımlar `ogrendiklerim` dalında, her adım ayrı commit. Görsel adımlarda (1 ve 4) Kadir'in onayı beklenir, diğerleri onaysız ilerler.
+
+---
+
+## 1. Fikir
+
+Bazı günler küçük bir şey öğreniyorum. Bir yazı kadar uzun değil, iki üç cümle. Bunlar post-it gibi bir panoya yapıştırılır, üstünde tarih ve etiket olur. Sayfa başlığı: **"Küçük notlar, büyük birikim"**.
+
+Örnek notlar:
+
+- Yüzerken başı biraz daha aşağıda tutmak kalçayı yukarı kaldırıyor; su direnci gözle görülür azalıyor.
+- Laravel'de `Model::preventLazyLoading()` geliştirme ortamında N+1 sorgularını anında yakalıyor.
+- Almanca "Feierabend" kelimesinin Türkçede tam karşılığı yok; en yakını "mesai sonrası huzuru".
+
+## 2. Navigasyon
+
+- **Yeni sekme:** "Öğrendiklerim", `/ogrendiklerim`, bölüm rengi **petrol / deniz yeşili** (yaklaşık `#2F7F7A`; gece defterinde parlak turkuaz). Kesin ton prototipte, iki temada ve AA kontrolüyle belirlenir.
+- **Sekme sırası:** Ana Sayfa · Yazılar · Öğrendiklerim · İzlediklerim · Hedefler · Projeler · Hakkımda.
+- **Masaüstü:** Yedi sekmenin hepsi yan sekmelerde durur.
+- **Mobil alt çubuk:** 5 sütun: Yazılar · Öğrendiklerim · İzlediklerim · Hedefler · Projeler. "Ana Sayfa"ya köşedeki "kg" damgasıyla, "Hakkımda"ya footer'daki linkle gidilir (`Section::isInMobileBar()`). *(2026-10-06: 6 sütunda "Öğrendiklerim" 360 ve 375 px'te "Öğrendikl…" diye kesildi; yedek plan uygulandı. Etiketler `tracking-tight`, 360 px'te sığıyor.)*
+- **Mobilde küçülen damga (sadece `lg` altı):** Sayfa kayınca tepedeki "kgülec" imzası ekrandan çıkar çıkmaz (`IntersectionObserver`) sol üst köşede küçük, sabit bir "kg" damgası belirir; imza geri gelince kaybolur. Ana sayfaya link verir. Şerit yok, dairenin içi kâğıt renginde dolu (açık: krem, gece: kömür), hafif gölge ve eğim; "sayfanın üstüne yapışmış" gibi durur. Lamba yukarıda kalır, sabit değildir. `prefers-reduced-motion` açıksa animasyonsuz. Sayfa geçişlerinde (view transition) kendi `view-transition-name`'i olur (alt çubukta yaşanan hata tekrarlanmasın).
+
+## 3. Not
+
+- **Alanlar:** Başlık **yok**. `body` (Markdown) + `body_html`, `tag_id` (zorunlu, tam olarak bir etiket), `published_at` (`HasPublication`: boş taslak, gelecekte zamanlanmış, geçmişte yayında). Post-it'te görünen tarih `published_at`'tir; geçmişe dönük not için tarih geri alınır. Formda varsayılan "şimdi".
+- **Biçim:** Yazılardaki Markdown converter'ı (yeni converter yok). Editördeki ⓘ kılavuzu sadece satır içi biçimleri önerir: kalın, italik, `satır içi kod`, link, `==fosforlu kalem==`. Gerekirse notlarda kenar notları converter'ın `$sidenotes` parametresiyle kapatılır.
+- **Uzunluk:** Yumuşak sınır. Editörde sayaç (ham metin): 250'den sonra turuncu, 500'den sonra kırmızı. Kaydetmeye hiç engel olmaz.
+- **Adres:** `/ogrendiklerim/{id}`. Numara kalıcıdır, slug ve yönlendirme yok.
+- **Etiketler:** Yazılarla **ortak** `tags` tablosu, notta `notes.tag_id` (`belongsTo`). Notlarda kullanılan bir etiket silinemez, sadece birleştirilebilir (`mergeInto()` notları da taşır). İleride çoklu etiket istenirse pivota çevrilir.
+- **Yorum yok.**
+
+## 4. Ziyaretçi sayfaları
+
+- **Pano (`/ogrendiklerim`):** Başlık "Küçük notlar, büyük birikim". Üstte etiket filtresi (`?etiket=slug`, yazılardaki gibi, sayılarla). **Masonry** düzen (CSS `columns`; sıra sütun sütun akar, kronoloji ikinci planda). Mobilde 1, tablette 2, masaüstünde 3 sütun. Klasik sayfalama, sayfa başına yaklaşık 30 not, `withQueryString()`. Laravel'in sayfalama görünümü defter tasarımına uyarlanır.
+- **Post-it:**
+  - Renk: 4–5 pastel post-it renginden biri, not numarasından türetilir (deterministik, saklanmaz). Her rengin açık ve gece versiyonu var, metin AA'yı geçer.
+  - Hafif eğim (±2°, numaradan), hover'da düzleşir (`sticky-note` gibi).
+  - Post-it'i **etiketin washi tape'i** tutar: bant etiketin renginde, üstünde etiketin adı yazar, tıklanınca filtreler.
+  - Metin Nunito Sans, tarih JetBrains Mono, küçük süslemeler (ör. köşede `#42`) Caveat.
+  - Kartın kendisi not sayfasına link verir.
+- **Not sayfası (`/ogrendiklerim/{id}`):** Büyük tek post-it, önceki/sonraki not (`published_at` sırası), aynı etiketli en fazla 3 not ve aynı etiketli en fazla 2 yazı ("bu konuda yazdıklarım").
+- **Yazı sayfası:** İlgili yazılardan önce, yazının etiketlerinden en fazla 3 post-it ("bu konuda küçük notlar"). Hiç yoksa şerit görünmez.
+- **Ana sayfa:** En son not, tek bir post-it kartı, "Tümü →" ile.
+- **Taslaklar:** Diğer içerikler gibi sadece yetkiliye "TASLAK" bandıyla, ziyaretçiye 404.
+- **`x-site.tag`:** Linki şu an `posts.index`'e sabit. Hedef rota parametresi alacak.
+
+## 5. Paylaşım, RSS ve bildirimler
+
+- **Başlık ve meta:** `<title>` notun düz metninin ilk ~60 karakteri, meta açıklama ilk ~160 karakteri.
+- **OG görseli:** Mevcut `OgImage` sistemiyle (ilk istekte çizilir, `public/og/`), notun post-it'i: rengi, bandı ve metni.
+- **RSS:** Ayrı Atom akışı `/ogrendiklerim/rss`. Girdi başlığı ilk ~60 karakter, etiket `<category>`, gövde tam metin. Layout'ta `<link rel="alternate">`.
+- **Sitemap:** Yayındaki not sayfaları eklenir.
+- **Bildirim:** Ayrı abonelik `users.notify_new_notes` (pano sayfasında düğme, Hesabım → Bildirimler'de anahtar). Not bildirimleri **anında gitmez**: üyenin tercihi "hemen" olsa bile sadece günlük/haftalık özete girer. Zamanlanmış notlar `notifications:announce` ile duyurulur.
+
+## 6. Admin
+
+- **İzin:** `Permission::ManageNotes` (yeni).
+- **Kenar çubuğu:** İçerik → Öğrendiklerim.
+- **Ekranlar:** `/admin/ogrendiklerim` (liste: arama, etiket filtresi, durum), `/admin/ogrendiklerim/yeni`, `/admin/ogrendiklerim/{note}` (Markdown editör + sayaç, etiket combobox'ı (yoksa oluşturur), `published_at`).
+- **Hızlı not:** Admin panosunun tepesinde bir kart: textarea, etiket seçici, "Yapıştır" düğmesi. Not hemen yayına girer, kart temizlenir.
+- **PWA kısayolu:** Manifest'e `shortcuts` girdisi "Yeni not" → `/admin/ogrendiklerim/yeni`.
+- **Etiket ekranı:** `/admin/yazilar/etiketler` → `/admin/etiketler` (İçerik altında). `ManagePosts` ya da `ManageNotes` yeterli. Her etiketin yazı ve not sayısı görünür. Eski adres yeni adrese yönlenir.
+- **Yedekleme:** `notes` tablosu manifest'teki içerik sayılarına eklenir.
+
+## 7. Adımlar
+
+- [x] **Adım 1: Mobil navigasyon** (`Section::Notes`, petrol rengi, yan sekmeler, mobil çubuktan Ana Sayfa'nın çıkması, küçülen "kg" damgası, view transition; şimdilik `/ogrendiklerim` boş bir pano sayfası). *Kadir'in onayı beklenir.*
+- [ ] **Adım 2: Model ve etiketler** (`notes` tablosu, `Note` modeli, factory, `Tag::notes()`, birleştirme ve silme kuralları, etiket ekranının taşınması, `ManageNotes` izni, yedek sayımı, demo notlar).
+- [ ] **Adım 3: Admin** (liste, form, sayaç, ⓘ kılavuz, Hızlı not kartı, PWA kısayolu).
+- [ ] **Adım 4: Ziyaretçi sayfaları** (post-it bileşeni ve paleti, masonry pano, etiket filtresi, sayfalama görünümü, not sayfası, yazı sayfasındaki şerit, ana sayfa kartı). *Kadir'in onayı beklenir.*
+- [ ] **Adım 5: Paylaşım ve bildirimler** (title/meta, OG görseli, RSS, sitemap, `notify_new_notes`, sadece özete giren bildirimler).
+
+## 8. Uygulama notları
+
+*(Her adımda buraya eklenir.)*
+
+- **Navigasyon (1):** `Section::Notes` (`notes`, "Öğrendiklerim", `notes.index`). Renk token'ları `--color-notes` / `-ink` / `-on` (açık: `#2a7671` / `#236660` / krem; gece: `#5fd4c8` / `#7ee0d6` / kömür; kâğıtta ve `paper-deep`'te AA), admin'de `--color-section-notes`, OG paletinde `notes`. Sekme ikonu köşesi kıvrık bir post-it. Damga `x-site.home-stamp` (layout'ta, `lg:hidden`); `site.js` → `initHomeStamp()` imzayı (`[data-signature]`) gözler, `.is-shown` sınıfı `stamp-in` animasyonunu oynatır, gizliyken `visibility: hidden` (sekme sırasından çıkar). View transition'da kendi katmanı (`home-stamp`), lamba animasyonu sırasında kapalı. Footer'da "hakkımda" linki. `/ogrendiklerim` şimdilik boş bir pano (`NotesController::index`).

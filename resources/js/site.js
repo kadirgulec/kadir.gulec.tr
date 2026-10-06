@@ -118,6 +118,20 @@ function initDrawings() {
 }
 
 /**
+ * Mobile: the small "kg" stamp shows up in the corner while the signature at the top is out of view.
+ */
+function initHomeStamp() {
+    const stamp = document.querySelector('[data-home-stamp]');
+    const signature = document.querySelector('[data-signature]');
+
+    if (!stamp || !signature || !('IntersectionObserver' in window)) {
+        return;
+    }
+
+    new IntersectionObserver(([entry]) => stamp.classList.toggle('is-shown', !entry.isIntersecting)).observe(signature);
+}
+
+/**
  * Spoilers stay under the marker until the reader asks for them.
  */
 function initSpoilers() {
@@ -175,6 +189,7 @@ function initScrollToEnd() {
 
 initLamps();
 initDrawings();
+initHomeStamp();
 initSpoilers();
 initCopyButtons();
 initScrollToEnd();

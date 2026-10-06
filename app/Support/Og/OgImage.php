@@ -24,6 +24,7 @@ class OgImage
     private const SECTION_COLORS = [
         'home' => ['#26386b', '#26386b'],
         'posts' => ['#d9694a', '#a8452b'],
+        'notes' => ['#2a7671', '#236660'],
         'watched' => ['#f2577a', '#c42452'],
         'goals' => ['#9cc424', '#4f7000'],
         'projects' => ['#f0b429', '#8a5800'],

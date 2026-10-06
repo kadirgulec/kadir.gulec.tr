@@ -80,6 +80,8 @@
             İçeriğe geç
         </a>
 
+        <x-site.home-stamp />
+
         <div class="mx-auto max-w-6xl px-2 py-3 sm:px-6 sm:py-6 lg:py-10 lg:pr-48">
             <div class="relative">
                 <div class="paper relative z-10 min-h-[85dvh] rounded-[3px] shadow-[0_1px_2px_rgb(60_40_20/0.08),0_12px_32px_-12px_rgb(60_40_20/0.25)] dark:shadow-[0_1px_2px_rgb(0_0_0/0.5),0_16px_40px_-12px_rgb(0_0_0/0.7)]">
@@ -90,7 +92,7 @@
 
                     <div class="flex min-h-[85dvh] flex-col pr-5 pl-10 sm:pr-10 sm:pl-20">
                         <header class="flex items-center justify-between gap-4 pt-5 sm:pt-7">
-                            <a href="{{ route('home') }}" class="group" aria-label="Kadir Gülec, ana sayfa">
+                            <a href="{{ route('home') }}" class="group" aria-label="Kadir Gülec, ana sayfa" data-signature>
                                 <x-site.signature class="stamp h-14 w-auto sm:h-16 -rotate-6 text-home-ink transition-transform duration-200 group-hover:-rotate-2" />
                             </a>
 
@@ -109,6 +111,7 @@
                             <p>© {{ now()->year }} Kadir Gülec · bu defter elle tutuluyor</p>
 
                             <div class="flex flex-wrap gap-4">
+                                <a href="{{ route('about') }}" class="underline decoration-dotted underline-offset-4 hover:text-ink">hakkımda</a>
                                 <a href="{{ route('privacy') }}" class="underline decoration-dotted underline-offset-4 hover:text-ink">gizlilik</a>
                                 <a href="{{ route('imprint') }}" class="underline decoration-dotted underline-offset-4 hover:text-ink">künye</a>
                                 @auth
