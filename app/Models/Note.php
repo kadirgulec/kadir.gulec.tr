@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $tag_id
  * @property string $body
  * @property string|null $body_html
+ * @property CarbonImmutable|null $announced_at
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read Tag $tag

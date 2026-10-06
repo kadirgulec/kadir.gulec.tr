@@ -7,9 +7,11 @@ use App\Enums\SeriesStatus;
 use App\Mail\NotificationDigest;
 use App\Models\Comment;
 use App\Models\Goal;
+use App\Models\Note;
 use App\Models\NotificationItem;
 use App\Models\Post;
 use App\Models\Project;
+use App\Models\Tag;
 use App\Models\User;
 use App\Models\Watchable;
 use App\Support\Notifications\Announcements;
@@ -122,6 +124,21 @@ describe('moments', function () {
             ->and($other->notificationItems()->count())->toBe(0);
     });
 
+    it('announces new notes to subscribers once, for the digest only', function () {
+        $subscriber = follower(attributes: ['notify_new_notes' => true]);
+        $other = follower(attributes: ['notify_new_posts' => true]);
+        Note::factory()->for(Tag::factory()->state(['name' => 'git']))->create(['body' => '`git switch -` önceki dala döner.', 'published_at' => now()->subMinute()]);
+
+        $this->artisan('notifications:announce');
+        $this->artisan('notifications:announce');
+
+        $item = $subscriber->notificationItems()->sole();
+        expect($item->title)->toBe('Yeni not: #git')
+            ->and($item->body)->toBe('git switch - önceki dala döner.')
+            ->and($item->digest_only)->toBeTrue()
+            ->and($other->notificationItems()->count())->toBe(0);
+    });
+
     it('tells about 30 days of a chain with the title each follower may read', function () {
         // 30 marked days ending today; today is unmarked and marked again to trigger the check.
         $chain = Goal::factory()->chain(str_repeat('x', 30))->censored()->create(['title' => 'Ekransız sabahlar']);
@@ -230,6 +247,25 @@ describe('sending', function () {
             ->and($daily->notificationItems()->whereNull('sent_at')->count())->toBe(1);
     });
 
+    it('keeps digest-only items of instant members for the daily digest', function () {
+        Mail::fake();
+        $instant = follower(attributes: ['notification_frequency' => NotificationFrequency::Instant]);
+        $weekly = follower(attributes: ['notification_frequency' => NotificationFrequency::Weekly]);
+        NotificationItem::create(['user_id' => $instant->id, 'key' => 'note', 'title' => 'Yeni not', 'url' => 'https://example.test', 'digest_only' => true]);
+        NotificationItem::create(['user_id' => $weekly->id, 'key' => 'note', 'title' => 'Yeni not', 'url' => 'https://example.test', 'digest_only' => true]);
+
+        $this->artisan('notifications:send instant')->assertSuccessful();
+
+        Mail::assertNothingSent();
+
+        $this->artisan('notifications:send daily')->assertSuccessful();
+
+        Mail::assertSent(NotificationDigest::class, 1);
+        Mail::assertSent(NotificationDigest::class, fn (NotificationDigest $mail) => $mail->hasTo($instant->email));
+        expect($instant->notificationItems()->whereNull('sent_at')->count())->toBe(0)
+            ->and($weekly->notificationItems()->whereNull('sent_at')->count())->toBe(1);
+    });
+
     it('puts a one-click unsubscribe into every e-mail', function () {
         $user = follower();
         $item = NotificationItem::create(['user_id' => $user->id, 'key' => 'k', 'title' => 'Olay', 'url' => 'https://example.test']);
@@ -278,6 +314,24 @@ describe('account pages', function () {
         $component->call('unfollow', $user->follows()->first()->id);
 
         expect($user->follows()->count())->toBe(1);
+    });
+
+    it('switches the new notes subscription from the board', function () {
+        $user = follower();
+        $this->actingAs($user);
+
+        Livewire::test('site.note-subscription')->call('toggle');
+
+        expect($user->fresh()->notify_new_notes)->toBeTrue();
+    });
+
+    it('saves the new notes subscription with the other settings', function () {
+        $user = follower();
+        $this->actingAs($user);
+
+        Livewire::test('pages::settings.notifications')->set('newNotes', true)->call('save')->assertHasNoErrors();
+
+        expect($user->fresh()->notify_new_notes)->toBeTrue();
     });
 
     it('saves the frequency and the new posts subscription', function () {

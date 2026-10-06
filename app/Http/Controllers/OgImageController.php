@@ -7,10 +7,12 @@ use App\Enums\GoalVisibility;
 use App\Enums\Section;
 use App\Enums\WatchableType;
 use App\Models\Goal;
+use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
 use App\Models\Watchable;
 use App\Support\ChainStats;
+use App\Support\Content\NoteContent;
 use App\Support\Images\ImageStore;
 use App\Support\Og\OgImage;
 use Carbon\CarbonInterface;
@@ -58,6 +60,7 @@ class OgImageController extends Controller
         return match ($kind) {
             'page' => $this->page($key),
             'post' => $this->post($key),
+            'note' => $this->note($key),
             'project' => $this->project($key),
             'film', 'dizi' => $this->watchable(WatchableType::fromRouteSegment($kind), $key),
             'goal' => $this->goal($key),
@@ -92,6 +95,27 @@ class OgImageController extends Controller
         $post = Post::query()->published()->where('slug', $slug)->first();
 
         return $post ? [['title' => $post->title, 'kicker' => 'Yazılar', 'subtitle' => $post->excerptText(), 'section' => Section::Posts], $post->updated_at] : null;
+    }
+
+    /**
+     * @return array{0: Card, 1: ?CarbonInterface}|null
+     */
+    private function note(string $id): ?array
+    {
+        $note = ctype_digit($id) ? Note::query()->published()->with('tag')->find((int) $id) : null;
+
+        if ($note === null) {
+            return null;
+        }
+
+        $data = app(NoteContent::class)->toArray($note);
+
+        return [[
+            'title' => null,
+            'kicker' => 'Öğrendiklerim',
+            'section' => Section::Notes,
+            'postIt' => ['text' => $data['text'], 'tag' => $data['tagName'], 'color' => $data['color'], 'number' => $note->id],
+        ], $note->updated_at];
     }
 
     /**

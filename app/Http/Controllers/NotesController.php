@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Support\Content\NoteContent;
 use App\Support\Content\PostContent;
+use App\Support\Og\OgUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -45,6 +46,7 @@ class NotesController extends Controller
         return view('site.notes.show', [
             'note' => $data,
             'title' => Str::limit($data['text'], 60, '…', preserveWords: true),
+            'ogImage' => OgUrl::for('note', (string) $note->id, $note->updated_at),
             'newer' => $newer,
             'older' => $older,
             'sameTag' => $this->notes->sameTag($note),

@@ -15,21 +15,25 @@ new #[Layout('layouts::account'), Title('Bildirimler')] class extends Component 
 
     public bool $newPosts = false;
 
+    public bool $newNotes = false;
+
     public ?string $status = null;
 
     public function mount(): void
     {
         $this->frequency = auth()->user()->notification_frequency->value;
         $this->newPosts = auth()->user()->notify_new_posts;
+        $this->newNotes = auth()->user()->notify_new_notes;
     }
 
     public function save(): void
     {
-        $this->validate(['frequency' => ['required', Rule::enum(NotificationFrequency::class)], 'newPosts' => ['boolean']]);
+        $this->validate(['frequency' => ['required', Rule::enum(NotificationFrequency::class)], 'newPosts' => ['boolean'], 'newNotes' => ['boolean']]);
 
         auth()->user()->forceFill([
             'notification_frequency' => $this->frequency,
             'notify_new_posts' => $this->newPosts,
+            'notify_new_notes' => $this->newNotes,
         ])->save();
 
         $this->status = 'Kaydedildi.';
@@ -100,8 +104,9 @@ new #[Layout('layouts::account'), Title('Bildirimler')] class extends Component 
         </fieldset>
 
         <x-site.form.checkbox wire:model="newPosts" label="Yeni yazı çıkınca haber ver" />
+        <x-site.form.checkbox wire:model="newNotes" label="Yeni öğrendiklerimi özetle gönder" />
 
-        <p class="text-sm text-ink-faint">Yorumuna cevap gelince de aynı sıklıkla haber verilir.</p>
+        <p class="text-sm text-ink-faint">Yorumuna cevap gelince de aynı sıklıkla haber verilir. Öğrendiklerim küçük ve sık olduğu için, "hemen" seçsen bile günlük özetle gelir.</p>
 
         <div class="flex items-center gap-4">
             <x-site.form.button type="submit">Kaydet</x-site.form.button>

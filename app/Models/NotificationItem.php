@@ -21,11 +21,12 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string $title
  * @property string|null $body
  * @property string $url
+ * @property bool $digest_only
  * @property CarbonImmutable|null $sent_at
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
-#[Fillable(['user_id', 'key', 'title', 'body', 'url', 'sent_at'])]
+#[Fillable(['user_id', 'key', 'title', 'body', 'url', 'digest_only', 'sent_at'])]
 class NotificationItem extends Model
 {
     /**
@@ -46,6 +47,6 @@ class NotificationItem extends Model
 
     protected function casts(): array
     {
-        return ['sent_at' => 'immutable_datetime'];
+        return ['digest_only' => 'boolean', 'sent_at' => 'immutable_datetime'];
     }
 }

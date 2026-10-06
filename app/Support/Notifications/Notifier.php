@@ -42,8 +42,9 @@ class Notifier
 
     /**
      * @param  array{title: string, body?: ?string, url: string}  $message
+     * @param  bool  $digestOnly  Wait for the daily or weekly digest even when the member wants e-mails at once.
      */
-    public function toUser(User $user, ?Model $subject, string $key, array $message): void
+    public function toUser(User $user, ?Model $subject, string $key, array $message, bool $digestOnly = false): void
     {
         if (! $user->receivesNotifications()) {
             return;
@@ -58,7 +59,7 @@ class Notifier
             return;
         }
 
-        $item->fill(['title' => $message['title'], 'body' => $message['body'] ?? null, 'url' => $message['url']]);
+        $item->fill(['title' => $message['title'], 'body' => $message['body'] ?? null, 'url' => $message['url'], 'digest_only' => $digestOnly]);
 
         if ($subject !== null) {
             $item->subject()->associate($subject);

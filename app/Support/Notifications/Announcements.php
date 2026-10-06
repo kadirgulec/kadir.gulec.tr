@@ -11,6 +11,7 @@ use App\Models\DevlogEntry;
 use App\Models\Goal;
 use App\Models\GoalMilestone;
 use App\Models\GoalProgress;
+use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
 use App\Models\Season;
@@ -18,6 +19,7 @@ use App\Models\User;
 use App\Models\Viewing;
 use App\Models\Watchable;
 use App\Support\ChainStats;
+use App\Support\Markdown\Markdown;
 use Carbon\CarbonImmutable;
 
 /**
@@ -109,6 +111,21 @@ class Announcements
             'body' => $post->excerptText(),
             'url' => route('posts.show', $post->slug),
         ]));
+    }
+
+    /**
+     * A note whose publication time passed (called by the announce command).
+     * Notes are small and frequent, so they only ever go out in the digest.
+     */
+    public function note(Note $note): void
+    {
+        $text = app(Markdown::class)->toText($note->body);
+
+        User::query()->where('notify_new_notes', true)->each(fn (User $user) => $this->notifier->toUser($user, $note, 'published', [
+            'title' => 'Yeni not: #'.$note->tag->name,
+            'body' => $text,
+            'url' => route('notes.show', $note->id),
+        ], digestOnly: true));
     }
 
     public function projectStatus(Project $project): void

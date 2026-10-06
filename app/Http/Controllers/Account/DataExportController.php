@@ -33,6 +33,7 @@ class DataExportController extends Controller
                 'roles' => $user->getRoleNames()->values()->all(),
                 'notification_frequency' => $user->notification_frequency->value,
                 'notify_new_posts' => $user->notify_new_posts,
+                'notify_new_notes' => $user->notify_new_notes,
                 'two_factor_enabled' => $user->hasEnabledTwoFactorAuthentication(),
                 'passkeys' => $user->passkeys()->get()->map(fn ($passkey): array => [
                     'name' => $passkey->name,

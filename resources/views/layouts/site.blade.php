@@ -38,6 +38,9 @@
         @if (Route::has('posts.feed'))
             <link rel="alternate" type="application/atom+xml" title="Kadir Gülec · Yazılar" href="{{ route('posts.feed') }}" />
         @endif
+        @if (Route::has('notes.feed'))
+            <link rel="alternate" type="application/atom+xml" title="Kadir Gülec · Öğrendiklerim" href="{{ route('notes.feed') }}" />
+        @endif
         @if ($draft || $noindex)
             <meta name="robots" content="noindex, nofollow" />
         @endif

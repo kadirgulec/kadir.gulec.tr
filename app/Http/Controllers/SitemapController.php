@@ -6,6 +6,7 @@ use App\Enums\GoalKind;
 use App\Enums\GoalVisibility;
 use App\Enums\Section;
 use App\Models\Goal;
+use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
 use App\Models\Watchable;
@@ -22,6 +23,7 @@ class SitemapController extends Controller
         $urls = collect(Section::cases())->map(fn (Section $section): array => ['loc' => $section->url(), 'lastmod' => null]);
 
         $urls = $urls->merge(Post::query()->published()->get(['slug', 'updated_at'])->map(fn (Post $post): array => ['loc' => route('posts.show', $post->slug), 'lastmod' => $post->updated_at]))
+            ->merge(Note::query()->published()->get(['id', 'updated_at'])->map(fn (Note $note): array => ['loc' => route('notes.show', $note->id), 'lastmod' => $note->updated_at]))
             ->merge(Project::query()->published()->get(['slug', 'updated_at'])->map(fn (Project $project): array => ['loc' => route('projects.show', $project->slug), 'lastmod' => $project->updated_at]))
             ->merge(Watchable::query()->published()->get(['type', 'slug', 'updated_at'])->map(fn (Watchable $watchable): array => ['loc' => route('watched.show', ['type' => $watchable->type->routeSegment(), 'slug' => $watchable->slug]), 'lastmod' => $watchable->updated_at]))
             ->merge(Goal::query()->where('visibility', GoalVisibility::Public)->whereIn('kind', [GoalKind::Chain, GoalKind::LongTerm])->get(['kind', 'slug', 'updated_at'])->map(fn (Goal $goal): array => [

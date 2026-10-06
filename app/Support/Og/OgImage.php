@@ -11,8 +11,10 @@ use RuntimeException;
  * the red margin line, the section's color along the edge, the title in
  * Fraunces and a "kg" stamp. Films get their poster as a polaroid with the
  * red grade circle. A censored title is drawn as marker bars, never as text.
+ * A note is drawn as its post-it, with the tag on the tape.
  *
- * @phpstan-type Card array{title: ?string, titleLength?: ?int, kicker: string, subtitle?: ?string, section: Section, poster?: ?string, grade?: ?float}
+ * @phpstan-type PostIt array{text: string, tag: string, color: string, number: int}
+ * @phpstan-type Card array{title: ?string, titleLength?: ?int, kicker: string, subtitle?: ?string, section: Section, poster?: ?string, grade?: ?float, postIt?: PostIt}
  */
 class OgImage
 {
@@ -29,6 +31,15 @@ class OgImage
         'goals' => ['#9cc424', '#4f7000'],
         'projects' => ['#f0b429', '#8a5800'],
         'about' => ['#a08ce0', '#5f4bb0'],
+    ];
+
+    /** Post-it paper and ink colors (light theme), as in x-site.post-it. */
+    private const POST_IT_COLORS = [
+        'yellow' => ['#fff1a6', '#3a3020'],
+        'pink' => ['#ffd6de', '#3d2228'],
+        'blue' => ['#cfe6ff', '#1f2c3d'],
+        'green' => ['#d4f0c4', '#23331c'],
+        'orange' => ['#ffdcb8', '#3d2a18'],
     ];
 
     /**
@@ -56,7 +67,9 @@ class OgImage
 
         $y = 210;
 
-        if ($card['title'] === null) {
+        if (isset($card['postIt'])) {
+            $this->postIt($image, $card['postIt']);
+        } elseif ($card['title'] === null) {
             $y = $this->marker($image, 150, $y, (int) ($card['titleLength'] ?? 12), $textWidth);
         } else {
             foreach ($this->wrap((string) $card['title'], 'fraunces-800', 66, $textWidth, 3) as $line) {
@@ -118,6 +131,36 @@ class OgImage
         $this->text($image, 'caveat-700', 34, $x, $y - 10, '#74675a', 'sansürlü');
 
         return $y + 30;
+    }
+
+    /**
+     * A note's post-it: pastel paper with a soft shadow, the tag on a strip of
+     * tape, the text and the note's number.
+     *
+     * @param  PostIt  $postIt
+     */
+    private function postIt(GdImage $image, array $postIt): void
+    {
+        [$paper, $ink] = self::POST_IT_COLORS[$postIt['color']] ?? self::POST_IT_COLORS['yellow'];
+        [$left, $top, $right, $bottom] = [150, 160, 1040, 500];
+
+        imagefilledrectangle($image, $left + 10, $top + 14, $right + 10, $bottom + 14, $this->alpha($image, 60, 40, 20, 105));
+        imagefilledrectangle($image, $left, $top, $right, $bottom, $this->color($image, $paper));
+
+        $y = $top + 80;
+        foreach ($this->wrap($postIt['text'], 'nunito-sans-400', 32, $right - $left - 100, 5) as $line) {
+            $this->text($image, 'nunito-sans-400', 32, $left + 50, $y, $ink, $line);
+            $y += 50;
+        }
+
+        $this->text($image, 'caveat-700', 40, $right - 110, $bottom - 30, $ink, '#'.$postIt['number']);
+
+        $label = '#'.$postIt['tag'];
+        $box = imagettfbbox(22, 0, $this->font('nunito-sans-700'), self::printable($label)) ?: [0, 0, 0, 0, 0, 0, 0, 0];
+        $width = ($box[2] - $box[0]) + 48;
+        $x = (int) (($left + $right - $width) / 2);
+        imagefilledpolygon($image, [$x, $top - 22, $x + $width, $top - 28, $x + $width + 3, $top + 16, $x + 3, $top + 22], $this->alpha($image, 196, 180, 150, 30));
+        $this->text($image, 'nunito-sans-700', 22, $x + 24, $top + 4, '#2b2420', $label);
     }
 
     private function stamp(GdImage $image, int $cx, int $cy): void

@@ -1,8 +1,10 @@
 <?php
 
 use App\Models\Goal;
+use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
+use App\Models\Tag;
 use App\Models\Watchable;
 use Illuminate\Support\Facades\Storage;
 
@@ -56,6 +58,14 @@ describe('preview images', function () {
         $this->get(route('og', ['kind' => 'goal', 'key' => 'k-'.$chain->id]))->assertOk();
     });
 
+    it('draws a note as its post-it, and none for a draft note', function () {
+        $note = Note::factory()->create();
+
+        $this->get(route('notes.show', $note->id))->assertSee(route('og', ['kind' => 'note', 'key' => $note->id, 'v' => $note->updated_at->getTimestamp()]), false);
+        $this->get(route('og', ['kind' => 'note', 'key' => $note->id]))->assertOk()->assertHeader('Content-Type', 'image/png');
+        $this->get(route('og', ['kind' => 'note', 'key' => Note::factory()->draft()->create()->id]))->assertNotFound();
+    });
+
     it('draws films and pages', function () {
         $this->get(route('og', ['kind' => 'film', 'key' => Watchable::factory()->create()->slug]))->assertOk();
         $this->get(route('og', ['kind' => 'page', 'key' => 'home']))->assertOk();
@@ -77,6 +87,24 @@ describe('feed', function () {
     });
 });
 
+describe('notes feed', function () {
+    it('titles each published note with the start of its text and files it under its tag', function () {
+        Note::factory()->for(Tag::factory()->state(['name' => 'javascript']))->create([
+            'body' => '`structuredClone()` derin kopya için artık tarayıcılarda yerleşik geliyor; eski JSON hilesi tarihe karışabilir.',
+        ]);
+        Note::factory()->draft()->create(['body' => 'Taslak not.']);
+
+        $response = $this->get(route('notes.feed'))->assertOk()->assertHeader('Content-Type', 'application/atom+xml; charset=UTF-8');
+        $feed = simplexml_load_string($response->getContent());
+
+        expect($feed)->not->toBeFalse()
+            ->and(count($feed->entry))->toBe(1)
+            ->and((string) $feed->entry[0]->title)->toBe('structuredClone() derin kopya için artık tarayıcılarda…')
+            ->and((string) $feed->entry[0]->category['label'])->toBe('javascript')
+            ->and((string) $feed->entry[0]->content)->toContain('<code class="inline-code">structuredClone()</code>');
+    });
+});
+
 describe('sitemap and robots', function () {
     it('lists only what any visitor may read', function () {
         $post = Post::factory()->create();
@@ -84,6 +112,8 @@ describe('sitemap and robots', function () {
         $chain = Goal::factory()->chain()->create();
         $censored = Goal::factory()->chain()->censored()->create();
         $hidden = Goal::factory()->longTerm()->hidden()->create();
+        $note = Note::factory()->create();
+        $draftNote = Note::factory()->draft()->create();
 
         $xml = $this->get(route('sitemap'))->assertOk()->getContent();
 
@@ -92,7 +122,9 @@ describe('sitemap and robots', function () {
             ->toContain(route('goals.chain', $chain->slug))
             ->not->toContain($draft->slug)
             ->not->toContain($censored->slug)
-            ->not->toContain($hidden->slug);
+            ->not->toContain($hidden->slug)
+            ->toContain('<loc>'.route('notes.show', $note->id).'</loc>')
+            ->not->toContain('<loc>'.route('notes.show', $draftNote->id).'</loc>');
     });
 
     it('keeps crawlers out of the admin and account pages', function () {

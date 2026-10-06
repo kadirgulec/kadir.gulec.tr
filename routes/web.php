@@ -22,6 +22,7 @@ Route::get('yazilar', [PostsController::class, 'index'])->name('posts.index');
 Route::get('yazilar/rss', [FeedController::class, 'posts'])->name('posts.feed');
 Route::get('yazilar/{slug}', [PostsController::class, 'show'])->name('posts.show');
 Route::get('ogrendiklerim', [NotesController::class, 'index'])->name('notes.index');
+Route::get('ogrendiklerim/rss', [FeedController::class, 'notes'])->name('notes.feed');
 Route::get('ogrendiklerim/{id}', [NotesController::class, 'show'])->whereNumber('id')->name('notes.show');
 Route::get('izlediklerim', [WatchedController::class, 'index'])->name('watched.index');
 Route::get('izlediklerim/{type}/{slug}', [WatchedController::class, 'show'])
