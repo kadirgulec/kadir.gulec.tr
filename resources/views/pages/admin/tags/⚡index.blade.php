@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\Section;
 use App\Models\Tag;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
@@ -11,7 +10,7 @@ use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Layout('layouts::admin'), Title('Etiketler · Yazılar')] class extends Component {
+new #[Layout('layouts::admin'), Title('Etiketler')] class extends Component {
     #[Locked]
     public ?int $editingId = null;
 
@@ -28,7 +27,7 @@ new #[Layout('layouts::admin'), Title('Etiketler · Yazılar')] class extends Co
     #[Computed]
     public function tags(): Collection
     {
-        return Tag::query()->withCount('posts')->orderBy('name')->get();
+        return Tag::query()->withCount(['posts', 'notes'])->orderBy('name')->get();
     }
 
     public function edit(int $id): void
@@ -83,7 +82,15 @@ new #[Layout('layouts::admin'), Title('Etiketler · Yazılar')] class extends Co
 
     public function delete(int $id): void
     {
-        Tag::query()->findOrFail($id)->delete();
+        $tag = Tag::query()->findOrFail($id);
+
+        if (! $tag->isDeletable()) {
+            $this->dispatch('toast', text: 'Bu etiketin notları var. Notlar etiketsiz kalamaz, önce başka bir etiketle birleştir.', variant: 'danger');
+
+            return;
+        }
+
+        $tag->delete();
 
         unset($this->tags);
         $this->dispatch('toast', text: 'Etiket silindi. Yazılar yerinde duruyor.');
@@ -91,11 +98,7 @@ new #[Layout('layouts::admin'), Title('Etiketler · Yazılar')] class extends Co
 }; ?>
 
 <div>
-    <x-admin.page-header heading="Etiketler" description="Yeni etiketler yazı editöründe yazarken oluşur. Burada adlarını düzelt, birleştir ya da sil." :dot="Section::Posts->adminDotClass()">
-        <x-slot:actions>
-            <x-admin.button :href="route('admin.posts.index')" icon="arrow-left" variant="ghost" wire:navigate>Yazılar</x-admin.button>
-        </x-slot:actions>
-    </x-admin.page-header>
+    <x-admin.page-header heading="Etiketler" description="Yazılar ve öğrendiklerim aynı etiketleri paylaşır. Yeni etiketler editörde yazarken oluşur; burada adlarını düzelt, birleştir ya da sil." />
 
     @if ($this->tags->isEmpty())
         <x-admin.card padding="p-0"><x-admin.empty icon="tag" heading="Henüz etiket yok" /></x-admin.card>
@@ -104,6 +107,7 @@ new #[Layout('layouts::admin'), Title('Etiketler · Yazılar')] class extends Co
             <x-admin.table.columns>
                 <x-admin.table.column>Etiket</x-admin.table.column>
                 <x-admin.table.column>Yazı</x-admin.table.column>
+                <x-admin.table.column>Not</x-admin.table.column>
                 <x-admin.table.column align="end"><span class="sr-only">İşlemler</span></x-admin.table.column>
             </x-admin.table.columns>
             <x-admin.table.rows>
@@ -121,6 +125,7 @@ new #[Layout('layouts::admin'), Title('Etiketler · Yazılar')] class extends Co
                             @endif
                         </x-admin.table.cell>
                         <x-admin.table.cell>{{ $tag->posts_count }}</x-admin.table.cell>
+                        <x-admin.table.cell>{{ $tag->notes_count }}</x-admin.table.cell>
                         <x-admin.table.cell align="end">
                             <x-admin.dropdown>
                                 <x-slot:trigger>
@@ -128,8 +133,10 @@ new #[Layout('layouts::admin'), Title('Etiketler · Yazılar')] class extends Co
                                 </x-slot:trigger>
                                 <x-admin.dropdown.item icon="pencil" wire:click="edit({{ $tag->id }})">Yeniden adlandır</x-admin.dropdown.item>
                                 <x-admin.dropdown.item icon="layers" wire:click="startMerge({{ $tag->id }})">Başka etiketle birleştir</x-admin.dropdown.item>
-                                <x-admin.dropdown.separator />
-                                <x-admin.dropdown.item icon="trash-2" variant="danger" wire:click="delete({{ $tag->id }})" wire:confirm="#{{ $tag->name }} silinsin mi? Yazılar silinmez, sadece etiketsiz kalır.">Sil</x-admin.dropdown.item>
+                                @if ($tag->notes_count === 0)
+                                    <x-admin.dropdown.separator />
+                                    <x-admin.dropdown.item icon="trash-2" variant="danger" wire:click="delete({{ $tag->id }})" wire:confirm="#{{ $tag->name }} silinsin mi? Yazılar silinmez, sadece etiketsiz kalır.">Sil</x-admin.dropdown.item>
+                                @endif
                             </x-admin.dropdown>
                         </x-admin.table.cell>
                     </x-admin.table.row>
@@ -138,7 +145,7 @@ new #[Layout('layouts::admin'), Title('Etiketler · Yazılar')] class extends Co
         </x-admin.table>
     @endif
 
-    <x-admin.modal name="merge-tag" heading="Etiketleri birleştir" description="Bu etiketin yazıları seçtiğin etikete taşınır, bu etiket silinir.">
+    <x-admin.modal name="merge-tag" heading="Etiketleri birleştir" description="Bu etiketin yazıları ve notları seçtiğin etikete taşınır, bu etiket silinir.">
         <form wire:submit="merge" class="space-y-4">
             <x-admin.select wire:model="mergeTarget" label="Hedef etiket" placeholder="Seç…">
                 @foreach ($this->tags as $tag)

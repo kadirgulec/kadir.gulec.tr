@@ -28,7 +28,7 @@ class BackupManager
 {
     public const DIRECTORY = 'backups';
 
-    private const COUNTED_TABLES = ['posts', 'projects', 'watchables', 'goals', 'users', 'comments'];
+    private const COUNTED_TABLES = ['posts', 'notes', 'projects', 'watchables', 'goals', 'users', 'comments'];
 
     /**
      * @param  'manual'|'before-restore'  $reason

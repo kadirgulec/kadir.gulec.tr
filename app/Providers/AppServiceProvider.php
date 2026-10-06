@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Enums\Permission;
 use App\Http\Middleware\EnsureAdminAccess;
 use App\Models\Comment;
 use App\Models\Follow;
 use App\Models\Goal;
+use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
 use App\Models\User;
@@ -52,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
             'user' => User::class,
             'project' => Project::class,
             'post' => Post::class,
+            'note' => Note::class,
             'watchable' => Watchable::class,
             'goal' => Goal::class,
             'comment' => Comment::class,
@@ -66,6 +69,9 @@ class AppServiceProvider extends ServiceProvider
     protected function configureAuthorization(): void
     {
         Gate::before(fn (User $user): ?bool => $user->isAdmin() ? true : null);
+
+        // Tags are shared by posts and notes; managing either one is enough.
+        Gate::define('manage-tags', fn (User $user): bool => $user->can(Permission::ManagePosts->value) || $user->can(Permission::ManageNotes->value));
 
         // Livewire update requests go to /livewire/update; this re-runs the
         // admin guard there for components that were rendered under /admin.

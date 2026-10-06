@@ -50,9 +50,11 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::middleware('can:'.Permission::ManagePosts->value)->group(function () {
         Route::livewire('yazilar', 'pages::admin.posts.index')->name('posts.index');
         Route::livewire('yazilar/yeni', 'pages::admin.posts.edit')->name('posts.create');
-        Route::livewire('yazilar/etiketler', 'pages::admin.tags.index')->name('tags.index');
+        Route::redirect('yazilar/etiketler', '/admin/etiketler', 301);
         Route::livewire('yazilar/{post}', 'pages::admin.posts.edit')->name('posts.edit');
     });
+
+    Route::livewire('etiketler', 'pages::admin.tags.index')->middleware('can:manage-tags')->name('tags.index');
 
     Route::middleware('can:'.Permission::ManageGoals->value)->group(function () {
         Route::livewire('hedefler', 'pages::admin.goals.index')->name('goals.index');

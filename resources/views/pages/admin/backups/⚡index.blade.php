@@ -150,7 +150,7 @@ new #[Layout('layouts::admin'), Title('Yedekler')] class extends Component {
                 <div class="rounded-lg bg-amber-50 p-4 text-sm text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">
                     <p class="font-bold">Bu yedek {{ $inspection['createdAt'] ? \Carbon\CarbonImmutable::parse($inspection['createdAt'])->timezone(config('app.timezone'))->locale('tr')->translatedFormat('j F Y H:i') : '?' }} tarihli{{ $inspection['app'] ? ' (kod: '.$inspection['app'].')' : '' }}:</p>
                     <p class="mt-1">
-                        {{ $inspection['counts']['posts'] ?? 0 }} yazı · {{ $inspection['counts']['watchables'] ?? 0 }} film/dizi ·
+                        {{ $inspection['counts']['posts'] ?? 0 }} yazı · {{ $inspection['counts']['notes'] ?? 0 }} not · {{ $inspection['counts']['watchables'] ?? 0 }} film/dizi ·
                         {{ $inspection['counts']['goals'] ?? 0 }} hedef · {{ $inspection['counts']['projects'] ?? 0 }} proje ·
                         {{ $inspection['counts']['users'] ?? 0 }} üye · {{ $inspection['counts']['comments'] ?? 0 }} yorum
                     </p>

@@ -82,9 +82,11 @@
                 @php
                     $contentLinks = [
                         ['admin.posts.index', 'Yazılar', 'file-text', Section::Posts, 'admin.posts.*'],
+                        ['admin.notes.index', 'Öğrendiklerim', 'sticky-note', Section::Notes, 'admin.notes.*'],
                         ['admin.watched.index', 'İzlediklerim', 'clapperboard', Section::Watched, 'admin.watched.*'],
                         ['admin.goals.index', 'Hedefler', 'target', Section::Goals, 'admin.goals.*'],
                         ['admin.projects.index', 'Projeler', 'folder-git-2', Section::Projects, 'admin.projects.*'],
+                        ['admin.tags.index', 'Etiketler', 'tag', null, 'admin.tags.*'],
                     ];
                     $memberLinks = [
                         ['admin.users.index', 'Kullanıcılar', 'users', 'admin.users.*'],
@@ -99,7 +101,7 @@
                     <div class="space-y-0.5">
                         <p class="px-2.5 pb-1 text-xs font-bold tracking-wide text-zinc-500 uppercase">İçerik</p>
                         @foreach ($contentLinks as [$routeName, $label, $icon, $section, $pattern])
-                            <x-admin.nav-item :href="route($routeName)" :icon="$icon" :dot="$section->adminDotClass()" :current="request()->routeIs($pattern)">{{ $label }}</x-admin.nav-item>
+                            <x-admin.nav-item :href="route($routeName)" :icon="$icon" :dot="$section?->adminDotClass()" :current="request()->routeIs($pattern)">{{ $label }}</x-admin.nav-item>
                         @endforeach
                     </div>
                 @endif

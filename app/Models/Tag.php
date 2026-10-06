@@ -8,11 +8,13 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * A post tag, shown as washi tape. Its color comes from the slug.
+ * A tag shared by posts and notes, shown as washi tape. Its color comes
+ * from the slug. A post may have several tags, a note has exactly one.
  *
  * @property int $id
  * @property string $name
@@ -51,7 +53,7 @@ class Tag extends Model
     }
 
     /**
-     * Moves every post of this tag to another tag and deletes this one.
+     * Moves every post and note of this tag to another tag and deletes this one.
      */
     public function mergeInto(Tag $target): void
     {
@@ -68,6 +70,8 @@ class Tag extends Model
                 'position' => $row->position,
             ])->all());
 
+            $this->notes()->update(['tag_id' => $target->id]);
+
             $this->delete();
         });
     }
@@ -78,5 +82,21 @@ class Tag extends Model
     public function posts(): BelongsToMany
     {
         return $this->belongsToMany(Post::class)->withPivot('position');
+    }
+
+    /**
+     * @return HasMany<Note, $this>
+     */
+    public function notes(): HasMany
+    {
+        return $this->hasMany(Note::class);
+    }
+
+    /**
+     * Notes cannot lose their only tag, so a tag that holds notes can only be merged.
+     */
+    public function isDeletable(): bool
+    {
+        return ! $this->notes()->exists();
     }
 }

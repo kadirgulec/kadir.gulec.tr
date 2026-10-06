@@ -6,6 +6,7 @@ use App\Actions\Watched\StorePoster;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
 use App\Models\Goal;
+use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
 use App\Models\Watchable;
@@ -13,8 +14,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
 /**
- * The sample content of the design prototype (posts, films and series, the
- * watchlist and goals), so the site looks filled on a local machine.
+ * The sample content of the design prototype (posts, notes, films and series,
+ * the watchlist and goals), so the site looks filled on a local machine.
  * DatabaseSeeder only calls it outside production.
  */
 class DemoSeeder extends Seeder
@@ -22,6 +23,7 @@ class DemoSeeder extends Seeder
     public function run(StorePoster $storePoster): void
     {
         $this->seedPosts();
+        $this->seedNotes();
         $this->seedWatched($storePoster);
         $this->seedWatchlist();
         $this->seedGoals();
@@ -47,6 +49,22 @@ class DemoSeeder extends Seeder
             ]);
 
             $post->syncTagNames($data['tags']);
+        }
+    }
+
+    private function seedNotes(): void
+    {
+        /** @var list<array{tag: string, published_at: ?string, body: string}> $notes */
+        $notes = require __DIR__.'/data/demo-notes.php';
+
+        foreach ($notes as $data) {
+            if (Note::query()->where('body', $data['body'])->exists()) {
+                continue;
+            }
+
+            $note = new Note(['body' => $data['body'], 'published_at' => $data['published_at']]);
+            $note->useTagNamed($data['tag']);
+            $note->save();
         }
     }
 

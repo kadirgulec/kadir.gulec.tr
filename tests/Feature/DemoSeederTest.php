@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Note;
+use App\Models\Tag;
 use App\Models\Watchable;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Support\Facades\Storage;
@@ -19,4 +21,15 @@ it('fills the watchlist with unwatched drafts in file order, and runs again with
 
     expect(Watchable::query()->count())->toBe($count)
         ->and(Watchable::query()->onWatchlist()->count())->toBe(5);
+});
+
+it('seeds the sample notes with their tags once, keeping drafts as drafts', function () {
+    Storage::fake('public');
+
+    $this->seed(DemoSeeder::class);
+    $this->seed(DemoSeeder::class);
+
+    expect(Note::query()->count())->toBe(13)
+        ->and(Note::query()->published()->count())->toBe(12)
+        ->and(Tag::query()->where('name', 'laravel')->sole()->notes()->count())->toBe(2);
 });
