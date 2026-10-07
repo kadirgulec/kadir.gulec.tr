@@ -23,6 +23,7 @@
                 <a href="{{ $project['repoUrl'] }}" target="_blank" rel="noopener" class="text-ink-soft underline decoration-dotted underline-offset-4 hover:text-ink">GitHub ↗</a>
             @endif
             <livewire:site.follow-button type="project" :id="$project['id']" />
+            <x-site.share-button class="font-normal" />
             @if ($goal)
                 <span class="flex items-center gap-2 font-normal">
                     <span class="font-hand text-lg text-ink-faint">bu proje bir hedefe bağlı:</span>

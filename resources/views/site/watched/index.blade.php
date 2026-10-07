@@ -12,7 +12,10 @@
         <x-site.scribble class="absolute -bottom-3 left-0 h-3.5 w-full text-section" />
     </h1>
 
-    <p class="mt-8 font-hand text-2xl text-ink-soft">puanlar 10 üzerinden · yıldızlılar favorilerim · ✍️ olanlarda yorumum var</p>
+    <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
+        <p class="font-hand text-2xl text-ink-soft">puanlar 10 üzerinden · yıldızlılar favorilerim · ✍️ olanlarda yorumum var</p>
+        <x-site.share-button />
+    </div>
 
     {{-- Poster strip --}}
     <section class="mt-14" aria-labelledby="son-izlediklerim">

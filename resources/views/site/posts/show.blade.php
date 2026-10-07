@@ -13,10 +13,11 @@
 
             <x-site.scribble variant="double" class="mt-4 h-3.5 w-40 text-section" />
 
-            <div class="mt-6 flex flex-wrap gap-2">
+            <div class="mt-6 flex flex-wrap items-center gap-2">
                 @foreach ($post['tags'] as $index => $tag)
                     <x-site.tag :name="$tag" :slug="$post['tagSlugs'][$index]" />
                 @endforeach
+                <x-site.share-button />
             </div>
         </header>
 

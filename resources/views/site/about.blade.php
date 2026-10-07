@@ -35,6 +35,8 @@
                 @endguest
                 beklerim.
             </p>
+
+            <x-site.share-button class="mt-4 -ml-2" />
         </div>
 
         <x-site.logo class="stamp mt-4 mr-2 hidden size-32 rotate-12 text-section-ink md:block" />

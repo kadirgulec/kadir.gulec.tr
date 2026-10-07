@@ -9,8 +9,9 @@
 
     <x-site.scribble class="mt-3 h-3.5 w-40 text-section" />
 
-    <div class="mt-5">
+    <div class="mt-5 flex flex-wrap items-center gap-4">
         <livewire:site.follow-button type="goal" :id="$goal['id']" />
+        <x-site.share-button />
     </div>
 
     {{-- Why it matters, pinned like on the board --}}

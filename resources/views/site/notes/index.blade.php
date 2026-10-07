@@ -10,7 +10,10 @@
 
     <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
         <p class="font-hand text-2xl text-ink-soft">yol üstünde öğrendiğim küçük şeyler</p>
-        <livewire:site.note-subscription />
+        <div class="flex items-center gap-3">
+            <livewire:site.note-subscription />
+            <x-site.share-button />
+        </div>
     </div>
 
     @if ($tags)

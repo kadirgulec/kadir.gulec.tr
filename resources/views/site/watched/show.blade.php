@@ -50,6 +50,8 @@
                 <p class="mt-5 font-display text-lg text-ink-soft italic">{{ $entry['originalTitle'] }}</p>
             @endif
 
+            <x-site.share-button class="mt-4 -ml-2" />
+
             <dl class="mt-8 grid grid-cols-[6.5rem_1fr] items-baseline gap-x-4 gap-y-3">
                 @if ($entry['creator'])
                     <dt class="font-mono text-[11px] tracking-wider text-ink-faint uppercase">{{ $isFilm ? 'Yönetmen' : 'Yaratıcı' }}</dt>

@@ -8,7 +8,10 @@
         <x-site.scribble class="absolute -bottom-3 left-0 h-3.5 w-full text-section" />
     </h1>
 
-    <p class="mt-8 font-hand text-2xl text-ink-soft">yaptıklarım, yapmakta olduklarım ve bir kenara koyduklarım</p>
+    <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
+        <p class="font-hand text-2xl text-ink-soft">yaptıklarım, yapmakta olduklarım ve bir kenara koyduklarım</p>
+        <x-site.share-button />
+    </div>
 
     @if (! $featured)
         <p class="mt-14 font-hand text-2xl text-section-ink">Henüz burada bir proje yok, yakında.</p>

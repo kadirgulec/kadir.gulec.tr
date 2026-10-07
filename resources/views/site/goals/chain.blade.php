@@ -43,6 +43,7 @@
             <x-site.parent-chip :parent="$parentGoal" />
         @endif
         <livewire:site.follow-button type="goal" :id="$chain['id']" />
+        <x-site.share-button />
     </div>
 
     {{-- Numbers --}}
