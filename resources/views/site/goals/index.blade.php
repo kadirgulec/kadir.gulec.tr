@@ -21,7 +21,10 @@
         <x-site.scribble class="absolute -bottom-3 left-0 h-3.5 w-full text-section" />
     </h1>
 
-    <p class="mt-8 font-hand text-2xl text-ink-soft">küçük adımlar, büyük hedefler. yukarıdan aşağıya uzaklaşıyoruz ↓</p>
+    <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
+        <p class="font-hand text-2xl text-ink-soft">küçük adımlar, büyük hedefler. yukarıdan aşağıya uzaklaşıyoruz ↓</p>
+        <x-site.share-button />
+    </div>
 
     <div class="mt-6 flex max-w-md items-center gap-4">
         <span class="shrink-0 font-mono text-xs text-ink-soft">{{ $today->year }}</span>

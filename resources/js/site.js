@@ -179,6 +179,63 @@ function initCopyButtons() {
 }
 
 /**
+ * Share icons: the device's share sheet where there is one (phones, the installed app), otherwise the link is copied.
+ */
+function initShareButtons() {
+    document.querySelectorAll('[data-share]').forEach((share) => {
+        const button = share.querySelector('[data-share-button]');
+        const status = share.querySelector('[data-share-status]');
+        const url = share.dataset.shareUrl;
+
+        if (!button || !url || (!navigator.share && !navigator.clipboard)) {
+            share.remove();
+
+            return;
+        }
+
+        // Without a share sheet (most desktops) the button only copies, so it shows the link icon.
+        if (!navigator.share) {
+            share.querySelector('[data-share-icon]')?.setAttribute('hidden', '');
+            share.querySelector('[data-copy-icon]')?.removeAttribute('hidden');
+            button.title = 'Bağlantıyı kopyala';
+
+            if (button.hasAttribute('aria-label')) {
+                button.setAttribute('aria-label', 'Bu sayfanın bağlantısını kopyala');
+            }
+        }
+
+        let resetStatus;
+        const say = (message) => {
+            status.textContent = message;
+            clearTimeout(resetStatus);
+            resetStatus = setTimeout(() => (status.textContent = ''), 1800);
+        };
+
+        button.addEventListener('click', async () => {
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: document.title, url });
+
+                    return;
+                } catch (error) {
+                    // Closing the share sheet is not a failure; anything else falls back to copying.
+                    if (error.name === 'AbortError') {
+                        return;
+                    }
+                }
+            }
+
+            try {
+                await navigator.clipboard.writeText(url);
+                say('bağlantı kopyalandı ✓');
+            } catch {
+                say('kopyalanamadı');
+            }
+        });
+    });
+}
+
+/**
  * Wide scrollers (the yearly chain grid) start scrolled to the end, where the newest days are.
  */
 function initScrollToEnd() {
@@ -192,4 +249,5 @@ initDrawings();
 initHomeStamp();
 initSpoilers();
 initCopyButtons();
+initShareButtons();
 initScrollToEnd();

@@ -10,7 +10,10 @@
 
     <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
         <p class="font-hand text-2xl text-ink-soft">kod, kariyer ve arada kalan her şey</p>
-        <livewire:site.post-subscription />
+        <div class="flex items-center gap-3">
+            <livewire:site.post-subscription />
+            <x-site.share-button />
+        </div>
     </div>
 
     {{-- Tag filter --}}

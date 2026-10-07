@@ -23,6 +23,8 @@
                 <span class="inline-block lg:hidden" aria-hidden="true">↓</span>
                 <span class="hidden lg:inline-block" aria-hidden="true">→</span>
             </p>
+
+            <x-site.share-button class="mt-4 -ml-2" />
         </div>
 
         <x-site.logo class="stamp mt-6 mr-2 hidden size-32 -rotate-12 text-home-ink md:block" />

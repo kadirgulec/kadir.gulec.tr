@@ -5,6 +5,10 @@
 
     <div class="mx-auto mt-14 max-w-xl">
         <x-site.post-it :note="$note" size="lg" :linked="false" />
+
+        <div class="mt-6 flex justify-end">
+            <x-site.share-button />
+        </div>
     </div>
 
     {{-- Older / newer --}}
