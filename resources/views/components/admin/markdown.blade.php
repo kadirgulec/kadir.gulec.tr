@@ -70,7 +70,8 @@
                         <x-admin.button size="sm" variant="ghost" square icon="quote" x-on:click="block(':::replik Kişi', ':::', 'replik')" aria-label="Replik" title="Replik" />
                     @endif
                     @if ($upload)
-                        <x-admin.button size="sm" variant="ghost" square icon="image" x-on:click="$wire.$upload('{{ $upload }}', { accept: 'image/jpeg,image/png,image/webp,image/avif,image/gif' })" aria-label="Görsel ekle" title="Görsel ekle" />
+                        <input type="file" x-ref="imageInput" wire:model="{{ $upload }}" x-on:livewire-upload-finish="$el.value = ''" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" class="hidden" tabindex="-1" aria-hidden="true" />
+                        <x-admin.button size="sm" variant="ghost" square icon="image" x-on:click="$refs.imageInput.click()" aria-label="Görsel ekle" title="Görsel ekle" />
                         <span wire:loading wire:target="{{ $upload }}" class="px-1 text-xs font-semibold text-accent">yükleniyor…</span>
                     @endif
                     {{ $toolbar ?? '' }}

@@ -203,4 +203,85 @@ document.addEventListener('alpine:init', () => {
             }
         },
     }));
+
+    /**
+     * Drop zone of x-admin.file-upload. Dropped files are handed to the hidden
+     * <input type="file" wire:model> of the zone, so a drop and a pick take
+     * the same Livewire upload path. Drags that carry no files (selected text)
+     * are left alone.
+     */
+    window.Alpine.data('fileDropZone', () => ({
+        dragging: false,
+        depth: 0,
+        carriesFiles(event) {
+            return [...(event.dataTransfer?.types ?? [])].includes('Files');
+        },
+        enter(event) {
+            if (!this.carriesFiles(event)) {
+                return;
+            }
+
+            event.preventDefault();
+            this.depth++;
+            this.dragging = true;
+        },
+        over(event) {
+            if (this.carriesFiles(event)) {
+                event.preventDefault();
+            }
+        },
+        // dragleave also fires when the pointer moves onto a child, so count levels.
+        leave(event) {
+            if (!this.carriesFiles(event)) {
+                return;
+            }
+
+            this.depth = Math.max(0, this.depth - 1);
+            this.dragging = this.depth > 0;
+        },
+        drop(event) {
+            if (!this.carriesFiles(event)) {
+                return;
+            }
+
+            event.preventDefault();
+            this.depth = 0;
+            this.dragging = false;
+
+            const input = this.$refs.input;
+            const files = [...event.dataTransfer.files].filter((file) => acceptsFile(file, input.accept));
+
+            if (files.length === 0) {
+                return;
+            }
+
+            const transfer = new DataTransfer();
+            (input.multiple ? files : files.slice(0, 1)).forEach((file) => transfer.items.add(file));
+            input.files = transfer.files;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        },
+    }));
 });
+
+/**
+ * Matches a file against an accept attribute the way the browser does: MIME
+ * types (also "image/*") or extensions (".zip"). Server-side validation stays
+ * the real guard.
+ */
+function acceptsFile(file, accept) {
+    if (!accept) {
+        return true;
+    }
+
+    return accept.split(',').map((rule) => rule.trim().toLowerCase()).some((rule) => {
+        if (rule.startsWith('.')) {
+            return file.name.toLowerCase().endsWith(rule);
+        }
+
+        if (rule.endsWith('/*')) {
+            return file.type.startsWith(rule.slice(0, -1));
+        }
+
+        return file.type === rule;
+    });
+}
