@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Account\DataExportController;
+use App\Http\Controllers\Account\PushDeviceController;
 use App\Http\Controllers\Account\UnsubscribeController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,7 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('hesap/takip', 'pages::settings.follows')->name('follows.index');
     Route::livewire('hesap/bildirimler', 'pages::settings.notifications')->name('notifications.edit');
+    Route::post('hesap/bildirimler/cihaz', PushDeviceController::class)->middleware('throttle:30,1')->name('push-devices.store');
 
     Route::livewire('hesap/guvenlik', 'pages::settings.security')
         ->middleware([

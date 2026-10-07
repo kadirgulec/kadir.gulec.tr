@@ -8,13 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 
 /**
- * Push goes to devices someone is signed in on: signing out forgets this
- * device. The page signed out on also unsubscribes the browser itself
- * (resources/js/pwa.js), so the push service lets go of it as well.
+ * Signing out stops push on this device: the server forgets the device, and
+ * the next page tells the browser to unsubscribe as well (resources/js/pwa.js).
+ * A session that simply runs out is no sign-out: push keeps coming then, and
+ * tapping a notification leads to the login.
  */
 class ForgetPushDevice
 {
     public const COOKIE = 'push_device';
+
+    /** Left for the next page: drop this browser's push subscription too. */
+    public const NOTICE_COOKIE = 'push_forget';
 
     public function __construct(private Request $request) {}
 
@@ -27,5 +31,20 @@ class ForgetPushDevice
         }
 
         Cookie::queue(Cookie::forget(self::COOKIE));
+        Cookie::queue(self::NOTICE_COOKIE, '1', 60 * 24);
+    }
+
+    /**
+     * Whether a logout left a notice for this page; reading it clears it.
+     */
+    public static function takeNotice(Request $request): bool
+    {
+        if (! $request->hasCookie(self::NOTICE_COOKIE)) {
+            return false;
+        }
+
+        Cookie::queue(Cookie::forget(self::NOTICE_COOKIE));
+
+        return true;
     }
 }

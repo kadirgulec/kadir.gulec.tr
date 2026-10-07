@@ -61,10 +61,13 @@ describe('installable app', function () {
         expect(public_path('sw.js'))->toBeFile()->and(public_path('offline.html'))->toBeFile();
     });
 
-    it('links the manifest and tells the page whether someone is signed in', function () {
-        $this->get('/')->assertSee('rel="manifest"', false)->assertSee('data-signed-in="false"', false);
+    it('links the manifest and names a verified member to the app for push', function () {
+        $this->get('/')->assertSee('rel="manifest"', false)->assertDontSee('name="kg-push"', false);
 
-        $this->actingAs(User::factory()->member()->create())->get('/')->assertSee('data-signed-in="true"', false);
+        $this->actingAs(User::factory()->member()->unverified()->create())->get('/')->assertDontSee('name="kg-push"', false);
+
+        $member = User::factory()->member()->create();
+        $this->actingAs($member)->get('/')->assertSee('name="kg-push" content="'.$member->id.'"', false);
     });
 });
 
@@ -112,9 +115,45 @@ describe('devices', function () {
         $phone = pushDevice($member = User::factory()->member()->create());
         pushDevice($member, 'laptop');
 
-        $this->actingAs($member)->withCookie(ForgetPushDevice::COOKIE, $phone->endpoint_hash)->post(route('logout'));
+        $this->actingAs($member)->withCookie(ForgetPushDevice::COOKIE, $phone->endpoint_hash)->post(route('logout'))
+            ->assertCookie(ForgetPushDevice::NOTICE_COOKIE);
 
         expect($member->pushSubscriptions()->count())->toBe(1);
+    });
+
+    it('has the browser unsubscribe on the page after a logout, once', function () {
+        $this->withCookie(ForgetPushDevice::NOTICE_COOKIE, '1')->get('/')
+            ->assertSee('name="kg-push-forget"', false)
+            ->assertCookieExpired(ForgetPushDevice::NOTICE_COOKIE);
+    });
+
+    it('keeps push on when a session merely ran out', function () {
+        $this->get('/')->assertDontSee('name="kg-push-forget"', false);
+    });
+
+    it('saves the device the app switches push back on for', function () {
+        $member = User::factory()->member()->create();
+
+        $this->actingAs($member)->postJson(route('push-devices.store'), browserSubscription())
+            ->assertNoContent()
+            ->assertCookie(ForgetPushDevice::COOKIE, PushSubscription::hashOf('https://push.example.test/yeni'));
+
+        expect($member->pushSubscriptions()->sole()->endpoint)->toBe('https://push.example.test/yeni');
+    });
+
+    it('refuses a device from the app with an insecure push address', function () {
+        $this->actingAs(User::factory()->member()->create())
+            ->postJson(route('push-devices.store'), browserSubscription('http://push.example.test/acik'))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('endpoint');
+
+        expect(PushSubscription::count())->toBe(0);
+    });
+
+    it('saves no device from the app for a guest', function () {
+        $this->postJson(route('push-devices.store'), browserSubscription())->assertUnauthorized();
+
+        expect(PushSubscription::count())->toBe(0);
     });
 
     it('hides the device section while push has no keys', function () {
