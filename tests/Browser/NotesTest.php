@@ -126,6 +126,9 @@ describe('editor', function () {
         $this->actingAs(User::factory()->admin()->create());
         $page = visit(route('admin.notes.create'));
 
+        // Typed before Livewire binds the field, the text never reaches the counter.
+        expect($page->script(eventually("document.querySelector('#field-form-body')?._x_model && ".NOTE_COUNTER.'?._x_dataStack')))->toBeTrue();
+
         $page->type('#field-form-body', str_repeat('a', 120));
         expect($page->script(eventually(NOTE_COUNTER.'.textContent.includes("120 / 250") && '.NOTE_COUNTER.'.className.includes("text-zinc-500")')))->toBeTrue();
 
