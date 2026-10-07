@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Push\SavePushDevice;
 use App\Enums\NotificationFrequency;
 use App\Listeners\ForgetPushDevice;
 use App\Models\PushSubscription;
@@ -45,28 +46,9 @@ new #[Layout('layouts::account'), Title('Bildirimler')] class extends Component 
      *
      * @param  array<string, mixed>  $subscription
      */
-    public function enablePush(array $subscription): void
+    public function enablePush(array $subscription, SavePushDevice $savePushDevice): void
     {
-        $data = validator($subscription, [
-            'endpoint' => ['required', 'string', 'url:https', 'max:2000'],
-            'keys.p256dh' => ['required', 'string', 'max:255'],
-            'keys.auth' => ['required', 'string', 'max:255'],
-            'contentEncoding' => ['nullable', Rule::in(['aes128gcm', 'aesgcm'])],
-        ])->validate();
-
-        $hash = PushSubscription::hashOf($data['endpoint']);
-        $device = PushSubscription::query()->firstOrNew(['endpoint_hash' => $hash]);
-        $device->forceFill([
-            'user_id' => auth()->id(),
-            'endpoint' => $data['endpoint'],
-            'public_key' => $data['keys']['p256dh'],
-            'auth_token' => $data['keys']['auth'],
-            'content_encoding' => $data['contentEncoding'] ?? 'aes128gcm',
-            'user_agent' => mb_substr((string) request()->userAgent(), 0, 255) ?: null,
-        ])->save();
-
-        // Five years: the cookie only tells the logout which device this is.
-        Cookie::queue(ForgetPushDevice::COOKIE, $hash, 60 * 24 * 365 * 5);
+        $savePushDevice->handle(auth()->user(), $subscription, request()->userAgent());
     }
 
     public function disablePush(string $endpoint): void
@@ -126,6 +108,7 @@ new #[Layout('layouts::account'), Title('Bildirimler')] class extends Component 
                 async init() {
                     if (! window.kgPush?.supported) { this.state = 'unsupported'; return }
                     if (Notification.permission === 'denied') { this.state = 'denied'; return }
+                    await window.kgPush.ready
                     const current = await window.kgPush.current()
                     if (current) await $wire.enablePush(window.kgPush.serialize(current))
                     this.state = current ? 'on' : 'off'
@@ -149,7 +132,7 @@ new #[Layout('layouts::account'), Title('Bildirimler')] class extends Component 
             }"
         >
             <h2 id="bu-cihaz" class="font-display text-2xl font-semibold">Bu cihaz</h2>
-            <p class="text-ink-soft">Sana bir e-posta gittiğinde bu cihaza da bildirim gelsin. Bu cihazda çıkış yapınca kendiliğinden kapanır.</p>
+            <p class="text-ink-soft">Sana bir e-posta gittiğinde bu cihaza da bildirim gelsin. Bu cihazda çıkış yapınca durur, yeniden girince kendiliğinden açılır. Oturumun süresi dolsa da gelmeye devam eder; dokununca önce giriş yapman istenir.</p>
 
             <div class="flex flex-wrap items-center gap-4">
                 <x-site.form.button x-show="state === 'off' || state === 'failed'" x-on:click="enable">Bu cihazda bildirimleri aç</x-site.form.button>

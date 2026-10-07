@@ -16,8 +16,7 @@
 @endphp
 
 <!DOCTYPE html>
-{{-- data-signed-in: a signed-out page drops this browser's push subscription (resources/js/pwa.js). --}}
-<html lang="tr" data-signed-in="{{ auth()->check() ? 'true' : 'false' }}">
+<html lang="tr">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
