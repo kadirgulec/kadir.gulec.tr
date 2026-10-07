@@ -138,7 +138,7 @@ Proje, Yazılım Geliştirici (IHK) bitirme sınavım için başladı. Mezuniyet
         'name' => 'kadir.guelec.eu',
         'is_featured' => false,
         'status' => 'live',
-        'started_year' => 2025,
+        'started_year' => 2026,
         'tagline' => 'Almanca ve İngilizce portfolyom ve blogum. 11ty ile üretilen statik bir site: veritabanı yok, sunucu tarafı kod yok.',
         'stack' => [
             0 => '11ty',
