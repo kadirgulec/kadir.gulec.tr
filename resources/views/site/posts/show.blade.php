@@ -25,13 +25,14 @@
         <div class="mt-12 max-w-2xl text-lg leading-8 xl:max-w-[34rem]">
             <div class="prose-notebook">{{ $post['bodyHtml'] }}</div>
 
-            {{-- Signed off with the stamp --}}
-            <div class="mt-16 flex items-center gap-4">
+            {{-- Signed off with the stamp; a reader who got this far is the likeliest to share --}}
+            <div class="mt-16 flex flex-wrap items-center gap-4">
                 <x-site.logo class="stamp size-16 -rotate-12 text-section-ink" />
                 <p class="font-hand text-xl leading-tight text-ink-soft">
                     Kadir<br>
                     {{ $post['publishedAt']->locale('tr')->translatedFormat('j F Y') }}
                 </p>
+                <x-site.share-button label="beğendiysen paylaş →" class="ml-auto" />
             </div>
         </div>
     </article>

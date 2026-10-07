@@ -2,7 +2,7 @@
 
 Bu dosya, herkese açık sayfalara eklenen "paylaş" ikonunun kararlarını, durumunu ve açık sorularını tutar. Yeni bir oturumda (başka bir bilgisayarda) önce bu dosyayı oku.
 
-> 2026-10-07. Kadir'in isteği: "tüm sayfalarda olsun, başlığın altında küçük bir ikon, daha fazla soru sormadan her şeyi yap". Bütün iş `paylas` dalında. Dal push edildi, **master'a henüz merge edilmedi**.
+> 2026-10-07. Kadir'in isteği: "tüm sayfalarda olsun, başlığın altında küçük bir ikon, daha fazla soru sormadan her şeyi yap". Bütün iş `paylas` dalında. Açık sorular cevaplandı, dal master'a merge edildi (bkz. bölüm 6).
 
 ---
 
@@ -29,13 +29,13 @@ Uygulama ana ekrana eklenip (PWA, `display: standalone`) açıldığında adres 
 | Ana sayfa, Hakkımda | Başlığın altındaki el yazısı satırın altında, sola dayalı |
 | Yazılar, Öğrendiklerim (liste) | Abonelik butonunun yanında |
 | Projeler, İzlediklerim, Hedefler (liste) | Alt başlık satırının sağında (mobilde alta kayar) |
-| Yazı | Etiketlerin sonunda |
+| Yazı | Etiketlerin sonunda; ayrıca yazının sonunda imzanın sağında "beğendiysen paylaş →" |
 | Not | Post-it'in altında, sağda (notun başlığı yok) |
 | Proje | Demo / GitHub / takip et satırında |
 | Film/dizi | Başlığın (ve orijinal adının) hemen altında |
 | Uzun vadeli hedef, zincir | "Takip et" butonunun yanında |
 
-**Eklenmeyen sayfalar:** Künye, gizlilik, stil rehberi, hata sayfaları (403/404/419/429/500/503), abonelikten çıkma sayfası, giriş/hesap sayfaları ve admin. Bunların paylaşılmasının bir anlamı olmadığını düşündüm (bkz. soru 1).
+**Eklenmeyen sayfalar:** Künye, gizlilik, stil rehberi, hata sayfaları (403/404/419/429/500/503), abonelikten çıkma sayfası, giriş/hesap sayfaları ve admin. Bunların paylaşılmasının bir anlamı yok (bkz. karar 1).
 
 ## 4. Testler
 
@@ -53,15 +53,15 @@ Uygulama ana ekrana eklenip (PWA, `display: standalone`) açıldığında adres 
 - [ ] iPhone, ana ekrandaki uygulama: aynısı.
 - [ ] Android, Chrome ve yüklü uygulama: aynısı.
 - [ ] Menü kapatılınca hata ya da "kopyalandı" yazısı çıkmıyor.
-- [ ] Masaüstü Firefox: tıklayınca "bağlantı kopyalandı ✓" çıkıyor, link panoda.
+- [ ] Masaüstü Firefox: ikon zincir/link ikonu, tıklayınca "bağlantı kopyalandı ✓" çıkıyor, link panoda.
 - [ ] Gece defterinde (karanlık mod) ikon okunuyor.
 - [ ] WhatsApp/Telegram önizlemesinde OG görseli ve başlık geliyor (bu zaten vardı, sadece kontrol).
 
-## 6. Açık sorular (Kadir'e)
+## 6. Kararlar (Kadir, 2026-10-07)
 
-1. **Künye / gizlilik / stil rehberi:** Bunlarda da ikon olsun mu? Şu an yok.
-2. **Yazının sonu:** Başlığın altındaki ikona ek olarak, yazının sonunda imza damgasının yanına el yazısıyla "beğendiysen paylaş →" gibi bir çağrı olsun mu? Yazıyı bitiren okur paylaşmaya en yakın kişi.
-3. **Paylaşım metni:** Şu an sadece başlık (`Başlık · Kadir Gülec`) ve link gidiyor. Yazılarda kısa açıklama (meta description) da `text` olarak eklensin mi? Bazı uygulamalar (WhatsApp) metni ve başlığı birleştirip tekrar gösteriyor, o yüzden şimdilik eklemedim.
-4. **Masaüstünde görünüm:** Masaüstünde paylaşım menüsü çoğu zaman yok, ikon "linki kopyala" gibi çalışıyor. İkon masaüstünde farklı olsun mu (örneğin zincir/link ikonu) yoksa aynı kalsın mı?
-5. **Liste sayfalarında yer:** Projeler/İzlediklerim/Hedefler listelerinde ikon alt başlığın sağında. Mobilde alt satıra kayıp sola dayanıyor; buton iç boşluğundan dolayı metinle birkaç piksel kayık. Yeterli mi?
-6. **Merge:** Telefonda denendikten sonra `paylas` master'a merge edilip push edilsin mi?
+1. **Künye / gizlilik / stil rehberi:** İkon olmayacak. Böyle kaldı.
+2. **Yazının sonu:** Evet. İmza damgasının sağında el yazısıyla "beğendiysen paylaş →" ve ikon var (`<x-site.share-button label="…" />`). Başlığın altındaki ikon da duruyor.
+3. **Paylaşım metni:** Böyle kalıyor, sadece başlık ve link gidiyor.
+4. **Masaüstünde görünüm:** Farklı. Paylaşım menüsü olmayan tarayıcılarda ikon zincir/link ikonuna dönüşüyor, `title` ve `aria-label` "bağlantıyı kopyala" oluyor (`initShareButtons()`).
+5. **Liste sayfalarında yer:** Önemli değil, olduğu gibi kaldı.
+6. **Merge:** `paylas` master'a merge edilip push edildi. Telefonda kontrol listesi (bölüm 5) hâlâ elle denenmeli.

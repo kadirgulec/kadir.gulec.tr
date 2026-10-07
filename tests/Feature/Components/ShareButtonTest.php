@@ -28,3 +28,10 @@ it('keeps the tag filter in the shared link but drops the page number and tracki
     $this->get(route('posts.index', ['etiket' => 'kariyer', 'page' => 2, 'utm_source' => 'mastodon']))
         ->assertSee('data-share-url="'.route('posts.index').'?etiket=kariyer"', escape: false);
 });
+
+it('asks the reader to share at the end of a post', function () {
+    $post = Post::factory()->create();
+
+    $this->get(route('posts.show', $post->slug))
+        ->assertSee('beğendiysen paylaş →');
+});

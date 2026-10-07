@@ -193,6 +193,17 @@ function initShareButtons() {
             return;
         }
 
+        // Without a share sheet (most desktops) the button only copies, so it shows the link icon.
+        if (!navigator.share) {
+            share.querySelector('[data-share-icon]')?.setAttribute('hidden', '');
+            share.querySelector('[data-copy-icon]')?.removeAttribute('hidden');
+            button.title = 'Bağlantıyı kopyala';
+
+            if (button.hasAttribute('aria-label')) {
+                button.setAttribute('aria-label', 'Bu sayfanın bağlantısını kopyala');
+            }
+        }
+
         let resetStatus;
         const say = (message) => {
             status.textContent = message;
