@@ -22,6 +22,18 @@ describe('index', function () {
             ->assertSeeText('Bıraktım');
     });
 
+    it('keeps series in progress out of the recent posters', function () {
+        Watchable::factory()->hasViewings(1, ['watched_on' => '2026-09-01'])->create(['title' => 'Perfect Days']);
+        Watchable::factory()->series(SeriesStatus::Finished)->hasViewings(1, ['watched_on' => '2026-09-10'])->create(['title' => 'The 100']);
+        Watchable::factory()->series(SeriesStatus::Dropped)->hasViewings(1, ['watched_on' => '2026-09-20'])->create(['title' => 'Lost']);
+        Watchable::factory()->series(SeriesStatus::Watching)->hasViewings(1, ['watched_on' => '2026-10-01'])->create(['title' => 'Shōgun']);
+        Watchable::factory()->series(SeriesStatus::Paused)->hasViewings(1, ['watched_on' => '2026-10-02'])->create(['title' => 'Severance']);
+
+        $this->get(route('watched.index'))
+            ->assertViewHas('recent', fn (array $recent): bool => array_column($recent, 'title') === ['Lost', 'The 100', 'Perfect Days'])
+            ->assertViewHas('currentlyWatching', fn (array $shelf): bool => array_column($shelf, 'title') === ['Severance', 'Shōgun']);
+    });
+
     it('marks a later viewing as a rewatch', function () {
         $film = Watchable::factory()->create(['title' => 'Perfect Days']);
         $film->viewings()->create(['watched_on' => '2024-01-01']);
