@@ -8,7 +8,6 @@
     'name',
     'heading' => null,
     'description' => null,
-    'size' => 'md',
 ])
 
 <dialog
@@ -18,15 +17,7 @@
     x-on:modal-close.window="if (! $event.detail?.name || $event.detail.name === @js($name)) $el.close()"
     x-on:click="if ($event.target === $el) $el.close()"
     aria-labelledby="modal-{{ $name }}-heading"
-    {{ $attributes->class([
-        'm-auto w-[calc(100%-2rem)] rounded-xl border border-zinc-200 bg-white p-0 text-zinc-900 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100',
-        match ($size) {
-            'sm' => 'max-w-sm',
-            'lg' => 'max-w-2xl',
-            'xl' => 'max-w-4xl',
-            default => 'max-w-md',
-        },
-    ]) }}
+    {{ $attributes->class('m-auto w-[calc(100%-2rem)] max-w-md rounded-xl border border-zinc-200 bg-white p-0 text-zinc-900 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100') }}
 >
     <div class="space-y-4 p-6">
         @if ($heading)

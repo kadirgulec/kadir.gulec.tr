@@ -14,6 +14,7 @@ use App\Models\Watchable;
 use App\Support\ChainStats;
 use App\Support\Content\NoteContent;
 use App\Support\Images\ImageStore;
+use App\Support\Markdown\Markdown;
 use App\Support\Og\OgImage;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Storage;
@@ -156,8 +157,9 @@ class OgImageController extends Controller
      */
     private function goal(string $key): ?array
     {
-        $goal = preg_match('/^k-(\d+)$/', $key, $match)
-            ? Goal::query()->whereKey((int) $match[1])->where('visibility', GoalVisibility::Censored)->first()
+        $id = Goal::idFromOpaqueSlug($key);
+        $goal = $id !== null
+            ? Goal::query()->whereKey($id)->where('visibility', GoalVisibility::Censored)->first()
             : Goal::query()->where('slug', $key)->where('visibility', GoalVisibility::Public)->first();
 
         if ($goal === null || $goal->kind === GoalKind::Yearly || ($goal->kind === GoalKind::LongTerm && $goal->visibility !== GoalVisibility::Public)) {
@@ -167,7 +169,7 @@ class OgImageController extends Controller
         $censored = $goal->visibility === GoalVisibility::Censored;
         $subtitle = $goal->kind === GoalKind::Chain
             ? ChainStats::currentStreak(array_column($goal->load('chainDays')->chainLinks(), 'state')).' '.$goal->chain_period->adjective().' seri'
-            : strip_tags((string) $goal->why_html);
+            : app(Markdown::class)->plainText((string) $goal->why_html);
 
         return [[
             'title' => $censored ? null : $goal->title,

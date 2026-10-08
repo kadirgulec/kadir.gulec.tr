@@ -10,6 +10,7 @@ use App\Models\Project;
 use App\Models\ProjectImage;
 use App\Models\Technology;
 use App\Support\Images\ImageStore;
+use App\Support\FormControl;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -61,7 +62,7 @@ new #[Layout('layouts::admin')] class extends Component {
 
     public function publishNow(): void
     {
-        $this->form->published_at = now()->format('Y-m-d\TH:i');
+        $this->form->published_at = FormControl::dateTimeLocal(now());
     }
 
     public function updatedNewImages(ImageStore $images): void
@@ -73,7 +74,7 @@ new #[Layout('layouts::admin')] class extends Component {
         foreach ($this->newImages as $upload) {
             $project->images()->create([
                 'path' => $images->store($upload->getRealPath(), 'projects'),
-                'sort_order' => (int) $project->images()->max('sort_order') + 1,
+                'sort_order' => $project->images()->make()->nextSortOrder(),
             ]);
         }
 
@@ -224,7 +225,7 @@ new #[Layout('layouts::admin')] class extends Component {
                 <div class="grid gap-5 sm:grid-cols-2">
                     <x-admin.input wire:model="form.name" label="Ad" class="sm:col-span-2" />
                     <x-admin.input wire:model="form.tagline" label="Tek cümle" description="Kartta ve paylaşımlarda görünür." class="sm:col-span-2" />
-                    <x-admin.select wire:model="form.status" label="Durum damgası" :options="collect(ProjectStatus::cases())->mapWithKeys(fn ($status) => [$status->value => $status->label()])->all()" />
+                    <x-admin.select wire:model="form.status" label="Durum damgası" :options="ProjectStatus::cases()" />
                     <x-admin.input wire:model="form.started_year" type="number" label="Başlangıç yılı" min="1990" />
                     <x-admin.input wire:model="form.demo_url" type="url" label="Demo adresi" placeholder="https://" mono />
                     <x-admin.input wire:model="form.repo_url" type="url" label="GitHub adresi" placeholder="https://github.com/…" mono />

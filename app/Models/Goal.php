@@ -7,6 +7,7 @@ use App\Enums\ChainPeriod;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
 use App\Enums\GoalVisibility;
+use App\Enums\Permission;
 use App\Models\Concerns\HasFollowers;
 use App\Models\Concerns\HasSlugRedirects;
 use App\Models\Concerns\RendersMarkdown;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * A goal of any kind: a chain (daily, weekly or monthly), a yearly goal (numeric, milestones or
@@ -326,13 +328,42 @@ class Goal extends Model
         return ImageStore::url($this->image_path, $width);
     }
 
+    /**
+     * Yearly goals have no page of their own; they live as an anchor on the goals page.
+     */
     public function publicPath(?string $slug = null): string
     {
         return match ($this->kind) {
             GoalKind::Chain => '/hedefler/zincir/'.($slug ?? $this->slug),
             GoalKind::LongTerm => '/hedefler/'.($slug ?? $this->slug),
-            GoalKind::Yearly => '/hedefler',
+            GoalKind::Yearly => '/hedefler#hedef-'.($slug ?? $this->slug),
         };
+    }
+
+    /**
+     * Whether the goal's words must stay hidden from this viewer: it is censored
+     * and the viewer may not read censored goals (close friends and Kadir may).
+     */
+    public function isCensoredFor(?User $viewer): bool
+    {
+        return $this->visibility === GoalVisibility::Censored && ! Gate::forUser($viewer)->allows(Permission::ViewCensoredGoals->value);
+    }
+
+    /**
+     * The address part as this viewer may see it. A censored goal's slug is made
+     * from the very title being hidden, so it becomes opaque ("k-12").
+     */
+    public function slugFor(?User $viewer): string
+    {
+        return $this->isCensoredFor($viewer) ? 'k-'.$this->id : $this->slug;
+    }
+
+    /**
+     * The goal id inside an opaque address ("k-12"), or null for an ordinary slug.
+     */
+    public static function idFromOpaqueSlug(string $slug): ?int
+    {
+        return preg_match('/^k-(\d+)$/', $slug, $match) ? (int) $match[1] : null;
     }
 
     /**

@@ -8,9 +8,8 @@ use League\CommonMark\Renderer\ChildNodeRendererInterface;
 use League\CommonMark\Renderer\NodeRendererInterface;
 
 /**
- * Renders review containers with the markup of the site components:
- * a spoiler crossed out with marker (x-site.spoiler) and a quote on a
- * post-it (x-site.sticky-note).
+ * Renders review containers: a spoiler crossed out with marker and a quote
+ * on a post-it.
  */
 final class ContainerRenderer implements NodeRendererInterface
 {

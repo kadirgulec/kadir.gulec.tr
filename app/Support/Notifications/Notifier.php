@@ -2,15 +2,12 @@
 
 namespace App\Support\Notifications;
 
-use App\Enums\GoalVisibility;
-use App\Enums\Permission;
 use App\Models\Follow;
 use App\Models\Goal;
 use App\Models\NotificationItem;
 use App\Models\User;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * Turns something that happened into notification items, one per member.
@@ -25,7 +22,7 @@ class Notifier
      */
     public function toFollowers(Model $subject, string $key, Closure $message): void
     {
-        if ($subject instanceof Goal && $subject->visibility === GoalVisibility::Hidden) {
+        if ($subject instanceof Goal && ! $subject->visibility->isVisible()) {
             return;
         }
 
@@ -73,18 +70,6 @@ class Notifier
      */
     public function goalTitle(Goal $goal, User $user): string
     {
-        return $goal->visibility === GoalVisibility::Censored && ! Gate::forUser($user)->allows(Permission::ViewCensoredGoals->value)
-            ? '🔒 ██████'
-            : $goal->title;
-    }
-
-    /**
-     * A goal's address as this member may see it (see GoalContent::slugFor()).
-     */
-    public function goalSlug(Goal $goal, User $user): string
-    {
-        return $goal->visibility === GoalVisibility::Censored && ! Gate::forUser($user)->allows(Permission::ViewCensoredGoals->value)
-            ? 'k-'.$goal->id
-            : $goal->slug;
+        return $goal->isCensoredFor($user) ? '🔒 ██████' : $goal->title;
     }
 }

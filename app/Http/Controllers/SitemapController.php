@@ -22,14 +22,11 @@ class SitemapController extends Controller
     {
         $urls = collect(Section::cases())->map(fn (Section $section): array => ['loc' => $section->url(), 'lastmod' => null]);
 
-        $urls = $urls->merge(Post::query()->published()->get(['slug', 'updated_at'])->map(fn (Post $post): array => ['loc' => route('posts.show', $post->slug), 'lastmod' => $post->updated_at]))
-            ->merge(Note::query()->published()->get(['id', 'updated_at'])->map(fn (Note $note): array => ['loc' => route('notes.show', $note->id), 'lastmod' => $note->updated_at]))
-            ->merge(Project::query()->published()->get(['slug', 'updated_at'])->map(fn (Project $project): array => ['loc' => route('projects.show', $project->slug), 'lastmod' => $project->updated_at]))
-            ->merge(Watchable::query()->published()->get(['type', 'slug', 'updated_at'])->map(fn (Watchable $watchable): array => ['loc' => route('watched.show', ['type' => $watchable->type->routeSegment(), 'slug' => $watchable->slug]), 'lastmod' => $watchable->updated_at]))
-            ->merge(Goal::query()->where('visibility', GoalVisibility::Public)->whereIn('kind', [GoalKind::Chain, GoalKind::LongTerm])->get(['kind', 'slug', 'updated_at'])->map(fn (Goal $goal): array => [
-                'loc' => $goal->kind === GoalKind::Chain ? route('goals.chain', $goal->slug) : route('goals.show', $goal->slug),
-                'lastmod' => $goal->updated_at,
-            ]))
+        $urls = $urls->merge(Post::query()->published()->get(['slug', 'updated_at'])->map(fn (Post $post): array => ['loc' => url($post->publicPath()), 'lastmod' => $post->updated_at]))
+            ->merge(Note::query()->published()->get(['id', 'updated_at'])->map(fn (Note $note): array => ['loc' => url($note->publicPath()), 'lastmod' => $note->updated_at]))
+            ->merge(Project::query()->published()->get(['slug', 'updated_at'])->map(fn (Project $project): array => ['loc' => url($project->publicPath()), 'lastmod' => $project->updated_at]))
+            ->merge(Watchable::query()->published()->get(['type', 'slug', 'updated_at'])->map(fn (Watchable $watchable): array => ['loc' => url($watchable->publicPath()), 'lastmod' => $watchable->updated_at]))
+            ->merge(Goal::query()->where('visibility', GoalVisibility::Public)->whereIn('kind', [GoalKind::Chain, GoalKind::LongTerm])->get(['kind', 'slug', 'updated_at'])->map(fn (Goal $goal): array => ['loc' => url($goal->publicPath()), 'lastmod' => $goal->updated_at]))
             ->push(['loc' => route('privacy'), 'lastmod' => null])
             ->push(['loc' => route('imprint'), 'lastmod' => null]);
 

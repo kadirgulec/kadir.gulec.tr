@@ -30,6 +30,36 @@ trait HasPublication
             ->where($this->qualifyColumn('published_at'), '<=', now());
     }
 
+    /**
+     * Rows published after this one (at the same time: with a higher id), the nearest first.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function newerThan(Builder $query, self $row): void
+    {
+        $query->where(fn (Builder $query) => $query->where($this->qualifyColumn('published_at'), '>', $row->published_at)
+            ->orWhere(fn (Builder $query) => $query->where($this->qualifyColumn('published_at'), $row->published_at)->where($this->getQualifiedKeyName(), '>', $row->getKey())))
+            ->reorder()
+            ->orderBy($this->qualifyColumn('published_at'))
+            ->orderBy($this->getQualifiedKeyName());
+    }
+
+    /**
+     * Rows published before this one (at the same time: with a lower id), the nearest first.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function olderThan(Builder $query, self $row): void
+    {
+        $query->where(fn (Builder $query) => $query->where($this->qualifyColumn('published_at'), '<', $row->published_at)
+            ->orWhere(fn (Builder $query) => $query->where($this->qualifyColumn('published_at'), $row->published_at)->where($this->getQualifiedKeyName(), '<', $row->getKey())))
+            ->reorder()
+            ->orderByDesc($this->qualifyColumn('published_at'))
+            ->orderByDesc($this->getQualifiedKeyName());
+    }
+
     public function publicationState(): PublicationState
     {
         return match (true) {

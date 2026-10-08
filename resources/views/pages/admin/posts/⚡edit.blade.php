@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Models\Tag;
 use App\Support\Images\ImageStore;
 use App\Support\Markdown\Markdown;
+use App\Support\FormControl;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -44,7 +45,7 @@ new #[Layout('layouts::admin')] class extends Component {
 
     public function publishNow(): void
     {
-        $this->form->published_at = now()->format('Y-m-d\TH:i');
+        $this->form->published_at = FormControl::dateTimeLocal(now());
     }
 
     public function updatedBodyImage(ImageStore $images): void

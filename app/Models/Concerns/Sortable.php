@@ -6,13 +6,17 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Manual order in a sort_order column, for drag-and-drop lists. The model
- * may narrow the siblings (e.g. the images of one project) in sortSiblings().
- *
- * @property int $sort_order
+ * Manual order for drag-and-drop lists, in sort_order unless the model names
+ * another column in sortColumn(). The model may narrow the siblings (e.g. the
+ * images of one project) in sortSiblings().
  */
 trait Sortable
 {
+    protected function sortColumn(): string
+    {
+        return 'sort_order';
+    }
+
     /**
      * @param  Builder<static>  $query
      * @return Builder<static>
@@ -27,9 +31,11 @@ trait Sortable
      */
     public function moveTo(int $position): void
     {
-        DB::transaction(function () use ($position): void {
+        $column = $this->sortColumn();
+
+        DB::transaction(function () use ($position, $column): void {
             $ids = $this->sortSiblings(static::query())
-                ->orderBy('sort_order')
+                ->orderBy($column)
                 ->orderBy($this->getKeyName())
                 ->pluck($this->getKeyName())
                 ->reject(fn (mixed $id): bool => $id == $this->getKey())
@@ -39,7 +45,7 @@ trait Sortable
             array_splice($ids, max(0, min($position, count($ids))), 0, [$this->getKey()]);
 
             foreach ($ids as $order => $id) {
-                static::query()->whereKey($id)->update(['sort_order' => $order]);
+                static::query()->whereKey($id)->update([$column => $order]);
             }
         });
     }
@@ -49,6 +55,6 @@ trait Sortable
      */
     public function nextSortOrder(): int
     {
-        return (int) $this->sortSiblings(static::query())->max('sort_order') + 1;
+        return (int) $this->sortSiblings(static::query())->max($this->sortColumn()) + 1;
     }
 }

@@ -50,7 +50,7 @@ class Post extends Model
      */
     public function excerptText(): string
     {
-        return filled($this->excerpt) ? (string) $this->excerpt : app(Markdown::class)->excerpt((string) $this->body);
+        return filled($this->excerpt) ? (string) $this->excerpt : app(Markdown::class)->htmlExcerpt((string) $this->body_html);
     }
 
     /**

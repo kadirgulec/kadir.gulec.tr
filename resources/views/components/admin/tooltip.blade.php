@@ -6,7 +6,6 @@
 --}}
 @props([
     'label' => 'Yardım',
-    'icon' => 'info',
 ])
 
 <span
@@ -28,7 +27,7 @@
         aria-label="{{ $label }}"
         class="grid size-5 cursor-help place-items-center rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
     >
-        <x-admin.icon :name="$icon" class="size-4" />
+        <x-admin.icon name="info" class="size-4" />
     </button>
 
     <span

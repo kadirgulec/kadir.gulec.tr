@@ -13,7 +13,7 @@
     <icon>{{ url('/favicon.svg') }}</icon>
 
     @foreach ($notes as $note)
-        @php($text = $markdown->toText($note->body))
+        @php($text = $note->text())
         <entry>
             <title>{{ \Illuminate\Support\Str::limit($text, 60, '…', preserveWords: true) }}</title>
             <id>{{ route('notes.show', $note->id) }}</id>

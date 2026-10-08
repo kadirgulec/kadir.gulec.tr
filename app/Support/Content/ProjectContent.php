@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\ProjectImage;
 use App\Models\Technology;
 use App\Support\Images\ImageStore;
+use App\Support\Markdown\Markdown;
 use App\Support\Og\OgUrl;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
@@ -27,6 +28,8 @@ use Illuminate\Support\HtmlString;
  */
 class ProjectContent
 {
+    public function __construct(private Markdown $markdown) {}
+
     /**
      * Published projects in Kadir's order.
      *
@@ -42,8 +45,8 @@ class ProjectContent
      */
     public function featured(): ?array
     {
-        $project = $this->query()->published()->where('is_featured', true)->first()
-            ?? $this->query()->published()->first();
+        // The featured project, or the first one when none is featured
+        $project = $this->query()->published()->reorder()->orderByDesc('is_featured')->orderBy('sort_order')->orderBy('id')->first();
 
         return $project ? $this->toArray($project) : null;
     }
@@ -83,7 +86,7 @@ class ProjectContent
         $devlog = array_values($project->devlog->map(fn (DevlogEntry $entry): array => [
             'date' => $entry->date,
             'html' => new HtmlString((string) $entry->body_html),
-            'text' => trim(html_entity_decode(strip_tags((string) $entry->body_html), ENT_QUOTES | ENT_HTML5)),
+            'text' => $this->markdown->plainText((string) $entry->body_html),
         ])->all());
 
         return [

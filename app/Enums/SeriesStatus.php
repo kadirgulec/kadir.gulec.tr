@@ -34,6 +34,14 @@ enum SeriesStatus: string
      */
     public function isInProgress(): bool
     {
-        return in_array($this, [self::Watching, self::Paused], true);
+        return in_array($this, self::inProgress(), true);
+    }
+
+    /**
+     * @return list<self>
+     */
+    public static function inProgress(): array
+    {
+        return [self::Watching, self::Paused];
     }
 }

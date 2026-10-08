@@ -13,6 +13,7 @@ use App\Models\GoalProgress;
 use App\Models\Project;
 use App\Support\ChainStats;
 use App\Support\GoalCensor;
+use App\Support\Markdown\Markdown;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -58,7 +59,7 @@ class GoalContent
         }
 
         return [
-            'chain' => [...$this->chain($chain, 21), 'allStates' => array_column($chain->chainLinks(), 'state')],
+            'chain' => $this->chain($chain, 21),
             'history' => $chain->chainHistory(CarbonImmutable::today()->startOfYear()),
             'links' => $chain->chainLinks(CarbonImmutable::today()->startOfYear()),
             'parentGoal' => $this->chip($chain->parent, onGoalsPage: false),
@@ -109,7 +110,7 @@ class GoalContent
     public function longTermGoals(): array
     {
         $goals = $this->visible(GoalKind::LongTerm)->with('updates')->withCount([
-            'children' => fn (Builder $query) => $query->where('visibility', '!=', GoalVisibility::Hidden),
+            'children' => fn ($query) => $query->visible(),
         ])->get();
 
         return array_values($goals->map($this->longTerm(...))->all());
@@ -125,11 +126,11 @@ class GoalContent
     {
         $goal = $this->findBySlug($this->visible(GoalKind::LongTerm)->with('updates')->withCount('children'), $slug);
 
-        if ($goal === null || ($goal->visibility === GoalVisibility::Censored && ! $this->canSeeCensored())) {
+        if ($goal === null || $goal->isCensoredFor(auth()->user())) {
             return null;
         }
 
-        $children = $goal->children()->where('visibility', '!=', GoalVisibility::Hidden)
+        $children = $goal->children()->visible()
             ->with(['milestones', 'progressEntries', 'chainDays', 'parent', 'projects' => fn ($query) => $query->published()])
             ->get();
 
@@ -147,7 +148,7 @@ class GoalContent
      */
     public function chip(?Goal $goal, bool $onGoalsPage = true): ?array
     {
-        if ($goal === null || $goal->visibility === GoalVisibility::Hidden) {
+        if ($goal === null || ! $goal->visibility->isVisible()) {
             return null;
         }
 
@@ -186,9 +187,9 @@ class GoalContent
     /**
      * The address part of a goal as this viewer may see it.
      */
-    public function slugFor(Goal $goal): string
+    private function slugFor(Goal $goal): string
     {
-        return $goal->visibility === GoalVisibility::Censored && ! $this->canSeeCensored() ? 'k-'.$goal->id : $goal->slug;
+        return $goal->slugFor(auth()->user());
     }
 
     /**
@@ -198,8 +199,10 @@ class GoalContent
      */
     private function findBySlug(Builder $query, string $slug): ?Goal
     {
-        if (preg_match('/^k-(\d+)$/', $slug, $match)) {
-            $goal = $query->whereKey((int) $match[1])->first();
+        $id = Goal::idFromOpaqueSlug($slug);
+
+        if ($id !== null) {
+            $goal = $query->whereKey($id)->first();
 
             return $goal?->visibility === GoalVisibility::Censored ? $goal : null;
         }
@@ -309,7 +312,7 @@ class GoalContent
                 'updates' => array_values($goal->updates->map(fn (DevlogEntry $entry): array => [
                     'date' => $entry->date,
                     'html' => new HtmlString((string) $entry->body_html),
-                    'text' => trim(strip_tags((string) $entry->body_html)),
+                    'text' => app(Markdown::class)->plainText((string) $entry->body_html),
                 ])->all()),
             ]),
             'childCount' => (int) ($goal->children_count ?? 0),

@@ -8,8 +8,6 @@
     'description' => null,
     'help' => null,
     'options' => [],
-    'placeholder' => 'Yaz ve Enter\'a bas…',
-    'allowCreate' => true,
 ])
 
 @php
@@ -20,7 +18,7 @@
 
 <x-admin.field :label="$label" :description="$description" :help="$help" :error="$error" :for="$id" {{ $attributes->only('class') }}>
     <div
-        x-data="combobox({ selected: $wire.$entangle(@js($field)), options: @js(array_values($options)), allowCreate: @js($allowCreate) })"
+        x-data="combobox({ selected: $wire.$entangle(@js($field)), options: @js(array_values($options)) })"
         x-on:click.outside="open = false"
         class="relative"
     >
@@ -57,7 +55,7 @@
                 x-on:keydown.arrow-up.prevent="move(-1)"
                 x-on:keydown.escape="open = false"
                 x-on:keydown.tab="open = false"
-                placeholder="{{ $placeholder }}"
+                placeholder="Yaz ve Enter'a bas…"
                 class="min-w-32 flex-1 bg-transparent py-0.5 text-sm outline-none placeholder:text-zinc-400"
             />
         </div>

@@ -320,7 +320,7 @@ describe('account pages', function () {
         $user = follower();
         $this->actingAs($user);
 
-        Livewire::test('site.note-subscription')->call('toggle');
+        Livewire::test('site.subscription', ['kind' => 'notes'])->call('toggle');
 
         expect($user->fresh()->notify_new_notes)->toBeTrue();
     });

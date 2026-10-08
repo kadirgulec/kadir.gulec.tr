@@ -2,11 +2,10 @@
 @props([
     'label' => null,
     'description' => null,
-    'name' => null,
 ])
 
 @php
-    $field = \App\Support\FormControl::name($attributes, $name);
+    $field = \App\Support\FormControl::name($attributes);
     $value = $attributes->get('value');
     $id = \App\Support\FormControl::id($attributes, $field !== null && $value !== null ? $field.'-'.$value : $field);
     $error = $field !== null ? $errors->first($field) : null;
@@ -17,7 +16,6 @@
         <input
             type="checkbox"
             id="{{ $id }}"
-            @if ($name) name="{{ $name }}" @endif
             @if ($description) aria-describedby="{{ $id }}-description" @endif
             {{ $attributes->except(['class', 'id'])->class('mt-0.5 size-4 shrink-0 cursor-pointer rounded border-zinc-300 accent-accent dark:border-zinc-600') }}
         />

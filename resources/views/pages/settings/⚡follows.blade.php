@@ -1,7 +1,5 @@
 <?php
 
-use App\Enums\GoalKind;
-use App\Enums\GoalVisibility;
 use App\Models\Follow;
 use App\Models\Goal;
 use App\Models\Project;
@@ -36,20 +34,15 @@ new #[Layout('layouts::account'), Title('Takip ettiklerim')] class extends Compo
     public function describe(Follow $follow): array
     {
         $followable = $follow->followable;
-        $notifier = app(Notifier::class);
 
         return match (true) {
-            $followable instanceof Watchable => ['name' => $followable->title, 'kind' => $followable->type->label(), 'url' => route('watched.show', ['type' => $followable->type->routeSegment(), 'slug' => $followable->slug]), 'muted' => false],
-            $followable instanceof Project => ['name' => $followable->name, 'kind' => 'Proje', 'url' => route('projects.show', $followable->slug), 'muted' => false],
+            $followable instanceof Watchable => ['name' => $followable->title, 'kind' => $followable->type->label(), 'url' => url($followable->publicPath()), 'muted' => false],
+            $followable instanceof Project => ['name' => $followable->name, 'kind' => 'Proje', 'url' => url($followable->publicPath()), 'muted' => false],
             $followable instanceof Goal => [
-                'name' => $notifier->goalTitle($followable, auth()->user()),
+                'name' => app(Notifier::class)->goalTitle($followable, auth()->user()),
                 'kind' => $followable->kind->label(),
-                'url' => match ($followable->kind) {
-                    GoalKind::Chain => route('goals.chain', $notifier->goalSlug($followable, auth()->user())),
-                    GoalKind::LongTerm => route('goals.show', $notifier->goalSlug($followable, auth()->user())),
-                    GoalKind::Yearly => route('goals.index').'#hedef-'.$notifier->goalSlug($followable, auth()->user()),
-                },
-                'muted' => $followable->visibility === GoalVisibility::Hidden,
+                'url' => url($followable->publicPath($followable->slugFor(auth()->user()))),
+                'muted' => ! $followable->visibility->isVisible(),
             ],
             default => ['name' => 'Kayıt', 'kind' => '', 'url' => null, 'muted' => false],
         };

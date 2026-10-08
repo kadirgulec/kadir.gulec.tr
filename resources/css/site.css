@@ -417,22 +417,6 @@ html.lamp-off::view-transition-old(root) {
     }
 }
 
-/*
- * Lined notebook paper; the text sits on the lines. Applied per paragraph so that
- * blocks in between (spoilers, post-its) cannot push the lines out of step.
- */
-@utility ruled {
-    --line: 2rem;
-    line-height: var(--line) !important;
-    background-image: linear-gradient(
-        to bottom,
-        transparent calc(var(--line) - 1px),
-        color-mix(in oklab, var(--color-section) 30%, transparent) calc(var(--line) - 1px)
-    );
-    background-size: 100% var(--line);
-    background-position: 0 -0.3rem;
-}
-
 /* Thick marker over text (spoilers now, censored goals later). Dark mode: correction tape. */
 @utility redact {
     color: transparent;
@@ -988,7 +972,10 @@ html.lamp-off::view-transition-old(root) {
     }
 }
 
-/* Film reviews: paragraphs on lined paper (like the ruled utility) */
+/*
+ * Film reviews: lined notebook paper, the text sits on the lines. Applied per
+ * paragraph so that blocks in between (spoilers, post-its) cannot push the lines out of step.
+ */
 @layer components {
     .prose-review > p {
         --line: 2rem;

@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\GoalVisibility;
 use App\Enums\Permission;
 use App\Models\Goal;
 use Illuminate\Database\Eloquent\Model;
@@ -36,7 +35,7 @@ new class extends Component {
         abort_unless($user?->can(Permission::Follow->value) && $user->hasVerifiedEmail(), 403);
 
         $followable = $this->followable();
-        abort_if($followable instanceof Goal && $followable->visibility === GoalVisibility::Hidden, 404);
+        abort_if($followable instanceof Goal && ! $followable->visibility->isVisible(), 404);
 
         $existing = $user->follows()->where('followable_type', $this->type)->where('followable_id', $this->id)->first();
 

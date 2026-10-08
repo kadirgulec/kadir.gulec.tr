@@ -2,11 +2,10 @@
 @props([
     'label' => null,
     'description' => null,
-    'name' => null,
 ])
 
 @php
-    $field = \App\Support\FormControl::name($attributes, $name);
+    $field = \App\Support\FormControl::name($attributes);
     $id = \App\Support\FormControl::id($attributes, $field);
 @endphp
 
@@ -26,7 +25,6 @@
             type="checkbox"
             role="switch"
             id="{{ $id }}"
-            @if ($name) name="{{ $name }}" @endif
             @if ($description) aria-describedby="{{ $id }}-description" @endif
             {{ $attributes->except(['class', 'id'])->class('peer absolute inset-0 z-10 cursor-pointer opacity-0') }}
         />

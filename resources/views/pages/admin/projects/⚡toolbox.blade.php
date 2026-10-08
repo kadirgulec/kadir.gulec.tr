@@ -101,7 +101,7 @@ new #[Layout('layouts::admin'), Title('Alet çantası · Projeler')] class exten
         <x-admin.card>
             <form wire:submit="add" class="flex flex-wrap items-end gap-3">
                 <x-admin.input wire:model="name" label="Ekle" placeholder="ör. Docker ya da Fransızca" class="min-w-48 flex-1" />
-                <x-admin.select wire:model="group" label="Grup" :options="collect(ToolboxGroup::cases())->mapWithKeys(fn ($case) => [$case->value => $case->label()])->all()" />
+                <x-admin.select wire:model="group" label="Grup" :options="ToolboxGroup::cases()" />
                 <x-admin.button type="submit" variant="primary" icon="plus" class="mb-px">Ekle</x-admin.button>
             </form>
             <p class="mt-2 text-sm text-zinc-500">Projelerde kullanılan bir adı yazarsan o teknoloji çantaya girer; yeni bir ad yeni bir teknoloji olur.</p>

@@ -5,7 +5,7 @@ namespace App\Livewire\Forms;
 use App\Actions\Posts\SavePost;
 use App\Models\Post;
 use App\Models\Tag;
-use Carbon\CarbonImmutable;
+use App\Support\FormControl;
 use Closure;
 use Livewire\Attributes\Locked;
 use Livewire\Form;
@@ -45,7 +45,7 @@ class PostForm extends Form
         $this->body = (string) $post->body;
         $this->meta_description = (string) $post->meta_description;
         $this->is_featured = $post->is_featured;
-        $this->published_at = $post->published_at?->format('Y-m-d\TH:i') ?? '';
+        $this->published_at = FormControl::dateTimeLocal($post->published_at);
         $this->tagNames = array_values($post->tags->map(fn (Tag $tag): string => $tag->name)->all());
     }
 
@@ -101,7 +101,7 @@ class PostForm extends Form
                 'body' => $this->body !== '' ? $this->body : null,
                 'meta_description' => $this->meta_description !== '' ? $this->meta_description : null,
                 'is_featured' => $this->is_featured,
-                'published_at' => $this->published_at !== '' ? CarbonImmutable::parse($this->published_at) : null,
+                'published_at' => FormControl::parseDateTimeLocal($this->published_at),
             ],
             $this->tagNames,
         );

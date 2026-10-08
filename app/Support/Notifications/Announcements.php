@@ -19,7 +19,6 @@ use App\Models\User;
 use App\Models\Viewing;
 use App\Models\Watchable;
 use App\Support\ChainStats;
-use App\Support\Markdown\Markdown;
 use Carbon\CarbonImmutable;
 
 /**
@@ -57,7 +56,7 @@ class Announcements
 
         $this->notifier->toFollowers($watchable, 'viewing-'.$viewing->id, fn (User $user): array => [
             'title' => $watchable->title.': '.($viewing->note ?? 'yeniden izledim'),
-            'url' => $this->watchableUrl($watchable),
+            'url' => url($watchable->publicPath()),
         ]);
     }
 
@@ -72,7 +71,7 @@ class Announcements
         $this->notifier->toFollowers($watchable, 'season-note-'.$season->id.'-'.md5((string) $season->note), fn (User $user): array => [
             'title' => $watchable->title.', '.$season->number.'. sezon: yeni not',
             'body' => $season->note,
-            'url' => $this->watchableUrl($watchable).'#sezonlar',
+            'url' => url($watchable->publicPath()).'#sezonlar',
         ]);
     }
 
@@ -86,7 +85,7 @@ class Announcements
 
         $this->notifier->toFollowers($watchable, 'status-'.$status->value.'-'.today()->toDateString(), fn (User $user): array => [
             'title' => $watchable->title.': '.$status->emoji().' '.mb_strtolower($status->label()),
-            'url' => $this->watchableUrl($watchable),
+            'url' => url($watchable->publicPath()),
         ]);
     }
 
@@ -97,7 +96,7 @@ class Announcements
     {
         $this->notifier->toFollowers($watchable, 'review', fn (User $user): array => [
             'title' => $watchable->title.' hakkında yorum yazdım',
-            'url' => $this->watchableUrl($watchable).'#yorumum',
+            'url' => url($watchable->publicPath()).'#yorumum',
         ]);
     }
 
@@ -119,7 +118,7 @@ class Announcements
      */
     public function note(Note $note): void
     {
-        $text = app(Markdown::class)->toText($note->body);
+        $text = $note->text();
 
         User::query()->where('notify_new_notes', true)->each(fn (User $user) => $this->notifier->toUser($user, $note, 'published', [
             'title' => 'Yeni not: #'.$note->tag->name,
@@ -282,20 +281,9 @@ class Announcements
         ]);
     }
 
-    private function watchableUrl(Watchable $watchable): string
-    {
-        return route('watched.show', ['type' => $watchable->type->routeSegment(), 'slug' => $watchable->slug]);
-    }
-
     private function goalUrl(Goal $goal, User $user): string
     {
-        $slug = $this->notifier->goalSlug($goal, $user);
-
-        return match ($goal->kind) {
-            GoalKind::Chain => route('goals.chain', $slug),
-            GoalKind::LongTerm => route('goals.show', $slug),
-            GoalKind::Yearly => route('goals.index').'#hedef-'.$slug,
-        };
+        return url($goal->publicPath($goal->slugFor($user)));
     }
 
     /**

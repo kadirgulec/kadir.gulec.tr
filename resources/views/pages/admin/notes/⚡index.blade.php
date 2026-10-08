@@ -73,7 +73,7 @@ new #[Layout('layouts::admin'), Title('Öğrendiklerim')] class extends Componen
     <div class="mb-4 grid gap-3 sm:grid-cols-[1fr_12rem_12rem]">
         <x-admin.input wire:model.live.debounce.300ms="search" icon="search" placeholder="Notlarda ara…" aria-label="Ara" />
         <x-admin.select wire:model.live="tag" aria-label="Etiket" placeholder="Bütün etiketler" :options="$this->tagOptions" />
-        <x-admin.select wire:model.live="state" aria-label="Durum" placeholder="Bütün durumlar" :options="collect(PublicationState::cases())->mapWithKeys(fn ($state) => [$state->value => $state->label()])->all()" />
+        <x-admin.select wire:model.live="state" aria-label="Durum" placeholder="Bütün durumlar" :options="PublicationState::cases()" />
     </div>
 
     @if ($this->notes->isEmpty())

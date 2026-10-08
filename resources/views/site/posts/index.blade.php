@@ -11,33 +11,12 @@
     <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
         <p class="font-hand text-2xl text-ink-soft">kod, kariyer ve arada kalan her şey</p>
         <div class="flex items-center gap-3">
-            <livewire:site.post-subscription />
+            <livewire:site.subscription kind="posts" />
             <x-site.share-button />
         </div>
     </div>
 
-    {{-- Tag filter --}}
-    <nav class="mt-8 flex flex-wrap items-center gap-x-3 gap-y-3" aria-label="Etiketler">
-        <a
-            href="{{ route('posts.index') }}"
-            @if (! $activeTag) aria-current="page" @endif
-            @class([
-                'washi rotate-[-1deg] [--tape-color:var(--color-ink-faint)]',
-                'bg-section! font-semibold text-section-on!' => ! $activeTag,
-            ])
-        >tümü</a>
-
-        @foreach ($tags as $tag)
-            <x-site.tag :name="$tag['name']" :slug="$tag['slug']" :count="$tag['count']" :active="$activeTag && $activeTag['slug'] === $tag['slug']" />
-        @endforeach
-    </nav>
-
-    @if ($activeTag)
-        <p class="mt-6 font-hand text-2xl text-section-ink">
-            #{{ $activeTag['name'] }} etiketli yazılar ·
-            <a href="{{ route('posts.index') }}" class="text-ink-soft underline decoration-dotted underline-offset-4 hover:text-ink">filtreyi kaldır ×</a>
-        </p>
-    @endif
+    <x-site.tag-filter route="posts.index" :tags="$tags" :active-tag="$activeTag" noun="yazılar" />
 
     {{-- Featured: wide notebook entries --}}
     @if ($featured)
@@ -87,12 +66,7 @@
                 <ol class="mt-2">
                     @foreach ($posts as $post)
                         <li>
-                            <a href="{{ $post['url'] }}" class="group flex items-baseline gap-3 py-2.5">
-                                <span class="w-12 shrink-0 font-mono text-xs text-ink-faint">{{ $post['publishedAt']->format('d.m') }}</span>
-                                <span class="font-display text-lg leading-snug font-semibold group-hover:text-section-ink">{{ $post['title'] }}</span>
-                                <span class="mb-1 hidden min-w-8 flex-1 border-b-2 border-dotted border-rule sm:block" aria-hidden="true"></span>
-                                <span class="shrink-0 font-mono text-xs text-ink-faint max-sm:ml-auto">{{ $post['readingMinutes'] }} dk</span>
-                            </a>
+                            <x-site.post-row :post="$post" class="py-2.5" />
                         </li>
                     @endforeach
                 </ol>
