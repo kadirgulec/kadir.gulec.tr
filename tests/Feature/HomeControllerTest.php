@@ -38,3 +38,15 @@ it('shows the last watched title without a mark when it has no rating yet', func
 
     $this->get(route('home'))->assertOk()->assertSeeText('The 100');
 });
+
+it('shows the last finished title, not a series still being watched', function () {
+    Watchable::factory()->series(SeriesStatus::Watching)->hasViewings(1, ['watched_on' => '2026-10-05'])->create(['title' => 'Slow Horses']);
+
+    $this->get(route('home'))->assertSeeTextInOrder(['son izlediğim', 'Kuru Otlar Üstüne', 'şu an izliyorum', 'Slow Horses']);
+});
+
+it('shows a dropped series as the last watched title', function () {
+    Watchable::factory()->series(SeriesStatus::Dropped)->hasViewings(1, ['watched_on' => '2026-10-05'])->create(['title' => 'Lost']);
+
+    $this->get(route('home'))->assertSeeTextInOrder(['son izlediğim', 'Lost', 'şu an izliyorum', 'Severance']);
+});

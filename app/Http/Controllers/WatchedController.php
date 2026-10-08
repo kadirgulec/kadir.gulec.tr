@@ -21,7 +21,7 @@ class WatchedController extends Controller
         return view('site.watched.index', [
             'filmCountThisYear' => $thisYear->where('type', WatchableType::Film)->unique('id')->count(),
             'seriesCountThisYear' => $thisYear->where('type', WatchableType::Series)->unique('id')->count(),
-            'recent' => $diary->unique('id')->take(6)->values()->all(),
+            'recent' => $diary->filter(WatchedContent::isDone(...))->unique('id')->take(6)->values()->all(),
             'currentlyWatching' => $this->watched->currentlyWatching(),
             'watchlist' => $this->watched->watchlist(),
             'diaryByMonth' => $diary->groupBy(fn (array $entry): string => $entry['watchedAt']->format('Y-m'))->all(),

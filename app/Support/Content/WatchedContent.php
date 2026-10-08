@@ -53,11 +53,32 @@ class WatchedContent
     }
 
     /**
+     * Diary entries of titles Kadir is done with: films and series he finished
+     * or dropped. A series still in progress belongs on the "currently watching" shelf.
+     *
+     * @return list<WatchedEntry>
+     */
+    public function done(): array
+    {
+        return array_values(array_filter($this->diary(), self::isDone(...)));
+    }
+
+    /**
+     * @param  WatchedEntry  $entry
+     */
+    public static function isDone(array $entry): bool
+    {
+        return ! ($entry['status']?->isInProgress() ?? false);
+    }
+
+    /**
+     * The last film or series Kadir finished or dropped.
+     *
      * @return WatchedEntry|null
      */
     public function lastWatched(): ?array
     {
-        return $this->diary()[0] ?? null;
+        return $this->done()[0] ?? null;
     }
 
     /**
