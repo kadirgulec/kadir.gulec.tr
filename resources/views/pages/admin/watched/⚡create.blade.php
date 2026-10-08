@@ -99,7 +99,7 @@ new #[Layout('layouts::admin'), Title('Film / dizi ekle · İzlediklerim')] clas
 
     <x-admin.card>
         <form wire:submit="search" class="grid gap-3 sm:grid-cols-[10rem_1fr_auto] sm:items-start">
-            <x-admin.select wire:model="type" aria-label="Tür" :options="collect(WatchableType::cases())->mapWithKeys(fn ($type) => [$type->value => $type->label()])->all()" />
+            <x-admin.select wire:model="type" aria-label="Tür" :options="WatchableType::cases()" />
             <x-admin.input wire:model="query" icon="search" placeholder="Türkçe ya da orijinal adıyla…" aria-label="TMDB'de ara" autofocus />
             <x-admin.button type="submit" variant="primary">Ara</x-admin.button>
         </form>

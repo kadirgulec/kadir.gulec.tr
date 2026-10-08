@@ -53,7 +53,7 @@ new #[Layout('layouts::admin'), Title('İzlediklerim')] class extends Component 
 
     <div class="mb-4 grid gap-3 sm:grid-cols-[1fr_12rem]">
         <x-admin.input wire:model.live.debounce.300ms="search" icon="search" placeholder="Adıyla ara…" aria-label="Ara" />
-        <x-admin.select wire:model.live="type" aria-label="Tür" placeholder="Filmler ve diziler" :options="collect(WatchableType::cases())->mapWithKeys(fn ($type) => [$type->value => $type->label()])->all()" />
+        <x-admin.select wire:model.live="type" aria-label="Tür" placeholder="Filmler ve diziler" :options="WatchableType::cases()" />
     </div>
 
     @if ($this->watchables->isEmpty())
@@ -79,7 +79,7 @@ new #[Layout('layouts::admin'), Title('İzlediklerim')] class extends Component 
                     <x-admin.table.row wire:key="watchable-{{ $watchable->id }}">
                         <x-admin.table.cell variant="strong">
                             <a href="{{ route('admin.watched.edit', $watchable) }}" wire:navigate class="flex items-center gap-3 hover:text-accent">
-                                <span class="h-12 w-8 shrink-0 overflow-hidden rounded bg-zinc-100 dark:bg-zinc-800" style="{{ $watchable->poster_path ? '' : 'background: linear-gradient(160deg, '.($watchable->poster_colors[0] ?? '#444').', '.($watchable->poster_colors[1] ?? '#999').')' }}">
+                                <span class="h-12 w-8 shrink-0 overflow-hidden rounded bg-zinc-100 dark:bg-zinc-800" style="{{ $watchable->poster_path ? '' : 'background: linear-gradient(160deg, '.implode(', ', $watchable->posterPalette()).')' }}">
                                     @if ($watchable->poster_path)
                                         <img src="{{ $watchable->posterUrl(480) }}" alt="" class="size-full object-cover" />
                                     @endif

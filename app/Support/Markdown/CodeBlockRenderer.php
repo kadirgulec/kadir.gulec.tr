@@ -10,9 +10,8 @@ use League\CommonMark\Renderer\NodeRendererInterface;
 use Tempest\Highlight\Highlighter;
 
 /**
- * A fenced code block as the notebook's dark card (the same markup as the
- * x-site.code-block component): tape, language label, copy button and
- * syntax colors from tempest/highlight (hl-* classes, see site.css).
+ * A fenced code block as the notebook's dark card: tape, language label,
+ * copy button and syntax colors from tempest/highlight (hl-* classes, see site.css).
  */
 final class CodeBlockRenderer implements NodeRendererInterface
 {

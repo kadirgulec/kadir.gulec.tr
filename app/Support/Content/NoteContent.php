@@ -6,7 +6,6 @@ use App\Enums\Permission;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Tag;
-use App\Support\Markdown\Markdown;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
@@ -48,7 +47,7 @@ class NoteContent
      */
     public function tags(): array
     {
-        $published = fn (Builder $query) => $query->whereNotNull('notes.published_at')->where('notes.published_at', '<=', now());
+        $published = fn ($query) => $query->published();
 
         $tags = Tag::query()
             ->whereHas('notes', $published)
@@ -95,15 +94,8 @@ class NoteContent
             return [null, null];
         }
 
-        $newer = $this->published()->reorder()
-            ->where(fn (Builder $query) => $query->where('published_at', '>', $note->published_at)
-                ->orWhere(fn (Builder $query) => $query->where('published_at', $note->published_at)->where('id', '>', $note->id)))
-            ->orderBy('published_at')->orderBy('id')->first();
-
-        $older = $this->published()
-            ->where(fn (Builder $query) => $query->where('published_at', '<', $note->published_at)
-                ->orWhere(fn (Builder $query) => $query->where('published_at', $note->published_at)->where('id', '<', $note->id)))
-            ->first();
+        $newer = $this->published()->newerThan($note)->first();
+        $older = $this->published()->olderThan($note)->first();
 
         return [$newer ? $this->toArray($newer) : null, $older ? $this->toArray($older) : null];
     }
@@ -154,7 +146,7 @@ class NoteContent
         return [
             'id' => $note->id,
             'bodyHtml' => new HtmlString((string) $note->body_html),
-            'text' => app(Markdown::class)->toText($note->body),
+            'text' => $note->text(),
             'tagName' => $note->tag->name,
             'tagSlug' => $note->tag->slug,
             'color' => self::COLORS[$note->id % count(self::COLORS)],

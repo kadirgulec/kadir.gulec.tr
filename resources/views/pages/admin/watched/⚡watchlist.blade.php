@@ -93,7 +93,7 @@ new #[Layout('layouts::admin'), Title('İzleyeceğim · İzlediklerim')] class e
                         <x-admin.icon name="grip-vertical" />
                     </button>
 
-                    <span class="h-16 w-11 shrink-0 overflow-hidden rounded bg-zinc-100 dark:bg-zinc-800" style="{{ $watchable->poster_path ? '' : 'background: linear-gradient(160deg, '.($watchable->poster_colors[0] ?? '#444').', '.($watchable->poster_colors[1] ?? '#999').')' }}">
+                    <span class="h-16 w-11 shrink-0 overflow-hidden rounded bg-zinc-100 dark:bg-zinc-800" style="{{ $watchable->poster_path ? '' : 'background: linear-gradient(160deg, '.implode(', ', $watchable->posterPalette()).')' }}">
                         @if ($watchable->poster_path)
                             <img src="{{ $watchable->posterUrl(480) }}" alt="" class="size-full object-cover" />
                         @endif

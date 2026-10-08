@@ -3,6 +3,7 @@
 namespace App\Support\Markdown;
 
 use App\Support\Markdown\Containers\ContainerExtension;
+use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Str;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\Autolink\AutolinkExtension;
@@ -36,8 +37,18 @@ use League\CommonMark\Node\Block\Paragraph;
  * text field can inject markup. HTML is produced once when a model is saved
  * (see RendersMarkdown), never on page views.
  */
+#[Singleton]
 class Markdown
 {
+    /**
+     * The last built converter and its "idPrefix|sidenotes" key: the environment
+     * and its renderers keep no per-document state, so repeated calls with the
+     * same options reuse it. Only one is kept, as notes get a prefix per document.
+     *
+     * @var array{0: string, 1: MarkdownConverter}|null
+     */
+    private ?array $converter = null;
+
     public function toHtml(string $markdown, string $idPrefix = 'not'): string
     {
         return trim($this->converter($idPrefix)->convert($markdown)->getContent());
@@ -61,9 +72,10 @@ class Markdown
     }
 
     /**
-     * Rendered HTML without tags and without the sidenotes.
+     * Rendered HTML without tags and without the sidenotes. Stored HTML columns
+     * go through here directly, so a page view needs no second render.
      */
-    private function plainText(string $html): string
+    public function plainText(string $html): string
     {
         // A sidenote holds its key span and inline markup, never another span.
         $html = preg_replace('/<span class="sidenote"><span class="sidenote-key">.*?<\/span>.*?<\/span>/s', '', $html) ?? $html;
@@ -79,7 +91,15 @@ class Markdown
      */
     public function excerpt(string $markdown, int $limit = 160): string
     {
-        preg_match('/<p>(.*?)<\/p>/s', $this->toHtml($markdown), $match);
+        return $this->htmlExcerpt($this->toHtml($markdown), $limit);
+    }
+
+    /**
+     * The excerpt of already rendered HTML.
+     */
+    public function htmlExcerpt(string $html, int $limit = 160): string
+    {
+        preg_match('/<p>(.*?)<\/p>/s', $html, $match);
 
         return Str::limit($this->plainText($match[1] ?? ''), $limit, '…', preserveWords: true);
     }
@@ -93,6 +113,17 @@ class Markdown
     }
 
     private function converter(string $idPrefix, bool $sidenotes = true): MarkdownConverter
+    {
+        $key = $idPrefix.'|'.(int) $sidenotes;
+
+        if ($this->converter === null || $this->converter[0] !== $key) {
+            $this->converter = [$key, $this->makeConverter($idPrefix, $sidenotes)];
+        }
+
+        return $this->converter[1];
+    }
+
+    private function makeConverter(string $idPrefix, bool $sidenotes): MarkdownConverter
     {
         $environment = new Environment([
             'html_input' => 'escape',

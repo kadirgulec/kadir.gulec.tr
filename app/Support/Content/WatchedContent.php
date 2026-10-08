@@ -13,6 +13,7 @@ use App\Support\Markdown\Markdown;
 use App\Support\Og\OgUrl;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -53,32 +54,34 @@ class WatchedContent
     }
 
     /**
-     * Diary entries of titles Kadir is done with: films and series he finished
-     * or dropped. A series still in progress belongs on the "currently watching" shelf.
+     * The latest viewings of films and series Kadir is done with (finished or
+     * dropped), one per title, newest first. A series still in progress lives
+     * on the "currently watching" shelf instead.
      *
      * @return list<WatchedEntry>
      */
-    public function done(): array
+    public function recent(int $limit): array
     {
-        return array_values(array_filter($this->diary(), self::isDone(...)));
+        $viewings = Viewing::query()
+            ->whereHas('watchable', fn (Builder $query) => $query->published()->done())
+            ->orderByDesc('watched_on')
+            ->orderByDesc('id')
+            ->cursor()
+            ->unique('watchable_id')
+            ->take($limit)
+            ->all();
+
+        $viewings = (new Collection($viewings))->load(['watchable.seasons', 'watchable.viewings']);
+
+        return array_values($viewings->map(fn (Viewing $viewing): array => $this->toArray($viewing->watchable, $viewing))->all());
     }
 
     /**
-     * @param  WatchedEntry  $entry
-     */
-    public static function isDone(array $entry): bool
-    {
-        return ! ($entry['status']?->isInProgress() ?? false);
-    }
-
-    /**
-     * The last film or series Kadir finished or dropped.
-     *
      * @return WatchedEntry|null
      */
     public function lastWatched(): ?array
     {
-        return $this->done()[0] ?? null;
+        return $this->recent(1)[0] ?? null;
     }
 
     /**
@@ -90,8 +93,7 @@ class WatchedContent
     {
         $series = Watchable::query()
             ->published()
-            ->where('type', WatchableType::Series)
-            ->whereIn('series_status', array_map(fn (SeriesStatus $status): string => $status->value, array_filter(SeriesStatus::cases(), fn (SeriesStatus $status): bool => $status->isInProgress())))
+            ->inProgress()
             ->with(['seasons', 'viewings'])
             ->get()
             ->sortByDesc(fn (Watchable $watchable): string => ($watchable->viewings->first()->watched_on ?? $watchable->updated_at)?->toDateString() ?? '');
@@ -107,20 +109,14 @@ class WatchedContent
      */
     public function watchlist(): array
     {
-        $fallback = app(PosterPalette::class)->palette(PosterPalette::FALLBACK_ACCENT)['colors'];
-
-        return array_values(Watchable::query()->onWatchlist()->get()->map(function (Watchable $watchable) use ($fallback): array {
-            $palette = $watchable->poster_colors ?? $fallback;
-
-            return [
-                'title' => $watchable->title,
-                'type' => $watchable->type,
-                'year' => $watchable->year,
-                'posterUrl' => $watchable->posterUrl(480),
-                'posterColors' => [(string) $palette[0], (string) $palette[1]],
-                'note' => $watchable->watchlist_note,
-            ];
-        })->all());
+        return array_values(Watchable::query()->onWatchlist()->get()->map(fn (Watchable $watchable): array => [
+            'title' => $watchable->title,
+            'type' => $watchable->type,
+            'year' => $watchable->year,
+            'posterUrl' => $watchable->posterUrl(480),
+            'posterColors' => $watchable->posterPalette(),
+            'note' => $watchable->watchlist_note,
+        ])->all());
     }
 
     /**
@@ -147,7 +143,6 @@ class WatchedContent
         $viewing ??= $watchable->viewings->first();
         $reviewIsPublic = $watchable->hasPublishedReview() || (filled($watchable->review_html) && Gate::allows(Permission::ManageWatched->value));
         $currentSeason = $watchable->seasons->firstWhere('number', $watchable->current_season);
-        $palette = $watchable->poster_colors ?? app(PosterPalette::class)->palette(PosterPalette::FALLBACK_ACCENT)['colors'];
 
         return [
             'id' => $watchable->id,
@@ -178,12 +173,12 @@ class WatchedContent
                 'note' => $season->note,
             ])->all()),
             'posterUrl' => $watchable->posterUrl(480),
-            'posterColors' => [(string) $palette[0], (string) $palette[1]],
+            'posterColors' => $watchable->posterPalette(),
             'accent' => $watchable->accent ?? PosterPalette::FALLBACK_ACCENT,
             'hasReview' => $reviewIsPublic,
             'reviewHtml' => $reviewIsPublic ? new HtmlString((string) $watchable->review_html) : null,
             'reviewExcerpt' => $reviewIsPublic ? $this->markdown->excerpt($this->withoutSpoilers((string) $watchable->review), 180) : null,
-            'url' => route('watched.show', ['type' => $watchable->type->routeSegment(), 'slug' => $watchable->slug]),
+            'url' => url($watchable->publicPath()),
             'isDraft' => ! $watchable->isPublished(),
             'metaDescription' => $watchable->meta_description ?: Str::limit((string) $watchable->overview, 155, '…', preserveWords: true),
             'ogImage' => OgUrl::for($watchable->type->routeSegment(), $watchable->slug, $watchable->updated_at),

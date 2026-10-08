@@ -1,28 +1,28 @@
 {{--
     Native select with label and error. Options go in the slot, or pass
-    :options="['value' => 'Label']". An optional placeholder adds an empty first option.
+    :options="['value' => 'Label']" or enum cases (:options="Status::cases()",
+    labelled by their label()). An optional placeholder adds an empty first option.
 --}}
 @props([
     'label' => null,
     'description' => null,
     'help' => null,
-    'name' => null,
     'options' => null,
     'placeholder' => null,
 ])
 
 @php
-    $field = \App\Support\FormControl::name($attributes, $name);
+    $field = \App\Support\FormControl::name($attributes);
     $id = \App\Support\FormControl::id($attributes, $field);
     $error = $field !== null ? $errors->first($field) : null;
     $describedBy = \App\Support\FormControl::describedBy($id, $description, $error);
+    $options = $options !== null ? collect($options)->mapWithKeys(fn ($option, $value) => $option instanceof \BackedEnum ? [$option->value => $option->label()] : [$value => $option])->all() : null;
 @endphp
 
 <x-admin.field :label="$label" :description="$description" :help="$help" :error="$error" :for="$id" {{ $attributes->only('class') }}>
     <div class="relative">
         <select
             id="{{ $id }}"
-            @if ($name) name="{{ $name }}" @endif
             @if ($error) aria-invalid="true" @endif
             @if ($describedBy) aria-describedby="{{ $describedBy }}" @endif
             {{ $attributes->except(['class', 'id'])->class('control appearance-none pr-9') }}

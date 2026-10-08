@@ -105,15 +105,8 @@ class PostContent
             return [null, null];
         }
 
-        $newer = $this->published()->reorder()
-            ->where(fn (Builder $query) => $query->where('published_at', '>', $post->published_at)
-                ->orWhere(fn (Builder $query) => $query->where('published_at', $post->published_at)->where('id', '>', $post->id)))
-            ->orderBy('published_at')->orderBy('id')->first();
-
-        $older = $this->published()
-            ->where(fn (Builder $query) => $query->where('published_at', '<', $post->published_at)
-                ->orWhere(fn (Builder $query) => $query->where('published_at', $post->published_at)->where('id', '<', $post->id)))
-            ->first();
+        $newer = $this->published()->newerThan($post)->first();
+        $older = $this->published()->olderThan($post)->first();
 
         return [$newer ? $this->toArray($newer) : null, $older ? $this->toArray($older) : null];
     }
@@ -125,7 +118,7 @@ class PostContent
      */
     public function tags(): array
     {
-        $published = fn (Builder $query) => $query->whereNotNull('posts.published_at')->where('posts.published_at', '<=', now());
+        $published = fn ($query) => $query->published();
 
         $tags = Tag::query()
             ->whereHas('posts', $published)
@@ -150,11 +143,13 @@ class PostContent
      */
     public function toArray(Post $post): array
     {
+        $excerpt = $post->excerptText();
+
         return [
             'id' => $post->id,
             'slug' => $post->slug,
             'title' => $post->title,
-            'excerpt' => $post->excerptText(),
+            'excerpt' => $excerpt,
             'publishedAt' => $post->published_at ?? now(),
             'readingMinutes' => $post->reading_minutes,
             'tags' => array_values($post->tags->map(fn (Tag $tag): string => $tag->name)->all()),
@@ -163,7 +158,7 @@ class PostContent
             'isDraft' => ! $post->isPublished(),
             'bodyHtml' => new HtmlString((string) $post->body_html),
             'url' => route('posts.show', $post->slug),
-            'metaDescription' => $post->meta_description ?: $post->excerptText(),
+            'metaDescription' => $post->meta_description ?: $excerpt,
             'ogImage' => OgUrl::for('post', $post->slug, $post->updated_at),
         ];
     }

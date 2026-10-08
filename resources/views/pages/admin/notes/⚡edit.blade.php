@@ -5,6 +5,7 @@ use App\Enums\Section;
 use App\Livewire\Forms\NoteForm;
 use App\Models\Note;
 use App\Models\Tag;
+use App\Support\FormControl;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -40,7 +41,7 @@ new #[Layout('layouts::admin')] class extends Component {
 
     public function publishNow(): void
     {
-        $this->form->published_at = now()->format('Y-m-d\TH:i');
+        $this->form->published_at = FormControl::dateTimeLocal(now());
     }
 
     public function delete(): void

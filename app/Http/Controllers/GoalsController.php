@@ -43,15 +43,14 @@ class GoalsController extends Controller
 
         // The grid shows this year's days; the counts are this year's links, the streaks the whole history.
         $links = array_column($found['links'], 'state');
-        $allLinks = $found['chain']['allStates'];
 
         return view('site.goals.chain', [
             'chain' => $found['chain'],
             'history' => $found['history'],
             'parentGoal' => $found['parentGoal'],
             'stats' => [
-                'streak' => ChainStats::currentStreak($allLinks),
-                'bestStreak' => ChainStats::bestStreak($allLinks),
+                'streak' => $found['chain']['streak'],
+                'bestStreak' => $found['chain']['bestStreak'],
                 'done' => ChainStats::count($links, 'done'),
                 'excused' => ChainStats::count($links, 'excused'),
                 'successRate' => ChainStats::successRate($links),
@@ -72,7 +71,7 @@ class GoalsController extends Controller
         return view('site.goals.show', [
             'goal' => $found['goal'],
             'yearShare' => GoalPace::yearShare(now()->toImmutable()),
-            'yearlyGoals' => array_map(fn (array $yearly): array => [...$yearly, 'chains' => []], $found['yearlyGoals']),
+            'yearlyGoals' => $found['yearlyGoals'],
             'chains' => $found['chains'],
         ]);
     }

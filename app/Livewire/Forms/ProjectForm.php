@@ -7,7 +7,7 @@ use App\Enums\GoalKind;
 use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Models\Technology;
-use Carbon\CarbonImmutable;
+use App\Support\FormControl;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Locked;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -68,7 +68,7 @@ class ProjectForm extends Form
         $this->body = (string) $project->body;
         $this->meta_description = (string) $project->meta_description;
         $this->is_featured = $project->is_featured;
-        $this->published_at = $project->published_at?->format('Y-m-d\TH:i') ?? '';
+        $this->published_at = FormControl::dateTimeLocal($project->published_at);
         $this->goal_id = (string) ($project->goal_id ?? '');
         $this->technologyNames = array_values($project->technologies->map(fn (Technology $technology): string => $technology->name)->all());
     }
@@ -127,7 +127,7 @@ class ProjectForm extends Form
                 'body' => $this->body !== '' ? $this->body : null,
                 'meta_description' => $this->meta_description !== '' ? $this->meta_description : null,
                 'is_featured' => $this->is_featured,
-                'published_at' => $this->published_at !== '' ? CarbonImmutable::parse($this->published_at) : null,
+                'published_at' => FormControl::parseDateTimeLocal($this->published_at),
                 'goal_id' => $this->goal_id !== '' ? (int) $this->goal_id : null,
             ],
             $this->technologyNames,

@@ -3,14 +3,13 @@
     'label' => null,
     'description' => null,
     'help' => null,
-    'name' => null,
     'rows' => 4,
     'mono' => false,
     'controlClass' => '',
 ])
 
 @php
-    $field = \App\Support\FormControl::name($attributes, $name);
+    $field = \App\Support\FormControl::name($attributes);
     $id = \App\Support\FormControl::id($attributes, $field);
     $error = $field !== null ? $errors->first($field) : null;
     $describedBy = \App\Support\FormControl::describedBy($id, $description, $error);
@@ -24,7 +23,6 @@
     <textarea
         id="{{ $id }}"
         rows="{{ $rows }}"
-        @if ($name) name="{{ $name }}" @endif
         @if ($error) aria-invalid="true" @endif
         @if ($describedBy) aria-describedby="{{ $describedBy }}" @endif
         {{ $attributes->except(['class', 'id'])->class(['control resize-y leading-relaxed', 'font-mono text-[13px] [font-variant-ligatures:none]' => $mono, $controlClass]) }}

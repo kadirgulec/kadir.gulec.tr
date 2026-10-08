@@ -58,16 +58,6 @@
                             @default
                                 <p class="mt-2 font-hand text-xl text-ink-soft">{{ $yearly['achievedAt'] ? 'başarıldı ✓' : 'henüz değil' }}</p>
                         @endswitch
-
-                        @foreach ($yearly['chains'] as $chain)
-                            <div class="mt-4 border-t border-dashed border-rule pt-3 pl-4">
-                                <div class="flex items-baseline justify-between gap-3">
-                                    <a href="{{ route('goals.chain', $chain['slug']) }}" class="hover:text-section-ink">↳ {{ $chain['title'] ?? 'sansürlü zincir' }}</a>
-                                    <span class="font-mono text-sm text-section-ink">🔥 {{ $chain['streak'] }}</span>
-                                </div>
-                                <x-site.chain :days="$chain['days']" :unit="$chain['period']->unit()" class="mt-2" />
-                            </div>
-                        @endforeach
                     </li>
                 @endforeach
 

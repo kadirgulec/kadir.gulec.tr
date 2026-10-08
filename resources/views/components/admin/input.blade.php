@@ -9,12 +9,11 @@
     'help' => null,
     'type' => 'text',
     'icon' => null,
-    'name' => null,
     'mono' => false,
 ])
 
 @php
-    $field = \App\Support\FormControl::name($attributes, $name);
+    $field = \App\Support\FormControl::name($attributes);
     $id = \App\Support\FormControl::id($attributes, $field);
     $error = $field !== null ? $errors->first($field) : null;
     $describedBy = \App\Support\FormControl::describedBy($id, $description, $error);
@@ -29,7 +28,6 @@
         <input
             type="{{ $type }}"
             id="{{ $id }}"
-            @if ($name) name="{{ $name }}" @endif
             @if ($error) aria-invalid="true" @endif
             @if ($describedBy) aria-describedby="{{ $describedBy }}" @endif
             {{ $attributes->except(['class', 'id'])->class(['control', 'pl-9' => $icon, 'font-mono [font-variant-ligatures:none]' => $mono]) }}

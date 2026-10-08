@@ -8,7 +8,9 @@ use App\Models\Concerns\HasFollowers;
 use App\Models\Concerns\HasPublication;
 use App\Models\Concerns\HasSlugRedirects;
 use App\Models\Concerns\RendersMarkdown;
+use App\Models\Concerns\Sortable;
 use App\Support\Images\ImageStore;
+use App\Support\Images\PosterPalette;
 use Carbon\CarbonImmutable;
 use Database\Factories\WatchableFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -18,7 +20,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Facades\DB;
 
 /**
  * A film or a series: its facts (mostly from TMDB, stored locally) and
@@ -62,7 +63,7 @@ use Illuminate\Support\Facades\DB;
 class Watchable extends Model
 {
     /** @use HasFactory<WatchableFactory> */
-    use HasFactory, HasFollowers, HasPublication, HasSlugRedirects, RendersMarkdown;
+    use HasFactory, HasFollowers, HasPublication, HasSlugRedirects, RendersMarkdown, Sortable;
 
     protected static function booted(): void
     {
@@ -119,6 +120,28 @@ class Watchable extends Model
         $query->whereNotNull('watchlist_position')->orderBy('watchlist_position')->orderBy('id');
     }
 
+    /**
+     * Series on the "currently watching" shelf (watching or paused).
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function inProgress(Builder $query): void
+    {
+        $query->whereIn('series_status', SeriesStatus::inProgress());
+    }
+
+    /**
+     * Films, and series Kadir finished or dropped: everything off the shelf.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function done(Builder $query): void
+    {
+        $query->where(fn (Builder $query) => $query->whereNull('series_status')->orWhereNotIn('series_status', SeriesStatus::inProgress()));
+    }
+
     public function isOnWatchlist(): bool
     {
         return $this->watchlist_position !== null;
@@ -130,8 +153,7 @@ class Watchable extends Model
     public function addToWatchlist(?string $note = null): void
     {
         if (! $this->isOnWatchlist()) {
-            $last = static::query()->whereNotNull('watchlist_position')->whereKeyNot($this->getKey())->max('watchlist_position');
-            $this->watchlist_position = (int) ($last ?? -1) + 1;
+            $this->watchlist_position = $this->nextSortOrder();
         }
 
         if ($note !== null) {
@@ -153,19 +175,21 @@ class Watchable extends Model
      */
     public function moveInWatchlist(int $position): void
     {
-        if (! $this->isOnWatchlist()) {
-            return;
+        if ($this->isOnWatchlist()) {
+            $this->moveTo($position);
         }
+    }
 
-        DB::transaction(function () use ($position): void {
-            $ids = static::query()->onWatchlist()->whereKeyNot($this->getKey())->pluck('id')->all();
+    /**
+     * The two colors of the drawn poster ([dark, accent]), also when no poster was stored.
+     *
+     * @return array{0: string, 1: string}
+     */
+    public function posterPalette(): array
+    {
+        $colors = $this->poster_colors ?? app(PosterPalette::class)->palette(PosterPalette::FALLBACK_ACCENT)['colors'];
 
-            array_splice($ids, max(0, min($position, count($ids))), 0, [$this->getKey()]);
-
-            foreach ($ids as $order => $id) {
-                static::query()->whereKey($id)->update(['watchlist_position' => $order]);
-            }
-        });
+        return [(string) $colors[0], (string) $colors[1]];
     }
 
     public function posterUrl(int $width = 960): ?string
@@ -176,6 +200,20 @@ class Watchable extends Model
     public function publicPath(?string $slug = null): string
     {
         return '/izlediklerim/'.$this->type->routeSegment().'/'.($slug ?? $this->slug);
+    }
+
+    protected function sortColumn(): string
+    {
+        return 'watchlist_position';
+    }
+
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    protected function sortSiblings(Builder $query): Builder
+    {
+        return $query->whereNotNull('watchlist_position');
     }
 
     protected function slugSource(): string

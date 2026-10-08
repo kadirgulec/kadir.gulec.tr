@@ -4,7 +4,7 @@ namespace App\Livewire\Forms;
 
 use App\Actions\Notes\SaveNote;
 use App\Models\Note;
-use Carbon\CarbonImmutable;
+use App\Support\FormControl;
 use Livewire\Attributes\Locked;
 use Livewire\Form;
 
@@ -34,7 +34,7 @@ class NoteForm extends Form
         $this->note = $note;
         $this->body = $note->body;
         $this->tagName = $note->tag->name;
-        $this->published_at = $note->published_at?->format('Y-m-d\TH:i') ?? '';
+        $this->published_at = FormControl::dateTimeLocal($note->published_at);
     }
 
     /**
@@ -42,7 +42,7 @@ class NoteForm extends Form
      */
     public function startNew(): void
     {
-        $this->published_at = now()->format('Y-m-d\TH:i');
+        $this->published_at = FormControl::dateTimeLocal(now());
     }
 
     /**
@@ -77,7 +77,7 @@ class NoteForm extends Form
             $this->note,
             [
                 'body' => trim($this->body),
-                'published_at' => $this->published_at !== '' ? CarbonImmutable::parse($this->published_at) : null,
+                'published_at' => FormControl::parseDateTimeLocal($this->published_at),
             ],
             $this->tagName,
         );

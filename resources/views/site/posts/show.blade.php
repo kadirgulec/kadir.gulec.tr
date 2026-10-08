@@ -80,12 +80,7 @@
             <ol class="mt-3">
                 @foreach ($related as $other)
                     <li>
-                        <a href="{{ $other['url'] }}" class="group flex items-baseline gap-3 py-2">
-                            <span class="w-12 shrink-0 font-mono text-xs text-ink-faint">{{ $other['publishedAt']->format('d.m') }}</span>
-                            <span class="font-display text-lg leading-snug font-semibold group-hover:text-section-ink">{{ $other['title'] }}</span>
-                            <span class="mb-1 hidden min-w-8 flex-1 border-b-2 border-dotted border-rule sm:block" aria-hidden="true"></span>
-                            <span class="shrink-0 font-mono text-xs text-ink-faint max-sm:ml-auto">{{ $other['readingMinutes'] }} dk</span>
-                        </a>
+                        <x-site.post-row :post="$other" class="py-2" />
                     </li>
                 @endforeach
             </ol>

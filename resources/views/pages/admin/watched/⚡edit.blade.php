@@ -7,6 +7,7 @@ use App\Enums\Section;
 use App\Livewire\Forms\WatchableForm;
 use App\Models\Season;
 use App\Models\Watchable;
+use App\Support\FormControl;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
@@ -48,12 +49,12 @@ new #[Layout('layouts::admin')] class extends Component {
 
     public function publishNow(): void
     {
-        $this->form->published_at = now()->format('Y-m-d\TH:i');
+        $this->form->published_at = FormControl::dateTimeLocal(now());
     }
 
     public function publishReviewNow(): void
     {
-        $this->form->review_published_at = now()->format('Y-m-d\TH:i');
+        $this->form->review_published_at = FormControl::dateTimeLocal(now());
     }
 
     public function refreshFromTmdb(ImportFromTmdb $import): void
@@ -204,7 +205,7 @@ new #[Layout('layouts::admin')] class extends Component {
             @if ($watchable->tmdb_id)
                 <x-admin.button icon="refresh-cw" wire:click="refreshFromTmdb">TMDB'den yenile</x-admin.button>
             @endif
-            <x-admin.button :href="route('watched.show', ['type' => $watchable->type->routeSegment(), 'slug' => $watchable->slug])" icon="external-link" target="_blank">{{ $watchable->isPublished() ? 'Sitede gör' : 'Önizle' }}</x-admin.button>
+            <x-admin.button :href="url($watchable->publicPath())" icon="external-link" target="_blank">{{ $watchable->isPublished() ? 'Sitede gör' : 'Önizle' }}</x-admin.button>
         </x-slot:actions>
     </x-admin.page-header>
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasPublication;
 use App\Models\Concerns\RendersMarkdown;
+use App\Support\Markdown\Markdown;
 use Carbon\CarbonImmutable;
 use Database\Factories\NoteFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -44,6 +45,14 @@ class Note extends Model
     public function useTagNamed(string $name): void
     {
         $this->tag()->associate(Tag::query()->firstOrCreate(['name' => trim($name)]));
+    }
+
+    /**
+     * The note as plain text, without its sidenotes (taken from the stored HTML).
+     */
+    public function text(): string
+    {
+        return app(Markdown::class)->plainText((string) $this->body_html);
     }
 
     public function publicPath(): string

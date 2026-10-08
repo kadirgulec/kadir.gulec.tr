@@ -20,15 +20,6 @@ enum GoalKind: string
         };
     }
 
-    public function pluralLabel(): string
-    {
-        return match ($this) {
-            self::Chain => 'Zincirler',
-            self::Yearly => 'Bu yıl',
-            self::LongTerm => 'Uzun vade',
-        };
-    }
-
     /**
      * The URL value of ?tur= on the admin create page.
      */

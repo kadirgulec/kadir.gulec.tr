@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasNameSlug;
 use Carbon\CarbonImmutable;
 use Database\Factories\TagFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -10,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 /**
  * A tag shared by posts and notes, shown as washi tape. Its color comes
@@ -26,14 +26,7 @@ use Illuminate\Support\Str;
 class Tag extends Model
 {
     /** @use HasFactory<TagFactory> */
-    use HasFactory;
-
-    protected static function booted(): void
-    {
-        static::saving(function (Tag $tag): void {
-            $tag->slug = Str::slug($tag->name) ?: Str::lower((string) Str::ulid());
-        });
-    }
+    use HasFactory, HasNameSlug;
 
     /**
      * The washi tape color of a tag: a section color picked by the slug, so a
@@ -44,23 +37,6 @@ class Tag extends Model
         $colors = ['var(--color-posts)', 'var(--color-goals)', 'var(--color-about)', 'var(--color-projects)', 'var(--color-watched)', 'var(--color-home)'];
 
         return $colors[crc32($slug) % count($colors)];
-    }
-
-    /**
-     * The tags with these names, created when missing (in this order).
-     *
-     * @param  list<string>  $names
-     * @return list<int>
-     */
-    public static function idsForNames(array $names): array
-    {
-        $ids = [];
-
-        foreach (array_values(array_unique(array_filter(array_map('trim', $names)))) as $name) {
-            $ids[] = (int) static::query()->firstOrCreate(['name' => $name])->getKey();
-        }
-
-        return $ids;
     }
 
     /**

@@ -4,7 +4,7 @@ namespace App\Livewire\Forms;
 
 use App\Enums\SeriesStatus;
 use App\Models\Watchable;
-use Carbon\CarbonImmutable;
+use App\Support\FormControl;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Locked;
 use Livewire\Form;
@@ -72,12 +72,12 @@ class WatchableForm extends Form
         $this->rating = $watchable->rating !== null ? number_format($watchable->rating, 1, '.', '') : '';
         $this->is_favorite = $watchable->is_favorite;
         $this->review = (string) $watchable->review;
-        $this->review_published_at = $watchable->review_published_at?->format('Y-m-d\TH:i') ?? '';
+        $this->review_published_at = FormControl::dateTimeLocal($watchable->review_published_at);
         $this->series_status = $watchable->series_status->value ?? '';
         $this->current_season = $watchable->current_season;
         $this->current_episode = $watchable->current_episode;
         $this->meta_description = (string) $watchable->meta_description;
-        $this->published_at = $watchable->published_at?->format('Y-m-d\TH:i') ?? '';
+        $this->published_at = FormControl::dateTimeLocal($watchable->published_at);
     }
 
     /**
@@ -156,12 +156,12 @@ class WatchableForm extends Form
             'rating' => $this->rating !== '' ? (float) $this->rating : null,
             'is_favorite' => $this->is_favorite,
             'review' => $this->review !== '' ? $this->review : null,
-            'review_published_at' => $this->review_published_at !== '' ? CarbonImmutable::parse($this->review_published_at) : null,
+            'review_published_at' => FormControl::parseDateTimeLocal($this->review_published_at),
             'series_status' => $watchable->isSeries() && $this->series_status !== '' ? $this->series_status : null,
             'current_season' => $watchable->isSeries() ? $this->current_season : null,
             'current_episode' => $watchable->isSeries() ? $this->current_episode : null,
             'meta_description' => $this->meta_description !== '' ? $this->meta_description : null,
-            'published_at' => $this->published_at !== '' ? CarbonImmutable::parse($this->published_at) : null,
+            'published_at' => FormControl::parseDateTimeLocal($this->published_at),
         ])->save();
 
         $this->setWatchable($watchable->fresh() ?? $watchable);

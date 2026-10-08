@@ -101,7 +101,7 @@ new #[Layout('layouts::admin')] class extends Component {
         $this->validate(['milestoneTitle' => ['required', 'string', 'max:160']], attributes: ['milestoneTitle' => 'kilometre taşı']);
 
         $goal = $this->goal();
-        $goal->milestones()->create(['title' => $this->milestoneTitle, 'sort_order' => (int) $goal->milestones()->max('sort_order') + 1]);
+        $goal->milestones()->create(['title' => $this->milestoneTitle, 'sort_order' => $goal->milestones()->make()->nextSortOrder()]);
         $this->reset('milestoneTitle');
     }
 
@@ -194,7 +194,6 @@ new #[Layout('layouts::admin')] class extends Component {
 @php
     $goal = $form->goal;
     $kind = $form->kind();
-    $visibilityOptions = collect(GoalVisibility::cases())->mapWithKeys(fn ($visibility) => [$visibility->value => $visibility->label()])->all();
     $today = CarbonImmutable::today();
     $history = $goal && $kind === GoalKind::Chain ? collect($goal->chainHistory())->keyBy(fn ($day) => $day['date']->toDateString()) : collect();
     // The grid shows days; the numbers count links (days, weeks or months).
@@ -204,19 +203,14 @@ new #[Layout('layouts::admin')] class extends Component {
     $currentPeriod = $goal && $kind === GoalKind::Chain && ! $daily ? $goal->chainPeriodAt() : null;
     $gridStart = $today->startOfYear()->subDays($today->startOfYear()->dayOfWeekIso - 1);
     $weekCount = (int) ceil(($gridStart->diffInDays($today->endOfYear()->startOfDay()) + 1) / 7);
-    $publicUrl = match (true) {
-        $goal === null => null,
-        $kind === GoalKind::Chain => route('goals.chain', $goal->slug),
-        $kind === GoalKind::LongTerm => route('goals.show', $goal->slug),
-        default => route('goals.index').'#hedef-'.$goal->slug,
-    };
+    $publicUrl = $goal ? url($goal->publicPath()) : null;
 @endphp
 
 <div class="space-y-6">
     <x-admin.page-header :heading="$goal?->title ?? 'Yeni '.mb_strtolower($kind->label())" :description="$kind->label()" :dot="Section::Goals->adminDotClass()">
         <x-slot:actions>
             <x-admin.button :href="route('admin.goals.index')" icon="arrow-left" variant="ghost" wire:navigate>Hedefler</x-admin.button>
-            @if ($publicUrl && $goal->visibility !== GoalVisibility::Hidden)
+            @if ($publicUrl && $goal->visibility->isVisible())
                 <x-admin.button :href="$publicUrl" icon="external-link" target="_blank">Sitede gör</x-admin.button>
             @endif
         </x-slot:actions>
@@ -235,7 +229,7 @@ new #[Layout('layouts::admin')] class extends Component {
                     @if ($kind === GoalKind::Chain)
                         <x-admin.input wire:model="form.started_on" type="date" label="Başlangıç" />
                         <x-admin.input wire:model="form.ended_on" type="date" label="Bitiş" description="Bıraktığın zincir silinmez, sitede listeden düşer." />
-                        <x-admin.select wire:model.live="form.chain_period" label="Birim" :options="collect(ChainPeriod::cases())->mapWithKeys(fn ($period) => [$period->value => $period->label()])->all()" description="Günleri yine tek tek işaretlersin; haftalık ve aylık zincirde her halka bir dönem." />
+                        <x-admin.select wire:model.live="form.chain_period" label="Birim" :options="ChainPeriod::cases()" description="Günleri yine tek tek işaretlersin; haftalık ve aylık zincirde her halka bir dönem." />
                         @if ($form->chain_period !== ChainPeriod::Day->value)
                             <x-admin.input wire:model="form.chain_target" type="number" min="1" :max="ChainPeriod::from($form->chain_period)->maxTarget()" :label="$form->chain_period === ChainPeriod::Week->value ? 'Haftada kaç kez' : 'Ayda kaç kez'" description="Mazeretli günler de sayılır. Günler azalınca sabah 08:00'de sana e-posta gelir." />
                         @else
@@ -243,7 +237,7 @@ new #[Layout('layouts::admin')] class extends Component {
                         @endif
                     @elseif ($kind === GoalKind::Yearly)
                         <x-admin.input wire:model="form.year" type="number" label="Yıl" />
-                        <x-admin.select wire:model.live="form.measure" label="Ölçü" :options="collect(GoalMeasure::cases())->mapWithKeys(fn ($measure) => [$measure->value => $measure->label()])->all()" />
+                        <x-admin.select wire:model.live="form.measure" label="Ölçü" :options="GoalMeasure::cases()" />
                         @if ($form->measure === GoalMeasure::Numeric->value)
                             <x-admin.input wire:model="form.target" type="number" min="1" label="Hedef sayı" />
                             <x-admin.input wire:model="form.unit" label="Birim" placeholder="kitap, km, yazı…" />
@@ -443,7 +437,7 @@ new #[Layout('layouts::admin')] class extends Component {
             <x-admin.card>
                 <x-slot:heading>Görünürlük</x-slot:heading>
                 <div class="space-y-4">
-                    <x-admin.select wire:model="form.visibility" :options="$visibilityOptions" aria-label="Görünürlük" description="Açık: herkes. Sansürlü: kart durur, metin karalanır (Yakın rolü okur). Gizli: sadece sen." />
+                    <x-admin.select wire:model="form.visibility" :options="GoalVisibility::cases()" aria-label="Görünürlük" description="Açık: herkes. Sansürlü: kart durur, metin karalanır (Yakın rolü okur). Gizli: sadece sen." />
                     @if ($kind !== GoalKind::Yearly)
                         <x-admin.input wire:model="form.slug" label="Adres" mono description="Boşsa başlıktan üretilir. Sansürlüyken ziyaretçi bu adresi görmez." />
                     @endif
