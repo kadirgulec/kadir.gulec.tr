@@ -81,7 +81,7 @@ Başlık: **"Her ayın sonunda dürüst bir bakış."** Alt metin: "Ne iyi gitti
 
 ## 8. Adımlar
 
-- [ ] **Adım 1: Model ve rakamlar** (migration'lar, `MonthlyReview`, `ReviewItem`, factory'ler, `MonthlyReviewStats`, testler).
+- [x] **Adım 1: Model ve rakamlar** (migration'lar, `MonthlyReview`, `ReviewItem`, factory'ler, `MonthlyReviewStats`, testler).
 - [ ] **Adım 2: Otomasyon** (`reviews:create` komutu ve zamanlaması, Kadir'e e-posta, `ReviewSuggestions`, testler).
 - [ ] **Adım 3: Ziyaretçi sayfası** (`/hedefler/aylik`, ay sayfası, sekmeler, rakam kutuları, üç sütun, geçen ayın denemeleri, `/hedefler`'deki kart, demo veri). *Kadir'in onayı beklenir.*
 - [ ] **Adım 4: Admin** (liste, düzenleme ekranı, öneriler, yeniden hesaplama, pano kartı, yedek sayımı).
@@ -90,3 +90,11 @@ Başlık: **"Her ayın sonunda dürüst bir bakış."** Alt metin: "Ne iyi gitti
 ## 9. Uygulama notları
 
 *(Her adımda buraya eklenir.)*
+
+### Adım 1 (2026-10-09)
+
+- **Haftalık/aylık halka hangi aya ait:** Dönemin **bittiği** aya. 28 Eylül haftası (4 Ekim'de biter) Ekim'e, 26 Ekim haftası (1 Kasım'da biter) Kasım'a sayılır. Gün sayıları (`doneDays`) ise takvim ayına göre.
+- **Rekor:** Sadece daha önce gerçek bir rekor varsa sayılır (`ChainPeriod::recordMinimum()`: 7 gün / 4 hafta / 3 ay), takipçi bildirimlerindeki gibi. Yoksa ilk ay her zincir "rekor" görünürdü.
+- **Ziyaret:** `COUNT(DISTINCT visitor_hash)`, admin'deki ziyaretçi sayfasıyla aynı sayım. Hash günlük tuzlandığı için aynı kişi her gün yeni ziyaret sayılır; etiket "ziyaret", "ziyaretçi" değil.
+- **En çok okunan yazı:** `/yazilar/{slug}` yolları arasında en çok görüntülenen ve hâlâ yayında olan yazı (`post_id` saklanır, başlık her gösterimde yeniden okunur). Taslağa düşen yazı atlanır.
+- **Snapshot'ın şekli:** `MonthlyReviewStats` sınıfının PHPDoc'unda (`Stats` tipi). Hedefler `goal_id` ile tutulur, başlık hiç saklanmaz.
