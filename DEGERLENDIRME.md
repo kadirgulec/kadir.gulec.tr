@@ -83,8 +83,8 @@ Başlık: **"Her ayın sonunda dürüst bir bakış."** Alt metin: "Ne iyi gitti
 
 - [x] **Adım 1: Model ve rakamlar** (migration'lar, `MonthlyReview`, `ReviewItem`, factory'ler, `MonthlyReviewStats`, testler).
 - [x] **Adım 2: Otomasyon** (`reviews:create` komutu ve zamanlaması, Kadir'e e-posta, `ReviewSuggestions`, testler).
-- [x] **Adım 3: Ziyaretçi sayfası** (`/hedefler/aylik`, ay sayfası, sekmeler, rakam kutuları, üç sütun, geçen ayın denemeleri, `/hedefler`'deki kart, demo veri). *Kadir'in onayı beklenir (2026-10-09: yapıldı, onay bekliyor).*
-- [ ] **Adım 4: Admin** (liste, düzenleme ekranı, öneriler, yeniden hesaplama, pano kartı, yedek sayımı).
+- [x] **Adım 3: Ziyaretçi sayfası** (`/hedefler/aylik`, ay sayfası, sekmeler, rakam kutuları, üç sütun, geçen ayın denemeleri, `/hedefler`'deki kart, demo veri). *Kadir'in onayı beklenir (2026-10-09: yapıldı, Kadir onayladı).*
+- [x] **Adım 4: Admin** (liste, düzenleme ekranı, öneriler, yeniden hesaplama, pano kartı, yedek sayımı).
 - [ ] **Adım 5: Yorum, bildirim, RSS, paylaşım** (yorum bileşeninin genelleşmesi, `notify_monthly_reviews`, duyuru, RSS, OG görseli, sitemap).
 
 ## 9. Uygulama notları
@@ -116,3 +116,13 @@ Başlık: **"Her ayın sonunda dürüst bir bakış."** Alt metin: "Ne iyi gitti
 - **Hedefler sayfası:** Yıl ilerleme çubuğunun altında en son değerlendirmenin kartı (puan, ay, özet).
 - **Demo veri:** `DemoSeeder::seedReviews()` son iki ayı (`data/demo-reviews.php`) demo hedeflerden hesaplanan rakamlarla yayınlar; ikinci ay ilkinin denemelerini işaretler.
 - **Bilinen:** Yerelde ziyaret kaydı olmadığı için demo değerlendirmelerde "0 sayfa görüntüleme" görünür.
+
+### Adım 4 (2026-10-09)
+
+- **Adresler:** `admin.reviews.index` (`/admin/hedefler/aylik`) ve `admin.reviews.edit` (`/admin/hedefler/aylik/{id}`), `ManageGoals` grubunda ve `hedefler/{goal}`'dan önce. Kenar çubuğunda Hedefler'in altında "Aylık değerlendirme" (`calendar-check` ikonu `resources/icons/lucide.php`'ye eklendi).
+- **Liste:** Ay, durum, puan, madde sayısı. "Bir ayı şimdi oluştur" (`type="month"`, varsayılan geçen ay) e-posta göndermez.
+- **Düzenleme:** Özet, puan ve yayın tarihi "Kaydet" ile; maddeler, öneriler, geçen ayın denemeleri ve kutu göster/gizle anında kaydedilir (hedeflerdeki kilometre taşları gibi). Maddeler `wire:sort` ile sıralanır, kalemle yerinde düzenlenir. Öneriler her iki listeye de alınabilir; eklenen öneri (büyük-küçük harf farkı gözetmeden aynı metin) listeden düşer. Öneri listesinde sansürlü hedeflerin adları açık yazılır, çünkü ekranı sadece `ManageGoals` görür.
+- **Güvenlik:** Başka bir değerlendirmenin maddesine, bu aya ait olmayan bir denemeye ya da olmayan bir kutuya yapılan istek 404. Tür ve sonuç değerleri `tryFrom` ile okunur (geçersiz değer 500 değil 404).
+- **Pano:** Taslakta bekleyen en yeni değerlendirme için en üstte yeşil bir şerit. E-postadaki ve push'taki link artık düzenleme ekranına gidiyor.
+- **Yedek:** `monthly_reviews` manifest sayımına ve yedek inceleme satırına eklendi. Dökümün kendisi zaten bütün tabloları içeriyor.
+- **Görsel kontrol yapılmadı:** Admin ekranları Livewire testlerinde baştan sona çiziliyor ama tarayıcıda bakılmadı (yerel admin girişi iki adımlı doğrulama istiyor).

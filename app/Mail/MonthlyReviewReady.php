@@ -39,7 +39,7 @@ class MonthlyReviewReady extends Mailable
                     'sign' => $suggestion['kind']->sign(),
                     'text' => $suggestion['text'],
                 ], app(ReviewSuggestions::class)->for($this->review)),
-                'editUrl' => route('admin.dashboard'),
+                'editUrl' => route('admin.reviews.edit', $this->review),
             ],
         );
     }

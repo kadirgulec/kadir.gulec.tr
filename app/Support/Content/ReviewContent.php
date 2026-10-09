@@ -116,11 +116,12 @@ class ReviewContent
     }
 
     /**
-     * The number tiles, in the order chains, goals, writing, visitors.
+     * The number tiles, in the order chains, goals, writing, visitors. The
+     * admin asks for the hidden ones too, to show them again.
      *
      * @return list<Tile>
      */
-    private function tiles(MonthlyReview $review): array
+    public function tiles(MonthlyReview $review, bool $withHidden = false): array
     {
         $stats = $review->stats;
         $hidden = $review->hidden_stats ?? [];
@@ -183,7 +184,7 @@ class ReviewContent
             $tiles[] = ['key' => $key, 'value' => number_format($value, 0, ',', '.'), 'unit' => $unit, 'label' => null, 'labelLength' => null, 'note' => null, 'url' => $url];
         }
 
-        return array_values(array_filter($tiles, fn (array $tile): bool => ! in_array($tile['key'], $hidden, true)));
+        return $withHidden ? $tiles : array_values(array_filter($tiles, fn (array $tile): bool => ! in_array($tile['key'], $hidden, true)));
     }
 
     /**

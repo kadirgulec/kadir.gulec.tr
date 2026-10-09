@@ -58,7 +58,7 @@ class CreateMonthlyReviewCommand extends Command
         $push->toPermitted(Permission::ManageGoals, [
             'title' => (string) $mail->envelope()->subject,
             'body' => 'Rakamlar hazır, gerisi sende.',
-            'url' => route('admin.dashboard'),
+            'url' => route('admin.reviews.edit', $review),
             'tag' => 'review',
         ]);
 

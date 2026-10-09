@@ -74,6 +74,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::middleware('can:'.Permission::ManageGoals->value)->group(function () {
         Route::livewire('hedefler', 'pages::admin.goals.index')->name('goals.index');
+        // Before hedefler/{goal}: "aylik" is not a goal.
+        Route::livewire('hedefler/aylik', 'pages::admin.reviews.index')->name('reviews.index');
+        Route::livewire('hedefler/aylik/{review}', 'pages::admin.reviews.edit')->whereNumber('review')->name('reviews.edit');
         Route::livewire('hedefler/yeni/{kind}', 'pages::admin.goals.edit')->whereIn('kind', ['zincir', 'yillik', 'uzun-vade'])->name('goals.create');
         Route::livewire('hedefler/{goal}', 'pages::admin.goals.edit')->name('goals.edit');
     });

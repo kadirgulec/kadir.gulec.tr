@@ -57,11 +57,12 @@ it('still makes the draft when there is no address for Kadir', function () {
     Mail::assertNothingSent();
 });
 
-it('lists the suggestions in the e-mail', function () {
+it('lists the suggestions in the e-mail and links the review\'s edit page', function () {
     $review = MonthlyReview::factory()->forMonth('2026-10')->draft()->create();
 
     $html = (new MonthlyReviewReady($review))->render();
 
     expect($html)->toContain('Ekim 2026 değerlendirmesinin taslağı hazır')
-        ->toContain('Bu ay hiç yazı yayınlanmadı');
+        ->toContain('Bu ay hiç yazı yayınlanmadı')
+        ->toContain(route('admin.reviews.edit', $review));
 });
