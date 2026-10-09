@@ -8,6 +8,7 @@ Düren'deki ve çevresindeki ilginç yerler için yazı ve not fikirleri. Kararl
   - Her yer kendi yazısı olur: başlık, adres, paylaşım görseli ve yorumlar ayrı.
   - Hepsi aynı **Düren** etiketini taşır. `/yazilar?etiket=duren` kendiliğinden "Düren yazıları" sayfası olur.
   - Tek bir dev yazı yapılmaz.
+  - İstisna: Aynı yürüyüşte gezilen komşu yerler tek yazı olabilir. Örnek: Drover Heide ve Drover-Berg-Tunnel.
 - **Yazı mı, not mu?**
   - Gittiysem ve anlatacak kendi gözlemim varsa (birkaç paragraf, fotoğraf) **yazı** olur.
   - Sadece okuduğum tek bir şaşırtıcı bilgiyse **Öğrendiklerim** notu olur, o da Düren etiketiyle.
@@ -35,7 +36,7 @@ Düren'deki ve çevresindeki ilginç yerler için yazı ve not fikirleri. Kararl
 | 10 | Stadtmauer ve Dicker Turm | yazı | Düren | fikir |
 | 11 | Arnoldsweiler'deki Neolitik yerleşim | not | Düren (Arnoldsweiler) | fikir |
 | 12 | Schloss Burgau ve Stadtwald | yazı | Düren (Niederau) | fikir |
-| 13 | Drover-Berg-Tunnel | yazı | Vettweiß | fikir |
+| 13 | Drover Heide ve Drover-Berg-Tunnel | yazı | Kreuzau-Drove, Vettweiß | taslak (ziyaret bekliyor) |
 | 14 | Indemann ve Tagebau Inden | yazı | Inden | fikir |
 | 15 | Rursee, Heimbach, Burg Nideggen | yazı | Kreis Düren | fikir |
 | 16 | Hürtgenwald | yazı | Hürtgenwald | fikir |
@@ -116,13 +117,16 @@ Düren'deki ve çevresindeki ilginç yerler için yazı ve not fikirleri. Kararl
 
 ### Çevre (Kreis Düren)
 
-**13. Drover-Berg-Tunnel (Vettweiß)**
-- Alplerin kuzeyindeki en uzun Roma tüneli: 1.660 m. Muhtemelen 2. yüzyılda yapıldı.
-- Kanat (qanat) tekniğiyle bir kaynaktan dağın altından bir Roma villasına su taşıyordu.
-- 100'den fazla dikey şaftı vardı, en derini 26 m. Günde yaklaşık 480 m³ su taşıyabiliyordu.
-- Kaynağı "Heiliger Pütz" bugün de görülebiliyor. Şaftların yeri yüzeydeki çukurlardan takip edilebiliyor.
-- Klaus Grewe ve Konejung Stiftung'un hazırladığı bir yürüyüş yolu var.
-- Kaynak: [Wikipedia](https://de.wikipedia.org/wiki/Drover-Berg-Tunnel)
+**13. Drover Heide ve Drover-Berg-Tunnel (Kreuzau-Drove, Vettweiß)**
+- Tek yazı olarak taslağı hazır. Eksik olan kendi ziyaretim (`[KADİR: …]` yer tutucuları).
+- Alplerin kuzeyindeki en uzun antik tünel: 1.660 m. Tahminen 2. yüzyılın ortasında yapıldı.
+- Kanat (qanat) tekniğiyle kazıldı. Kuyular eğimde 12–15 m, düzlükte 17–26 m arayla açıldı, en derini 26 m.
+  - "100'den fazla kuyu" sadece Wikipedia'da geçiyor. Grewe'nin broşüründe toplam sayı yok, kullanılmadı.
+- 480 m³/gün, kaynağın (Heiliger Pütz) eski bir ölçümdeki debisi. Tünelin kapasitesi değil.
+- Suyun nereye gittiği bilinmiyor. Grewe "belki Vettweiß-Froitzheim'daki villa" diyor. Bazı turizm sayfalarındaki "Soller'deki villa" bilgisi birincil kaynakta yok.
+- Drover Heide: yaklaşık 670 ha, 2005'ten beri doğa koruma alanı, 2004 sonuna kadar askeri eğitim alanı. Yaklaşık 700 gölet, çoğu tank izi.
+- Gelbbauchunke ve Exmoor pony hiçbir kaynakta yok, yazılmadı.
+- Kaynaklar: [Konejung Stiftung (Grewe)](http://www.konejung-stiftung.de/mm-historyguide/DroverBergTunnel.htm), [Biologische Station Düren](https://www.biostation-dueren.de/schutzgebiete/drover-heide/), [Wikipedia: Tunnel](https://de.wikipedia.org/wiki/Drover-Berg-Tunnel), [Wikipedia: Heide](https://de.wikipedia.org/wiki/Drover_Heide)
 
 **14. Indemann ve Tagebau Inden (Inden)**
 - Oyuncak figürü şeklinde, 36 m yüksekliğinde bir gözetleme kulesi. Eylül 2009'da açıldı.
