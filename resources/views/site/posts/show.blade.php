@@ -37,7 +37,7 @@
         </div>
     </article>
 
-    <livewire:site.comments :post="$postModel" />
+    <livewire:site.comments :commentable="$postModel" />
 
     {{-- Older / newer --}}
     @if ($older || $newer)

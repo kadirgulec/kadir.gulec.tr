@@ -11,6 +11,7 @@ use App\Models\DevlogEntry;
 use App\Models\Goal;
 use App\Models\GoalMilestone;
 use App\Models\GoalProgress;
+use App\Models\MonthlyReview;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
@@ -125,6 +126,18 @@ class Announcements
             'body' => $text,
             'url' => route('notes.show', $note->id),
         ], digestOnly: true));
+    }
+
+    /**
+     * A monthly review whose publication time passed (called by the announce command).
+     */
+    public function monthlyReview(MonthlyReview $review): void
+    {
+        User::query()->where('notify_monthly_reviews', true)->each(fn (User $user) => $this->notifier->toUser($user, $review, 'published', [
+            'title' => 'Yeni değerlendirme: '.$review->title(),
+            'body' => $review->summary,
+            'url' => url($review->publicPath()),
+        ]));
     }
 
     public function projectStatus(Project $project): void
@@ -268,16 +281,16 @@ class Announcements
     public function reply(Comment $comment): void
     {
         $parent = $comment->parent;
-        $post = $comment->commentable;
+        $commented = $comment->commentable;
 
-        if ($parent?->user === null || $parent->user_id === $comment->user_id || ! $post instanceof Post) {
+        if ($parent?->user === null || $parent->user_id === $comment->user_id || ! ($commented instanceof Post || $commented instanceof MonthlyReview)) {
             return;
         }
 
-        $this->notifier->toUser($parent->user, $post, 'reply-'.$comment->id, [
-            'title' => $comment->authorName().' yorumuna cevap verdi: '.$post->title,
+        $this->notifier->toUser($parent->user, $commented, 'reply-'.$comment->id, [
+            'title' => $comment->authorName().' yorumuna cevap verdi: '.($commented instanceof Post ? $commented->title : $commented->title()),
             'body' => $comment->body,
-            'url' => route('posts.show', $post->slug).'#yorumlar',
+            'url' => ($commented instanceof Post ? route('posts.show', $commented->slug) : url($commented->publicPath())).'#yorumlar',
         ]);
     }
 

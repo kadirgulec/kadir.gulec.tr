@@ -5,7 +5,9 @@ namespace Database\Seeders;
 use App\Actions\Watched\StorePoster;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
+use App\Enums\ReviewItemKind;
 use App\Models\Goal;
+use App\Models\MonthlyReview;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
@@ -27,6 +29,7 @@ class DemoSeeder extends Seeder
         $this->seedWatched($storePoster);
         $this->seedWatchlist();
         $this->seedGoals();
+        $this->seedReviews();
     }
 
     private function seedPosts(): void
@@ -229,6 +232,39 @@ class DemoSeeder extends Seeder
             }
 
             $goal->chainDays()->createMany($rows);
+        }
+    }
+
+    /**
+     * Two published reviews of the last months, their numbers taken from the demo goals.
+     */
+    private function seedReviews(): void
+    {
+        if (MonthlyReview::query()->exists()) {
+            return;
+        }
+
+        /** @var list<array{months_ago: int, summary: string, score: int, good: list<string>, hard: list<string>, try: list<string>, outcomes: list<string>}> $reviews */
+        $reviews = require __DIR__.'/data/demo-reviews.php';
+        $previous = null;
+
+        foreach ($reviews as $data) {
+            $month = CarbonImmutable::today()->startOfMonth()->subMonthsNoOverflow($data['months_ago']);
+            $review = MonthlyReview::makeFor($month);
+            $review->fill(['summary' => $data['summary'], 'score' => $data['score'], 'published_at' => $month->addMonth()->addDays(2)->setTime(9, 0)]);
+            $review->save();
+
+            foreach ([ReviewItemKind::Good->value => $data['good'], ReviewItemKind::Hard->value => $data['hard'], ReviewItemKind::Try->value => $data['try']] as $kind => $lines) {
+                foreach ($lines as $order => $line) {
+                    $review->items()->create(['kind' => $kind, 'body' => $line, 'sort_order' => $order]);
+                }
+            }
+
+            foreach ($previous?->items()->where('kind', ReviewItemKind::Try)->get() ?? [] as $index => $item) {
+                $item->update(['outcome' => $data['outcomes'][$index] ?? null]);
+            }
+
+            $previous = $review;
         }
     }
 }

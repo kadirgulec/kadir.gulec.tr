@@ -2,6 +2,7 @@
 
 use App\Models\Comment;
 use App\Models\Follow;
+use App\Models\MonthlyReview;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\Watchable;
@@ -23,6 +24,18 @@ it('downloads everything about the member as JSON without secrets', function () 
         ->assertJsonPath('follows.0.name', 'Dune');
 
     expect($response->getContent())->not->toContain($user->password)->not->toContain('two_factor_secret');
+});
+
+it('names the monthly review a comment was written under', function () {
+    $user = User::factory()->member()->create();
+    $review = MonthlyReview::factory()->forMonth('2026-09')->create();
+    Comment::factory()->for($user)->create(['commentable_type' => 'monthly_review', 'commentable_id' => $review->id]);
+
+    $this->actingAs($user)->get(route('account.export'))
+        ->assertOk()
+        ->assertJsonPath('comments.0.post', null)
+        ->assertJsonPath('comments.0.review.title', 'Eylül 2026 değerlendirmesi')
+        ->assertJsonPath('comments.0.review.url', url('/hedefler/aylik/2026-09'));
 });
 
 it('keeps the comments of a deleted account, anonymised, and drops its follows', function () {

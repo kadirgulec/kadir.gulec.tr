@@ -18,6 +18,8 @@ new #[Layout('layouts::account'), Title('Bildirimler')] class extends Component 
 
     public bool $newNotes = false;
 
+    public bool $newReviews = false;
+
     public ?string $status = null;
 
     public function mount(): void
@@ -25,16 +27,18 @@ new #[Layout('layouts::account'), Title('Bildirimler')] class extends Component 
         $this->frequency = auth()->user()->notification_frequency->value;
         $this->newPosts = auth()->user()->notify_new_posts;
         $this->newNotes = auth()->user()->notify_new_notes;
+        $this->newReviews = auth()->user()->notify_monthly_reviews;
     }
 
     public function save(): void
     {
-        $this->validate(['frequency' => ['required', Rule::enum(NotificationFrequency::class)], 'newPosts' => ['boolean'], 'newNotes' => ['boolean']]);
+        $this->validate(['frequency' => ['required', Rule::enum(NotificationFrequency::class)], 'newPosts' => ['boolean'], 'newNotes' => ['boolean'], 'newReviews' => ['boolean']]);
 
         auth()->user()->forceFill([
             'notification_frequency' => $this->frequency,
             'notify_new_posts' => $this->newPosts,
             'notify_new_notes' => $this->newNotes,
+            'notify_monthly_reviews' => $this->newReviews,
         ])->save();
 
         $this->status = 'Kaydedildi.';
@@ -87,6 +91,7 @@ new #[Layout('layouts::account'), Title('Bildirimler')] class extends Component 
 
         <x-site.form.checkbox wire:model="newPosts" label="Yeni yazı çıkınca haber ver" />
         <x-site.form.checkbox wire:model="newNotes" label="Yeni öğrendiklerimi özetle gönder" />
+        <x-site.form.checkbox wire:model="newReviews" label="Aylık değerlendirmem yayınlanınca haber ver" />
 
         <p class="text-sm text-ink-faint">Yorumuna cevap gelince de aynı sıklıkla haber verilir. Öğrendiklerim küçük ve sık olduğu için, "hemen" seçsen bile günlük özetle gelir.</p>
 

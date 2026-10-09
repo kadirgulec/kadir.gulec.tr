@@ -1,9 +1,11 @@
 <?php
 
 use App\Models\Goal;
+use App\Models\MonthlyReview;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
+use App\Models\ReviewItem;
 use App\Models\Tag;
 use App\Models\Watchable;
 use Illuminate\Support\Facades\Storage;
@@ -102,6 +104,43 @@ describe('notes feed', function () {
             ->and((string) $feed->entry[0]->title)->toBe('structuredClone() derin kopya için artık tarayıcılarda…')
             ->and((string) $feed->entry[0]->category['label'])->toBe('javascript')
             ->and((string) $feed->entry[0]->content)->toContain('<code class="inline-code">structuredClone()</code>');
+    });
+});
+
+describe('monthly reviews', function () {
+    it('point at a preview image with the month and the score, drawn only when published', function () {
+        $review = MonthlyReview::factory()->forMonth('2026-09')->create(['score' => 8]);
+        $draft = MonthlyReview::factory()->forMonth('2026-08')->draft()->create();
+
+        $this->get(route('goals.reviews.show', '2026-09'))->assertSee('/og/aylik/2026-09.png?v='.$review->updated_at->getTimestamp(), false);
+        $this->get(route('og', ['kind' => 'aylik', 'key' => '2026-09']))->assertOk()->assertHeader('Content-Type', 'image/png');
+        $this->get(route('og', ['kind' => 'aylik', 'key' => $draft->monthKey()]))->assertNotFound();
+        $this->get(route('og', ['kind' => 'aylik', 'key' => '2026-13']))->assertNotFound();
+    });
+
+    it('have a feed of the published months with their lists', function () {
+        $review = MonthlyReview::factory()->forMonth('2026-09')->create(['summary' => 'Spor oturdu.', 'score' => 8]);
+        ReviewItem::factory()->for($review, 'review')->hard()->create(['body' => 'Az yazı']);
+        MonthlyReview::factory()->forMonth('2026-08')->draft()->create();
+
+        $response = $this->get(route('goals.reviews.feed'))->assertOk()->assertHeader('Content-Type', 'application/atom+xml; charset=UTF-8');
+        $feed = simplexml_load_string($response->getContent());
+
+        expect($feed)->not->toBeFalse()
+            ->and(count($feed->entry))->toBe(1)
+            ->and((string) $feed->entry[0]->title)->toBe('Eylül 2026 değerlendirmesi')
+            ->and((string) $feed->entry[0]->content)->toContain('<p>Spor oturdu.</p>')
+            ->toContain('Ayın puanı: 8 / 10')
+            ->toContain('<h3>Zorlandığım</h3><ul><li><p>Az yazı</p></li></ul>');
+    });
+
+    it('are in the sitemap once published', function () {
+        MonthlyReview::factory()->forMonth('2026-09')->create();
+        MonthlyReview::factory()->forMonth('2026-08')->draft()->create();
+
+        $xml = $this->get(route('sitemap'))->assertOk()->getContent();
+
+        expect($xml)->toContain(route('goals.reviews.show', '2026-09'))->not->toContain('2026-08');
     });
 });
 

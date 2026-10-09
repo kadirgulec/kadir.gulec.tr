@@ -6,6 +6,7 @@ use App\Enums\GoalKind;
 use App\Enums\GoalVisibility;
 use App\Enums\Section;
 use App\Models\Goal;
+use App\Models\MonthlyReview;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
@@ -27,6 +28,7 @@ class SitemapController extends Controller
             ->merge(Project::query()->published()->get(['slug', 'updated_at'])->map(fn (Project $project): array => ['loc' => url($project->publicPath()), 'lastmod' => $project->updated_at]))
             ->merge(Watchable::query()->published()->get(['type', 'slug', 'updated_at'])->map(fn (Watchable $watchable): array => ['loc' => url($watchable->publicPath()), 'lastmod' => $watchable->updated_at]))
             ->merge(Goal::query()->where('visibility', GoalVisibility::Public)->whereIn('kind', [GoalKind::Chain, GoalKind::LongTerm])->get(['kind', 'slug', 'updated_at'])->map(fn (Goal $goal): array => ['loc' => url($goal->publicPath()), 'lastmod' => $goal->updated_at]))
+            ->merge(MonthlyReview::query()->published()->get(['month', 'updated_at'])->map(fn (MonthlyReview $review): array => ['loc' => url($review->publicPath()), 'lastmod' => $review->updated_at]))
             ->push(['loc' => route('privacy'), 'lastmod' => null])
             ->push(['loc' => route('imprint'), 'lastmod' => null]);
 

@@ -35,6 +35,38 @@ class TurkishDate
      */
     public static function onDayMonth(CarbonInterface $date): string
     {
-        return $date->locale('tr')->translatedFormat('j F')."'".self::MONTH_LOCATIVE_SUFFIXES[$date->month];
+        return self::dayMonth($date)."'".self::MONTH_LOCATIVE_SUFFIXES[$date->month];
+    }
+
+    /**
+     * "30 Kasım".
+     */
+    public static function dayMonth(CarbonInterface $date): string
+    {
+        return $date->locale('tr')->translatedFormat('j F');
+    }
+
+    /**
+     * "Ekim".
+     */
+    public static function month(CarbonInterface $date): string
+    {
+        return $date->locale('tr')->translatedFormat('F');
+    }
+
+    /**
+     * "Ekim 2026".
+     */
+    public static function monthYear(CarbonInterface $date): string
+    {
+        return $date->locale('tr')->translatedFormat('F Y');
+    }
+
+    /**
+     * "Ekim'de", for "Ekim'de deneyeceğim".
+     */
+    public static function inMonth(CarbonInterface $date): string
+    {
+        return self::month($date)."'".self::MONTH_LOCATIVE_SUFFIXES[$date->month];
     }
 }

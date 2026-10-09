@@ -35,6 +35,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property NotificationFrequency $notification_frequency
  * @property bool $notify_new_posts
  * @property bool $notify_new_notes
+ * @property bool $notify_monthly_reviews
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
@@ -51,6 +52,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
         'notification_frequency' => 'daily',
         'notify_new_posts' => false,
         'notify_new_notes' => false,
+        'notify_monthly_reviews' => false,
     ];
 
     /**
@@ -75,6 +77,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'notification_frequency' => NotificationFrequency::class,
             'notify_new_posts' => 'boolean',
             'notify_new_notes' => 'boolean',
+            'notify_monthly_reviews' => 'boolean',
         ];
     }
 

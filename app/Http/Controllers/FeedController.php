@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MonthlyReview;
 use App\Models\Note;
 use App\Models\Post;
 use App\Support\Markdown\Markdown;
@@ -39,6 +40,18 @@ class FeedController extends Controller
                 'notes' => $notes,
                 'updated' => $notes->max('updated_at') ?? now(),
                 'markdown' => $markdown,
+            ])
+            ->header('Content-Type', 'application/atom+xml; charset=UTF-8');
+    }
+
+    public function reviews(): Response
+    {
+        $reviews = MonthlyReview::query()->published()->with('items')->orderByDesc('month')->limit(self::LIMIT)->get();
+
+        return response()
+            ->view('feeds.reviews', [
+                'reviews' => $reviews,
+                'updated' => $reviews->max('updated_at') ?? now(),
             ])
             ->header('Content-Type', 'application/atom+xml; charset=UTF-8');
     }

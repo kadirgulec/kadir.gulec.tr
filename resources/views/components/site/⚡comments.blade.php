@@ -4,6 +4,7 @@ use App\Actions\Comments\ModerateComment;
 use App\Actions\Comments\PostComment;
 use App\Enums\Permission;
 use App\Models\Comment;
+use App\Models\MonthlyReview;
 use App\Models\Post;
 use App\Models\User;
 use App\Rules\Honeypot;
@@ -16,11 +17,16 @@ use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 /*
- * Comments under a post: the thread (one level of replies) and the form.
+ * Comments under a post or a monthly review: the thread (one level of
+ * replies) and the form.
  */
 new class extends Component {
+    /** The morph name of what is commented on ("post", "monthly_review"). */
     #[Locked]
-    public int $postId;
+    public string $commentableType;
+
+    #[Locked]
+    public int $commentableId;
 
     public string $body = '';
 
@@ -40,9 +46,10 @@ new class extends Component {
 
     public ?string $status = null;
 
-    public function mount(Post $post): void
+    public function mount(Post|MonthlyReview $commentable): void
     {
-        $this->postId = $post->id;
+        $this->commentableType = $commentable->getMorphClass();
+        $this->commentableId = $commentable->id;
     }
 
     /**
@@ -62,8 +69,8 @@ new class extends Component {
 
         return Comment::query()
             ->withTrashed()
-            ->where('commentable_type', (new Post)->getMorphClass())
-            ->where('commentable_id', $this->postId)
+            ->where('commentable_type', $this->commentableType)
+            ->where('commentable_id', $this->commentableId)
             ->whereNull('parent_id')
             ->with(['user.roles', 'replies' => fn ($query) => $visible($query)->with('user.roles')])
             ->where(fn (Builder $query) => $query
@@ -131,6 +138,14 @@ new class extends Component {
         unset($this->comments);
     }
 
+    private function commentable(): Post|MonthlyReview
+    {
+        return match ($this->commentableType) {
+            (new MonthlyReview)->getMorphClass() => MonthlyReview::query()->findOrFail($this->commentableId),
+            default => Post::query()->findOrFail($this->commentableId),
+        };
+    }
+
     private function submit(PostComment $postComment, string $body, ?Comment $parent, string $field = 'body'): void
     {
         $this->validate([
@@ -140,7 +155,7 @@ new class extends Component {
         ], attributes: [$field => 'yorum']);
 
         try {
-            $comment = $postComment->handle($this->user(), Post::query()->findOrFail($this->postId), $body, $parent);
+            $comment = $postComment->handle($this->user(), $this->commentable(), $body, $parent);
         } finally {
             $this->turnstileToken = '';
             $this->dispatch('turnstile-reset');

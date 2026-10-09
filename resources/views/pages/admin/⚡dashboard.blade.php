@@ -8,6 +8,7 @@ use App\Enums\GoalMeasure;
 use App\Enums\Permission;
 use App\Livewire\Forms\NoteForm;
 use App\Models\Goal;
+use App\Models\MonthlyReview;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
@@ -16,6 +17,7 @@ use App\Models\Watchable;
 use App\Enums\ChainPeriod;
 use App\Support\ChainReminders;
 use App\Support\ChainStats;
+use App\Support\TurkishDate;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
@@ -48,6 +50,15 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
         return Goal::query()->ofKind(GoalKind::Yearly)->where('year', now()->year)->where('measure', GoalMeasure::Numeric)
             ->with('progressEntries')->orderBy('sort_order')->get()
             ->reject(fn (Goal $goal): bool => $goal->isAchieved());
+    }
+
+    /**
+     * The newest review that is not out yet, to remind Kadir to write it.
+     */
+    #[Computed]
+    public function draftReview(): ?MonthlyReview
+    {
+        return MonthlyReview::query()->whereNull('published_at')->orderByDesc('month')->first();
     }
 
     /**
@@ -116,6 +127,16 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
 
 <div>
     <x-admin.page-header heading="Pano" :description="'Merhaba '.auth()->user()->name.', defterde bugün ne var?'" />
+
+    @can(Permission::ManageGoals->value)
+        @if ($this->draftReview)
+            <a href="{{ route('admin.reviews.edit', $this->draftReview) }}" wire:navigate class="mb-6 flex items-center gap-3 rounded-xl border border-section-goals/40 bg-section-goals/10 px-5 py-3.5 text-sm hover:bg-section-goals/20">
+                <x-admin.icon name="calendar-check" class="text-[#4f7000] dark:text-section-goals" />
+                <span class="flex-1"><strong>{{ TurkishDate::monthYear($this->draftReview->month) }} değerlendirmesi</strong> taslakta bekliyor. Rakamlar hazır, gerisi sende.</span>
+                <x-admin.icon name="arrow-right" class="text-zinc-400" />
+            </a>
+        @endif
+    @endcan
 
     <div class="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         @can(Permission::ManageGoals->value)

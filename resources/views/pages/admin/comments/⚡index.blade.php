@@ -113,6 +113,8 @@ new #[Layout('layouts::admin'), Title('Yorumlar')] class extends Component {
                         <x-admin.table.cell>
                             @if ($comment->commentable instanceof Post)
                                 <x-admin.link :href="route('posts.show', $comment->commentable->slug).'#yorumlar'" external>{{ \Illuminate\Support\Str::limit($comment->commentable->title, 40) }}</x-admin.link>
+                            @elseif ($comment->commentable instanceof \App\Models\MonthlyReview)
+                                <x-admin.link :href="url($comment->commentable->publicPath()).'#yorumlar'" external>{{ $comment->commentable->title() }}</x-admin.link>
                             @endif
                         </x-admin.table.cell>
                         <x-admin.table.cell align="end">

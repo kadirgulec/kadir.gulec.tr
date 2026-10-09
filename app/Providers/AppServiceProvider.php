@@ -7,6 +7,7 @@ use App\Http\Middleware\EnsureAdminAccess;
 use App\Models\Comment;
 use App\Models\Follow;
 use App\Models\Goal;
+use App\Models\MonthlyReview;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
@@ -57,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
             'note' => Note::class,
             'watchable' => Watchable::class,
             'goal' => Goal::class,
+            'monthly_review' => MonthlyReview::class,
             'comment' => Comment::class,
             'follow' => Follow::class,
         ]);

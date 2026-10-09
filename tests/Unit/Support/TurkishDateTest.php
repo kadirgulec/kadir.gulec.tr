@@ -14,3 +14,11 @@ it('adds the locative suffix that matches the month', function (string $date, st
     'front vowel, October' => ['2026-10-02', "2 Ekim'de"],
     'hard consonant, dotless i' => ['2026-12-31', "31 Aralık'ta"],
 ]);
+
+it('puts a month alone into the locative', function (string $date, string $expected) {
+    expect(TurkishDate::inMonth(CarbonImmutable::parse($date)))->toBe($expected);
+})->with([
+    'front vowel' => ['2026-10-01', "Ekim'de"],
+    'soft consonant, back vowel' => ['2026-11-01', "Kasım'da"],
+    'hard consonant' => ['2026-08-01', "Ağustos'ta"],
+]);

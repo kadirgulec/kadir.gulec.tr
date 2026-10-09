@@ -7,6 +7,7 @@ use App\Enums\SeriesStatus;
 use App\Mail\NotificationDigest;
 use App\Models\Comment;
 use App\Models\Goal;
+use App\Models\MonthlyReview;
 use App\Models\Note;
 use App\Models\NotificationItem;
 use App\Models\Post;
@@ -215,6 +216,35 @@ describe('moments', function () {
         expect($member->notificationItems()->count())->toBe(5); // milestone, achieved (all milestones), update, devlog, status
     });
 
+    it('announces a published monthly review to its subscribers once, and no draft', function () {
+        $subscriber = follower(attributes: ['notify_monthly_reviews' => true]);
+        $other = follower(attributes: ['notify_new_posts' => true]);
+        MonthlyReview::factory()->forMonth('2026-09')->create(['summary' => 'Spor oturdu.', 'published_at' => now()->subMinute()]);
+        MonthlyReview::factory()->forMonth('2026-08')->draft()->create();
+
+        $this->artisan('notifications:announce');
+        $this->artisan('notifications:announce');
+
+        $item = $subscriber->notificationItems()->sole();
+        expect($item->title)->toBe('Yeni değerlendirme: Eylül 2026 değerlendirmesi')
+            ->and($item->body)->toBe('Spor oturdu.')
+            ->and($item->url)->toBe(url('/hedefler/aylik/2026-09'))
+            ->and($item->digest_only)->toBeFalse()
+            ->and($other->notificationItems()->count())->toBe(0);
+    });
+
+    it('tells about a reply under a monthly review', function () {
+        $review = MonthlyReview::factory()->forMonth('2026-09')->create();
+        $author = follower();
+        $top = Comment::factory()->for($author)->create(['commentable_type' => 'monthly_review', 'commentable_id' => $review->id]);
+
+        Comment::factory()->create(['commentable_type' => 'monthly_review', 'commentable_id' => $review->id, 'parent_id' => $top->id]);
+
+        $item = $author->notificationItems()->sole();
+        expect($item->title)->toEndWith('yorumuna cevap verdi: Eylül 2026 değerlendirmesi')
+            ->and($item->url)->toBe(url('/hedefler/aylik/2026-09').'#yorumlar');
+    });
+
     it('tells the author of a comment about a reply, but not about their own', function () {
         $post = Post::factory()->create();
         $author = follower();
@@ -332,6 +362,17 @@ describe('account pages', function () {
         Livewire::test('pages::settings.notifications')->set('newNotes', true)->call('save')->assertHasNoErrors();
 
         expect($user->fresh()->notify_new_notes)->toBeTrue();
+    });
+
+    it('switches the monthly review subscription from its page and from the settings', function () {
+        $user = follower();
+        $this->actingAs($user);
+
+        Livewire::test('site.subscription', ['kind' => 'reviews'])->call('toggle');
+        expect($user->fresh()->notify_monthly_reviews)->toBeTrue();
+
+        Livewire::test('pages::settings.notifications')->assertSet('newReviews', true)->set('newReviews', false)->call('save')->assertHasNoErrors();
+        expect($user->fresh()->notify_monthly_reviews)->toBeFalse();
     });
 
     it('saves the frequency and the new posts subscription', function () {
