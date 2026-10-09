@@ -5,8 +5,8 @@ use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 /*
- * "Tell me about new posts / notes": one switch per kind. New posts arrive
- * one by one, new notes in the digest.
+ * "Tell me about new posts / notes / monthly reviews": one switch per kind.
+ * New posts and reviews arrive one by one, new notes in the digest.
  */
 new class extends Component {
     /** Each kind's column on the user and its copy. */
@@ -22,6 +22,12 @@ new class extends Component {
             'register' => 'yeni notları özetle almak için kayıt ol',
             'on' => '✓ yeni notlar özetinde',
             'off' => '+ yeni notları özetimde gönder',
+        ],
+        'reviews' => [
+            'column' => 'notify_monthly_reviews',
+            'register' => 'aylık değerlendirmelerden haberdar olmak için kayıt ol',
+            'on' => '✓ aylık değerlendirmelerde haber alıyorsun',
+            'off' => '+ aylık değerlendirmede haber ver',
         ],
     ];
 

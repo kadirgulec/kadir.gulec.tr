@@ -2,6 +2,7 @@
 
 use App\Actions\Comments\PostComment;
 use App\Models\Comment;
+use App\Models\MonthlyReview;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
@@ -13,9 +14,9 @@ beforeEach(function () {
     $this->post = Post::factory()->create();
 });
 
-function commentsOn(Post $post): Testable
+function commentsOn(Post|MonthlyReview $post): Testable
 {
-    return Livewire::test('site.comments', ['post' => $post]);
+    return Livewire::test('site.comments', ['commentable' => $post]);
 }
 
 it('keeps the first comment of a member waiting and shows it only to its author', function () {
@@ -188,4 +189,29 @@ describe('admin queue', function () {
 
         expect($comment->user->fresh()->isBlocked())->toBeTrue();
     });
+
+    it('links a waiting comment to the monthly review it was written under', function () {
+        $review = MonthlyReview::factory()->forMonth('2026-09')->create();
+        Comment::factory()->pending()->create(['commentable_type' => 'monthly_review', 'commentable_id' => $review->id]);
+
+        Livewire::test('pages::admin.comments.index')
+            ->assertSee('Eylül 2026 değerlendirmesi')
+            ->assertSee(url('/hedefler/aylik/2026-09').'#yorumlar');
+    });
+});
+
+it('keeps the comments of a monthly review apart from a post with the same number', function () {
+    $review = MonthlyReview::factory()->forMonth('2026-09')->create();
+    $post = Post::factory()->create();
+    $review->forceFill(['id' => $post->id])->save();
+    $member = User::factory()->member()->create();
+    Comment::factory()->for($member)->create(['commentable_id' => $post->id]);
+
+    $this->actingAs($member);
+    commentsOn($review)->set('body', 'Dürüst bir ay olmuş.')->call('post')->assertHasNoErrors()
+        ->assertSee('Dürüst bir ay olmuş.');
+
+    expect($review->comments()->sole()->body)->toBe('Dürüst bir ay olmuş.')
+        ->and($post->comments()->count())->toBe(1);
+    commentsOn($post)->assertDontSee('Dürüst bir ay olmuş.');
 });

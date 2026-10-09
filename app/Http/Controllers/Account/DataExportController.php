@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\Follow;
 use App\Models\Goal;
+use App\Models\MonthlyReview;
 use App\Models\Post;
 use App\Models\User;
 use App\Support\Notifications\Notifier;
@@ -34,6 +35,7 @@ class DataExportController extends Controller
                 'notification_frequency' => $user->notification_frequency->value,
                 'notify_new_posts' => $user->notify_new_posts,
                 'notify_new_notes' => $user->notify_new_notes,
+                'notify_monthly_reviews' => $user->notify_monthly_reviews,
                 'two_factor_enabled' => $user->hasEnabledTwoFactorAuthentication(),
                 'passkeys' => $user->passkeys()->get()->map(fn ($passkey): array => [
                     'name' => $passkey->name,
@@ -43,6 +45,7 @@ class DataExportController extends Controller
             'comments' => $user->comments()->withTrashed()->with('commentable')->orderBy('created_at')->get()->map(fn (Comment $comment): array => [
                 'body' => $comment->body,
                 'post' => $comment->commentable instanceof Post ? ['title' => $comment->commentable->title, 'url' => route('posts.show', $comment->commentable->slug)] : null,
+                'review' => $comment->commentable instanceof MonthlyReview ? ['title' => $comment->commentable->title(), 'url' => url($comment->commentable->publicPath())] : null,
                 'written_at' => $comment->created_at?->toIso8601String(),
                 'approved' => $comment->isApproved(),
                 'deleted' => $comment->trashed(),

@@ -7,6 +7,7 @@ use App\Enums\GoalVisibility;
 use App\Enums\Section;
 use App\Enums\WatchableType;
 use App\Models\Goal;
+use App\Models\MonthlyReview;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
@@ -16,6 +17,8 @@ use App\Support\Content\NoteContent;
 use App\Support\Images\ImageStore;
 use App\Support\Markdown\Markdown;
 use App\Support\Og\OgImage;
+use App\Support\TurkishDate;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
@@ -65,6 +68,7 @@ class OgImageController extends Controller
             'project' => $this->project($key),
             'film', 'dizi' => $this->watchable(WatchableType::fromRouteSegment($kind), $key),
             'goal' => $this->goal($key),
+            'aylik' => $this->monthlyReview($key),
             default => null,
         };
     }
@@ -178,5 +182,29 @@ class OgImageController extends Controller
             'subtitle' => $subtitle,
             'section' => Section::Goals,
         ], $goal->kind === GoalKind::Chain ? now()->startOfDay() : $goal->updated_at];
+    }
+
+    /**
+     * A published monthly review ("2026-10"): the month, its score and summary.
+     *
+     * @return array{0: Card, 1: ?CarbonInterface}|null
+     */
+    private function monthlyReview(string $key): ?array
+    {
+        $month = CarbonImmutable::createFromFormat('!Y-m', $key);
+        $review = $month !== null && $month->format('Y-m') === $key
+            ? MonthlyReview::query()->published()->whereDate('month', $month->toDateString())->first()
+            : null;
+
+        if ($review === null) {
+            return null;
+        }
+
+        return [[
+            'title' => TurkishDate::monthYear($review->month),
+            'kicker' => 'Hedefler · aylık değerlendirme',
+            'subtitle' => implode(' · ', array_filter([$review->score !== null ? $review->score.'/10' : null, $review->summary])),
+            'section' => Section::Goals,
+        ], $review->updated_at];
     }
 }

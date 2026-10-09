@@ -17,6 +17,7 @@
     :section="Section::Goals"
     :title="$review ? $review['monthName'].' değerlendirmesi' : 'Aylık değerlendirme'"
     :draft="$review['isDraft'] ?? false"
+    :og-image="$review['ogImage'] ?? null"
     :description="$review ? ($review['summary'] ?? $review['monthName'].': ne iyi gitti, nerede zorlandım, gelecek ay ne deneyeceğim.') : 'Her ayın sonunda dürüst bir bakış: ne iyi gitti, nerede zorlandım, gelecek ay neyi değiştireceğim.'"
 >
     <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">
@@ -32,6 +33,13 @@
             </span>
         </h1>
         <p class="text-lg leading-relaxed text-ink-soft">Ne iyi gitti, nerede zorlandım, gelecek ay neyi değiştireceğim. Rakamlar sitedeki kayıtlardan otomatik geliyor.</p>
+    </div>
+
+    <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
+        <livewire:site.subscription kind="reviews" />
+        @if ($review)
+            <x-site.share-button />
+        @endif
     </div>
 
     @if ($review === null)
@@ -191,5 +199,7 @@
                 @endforeach
             </section>
         @endif
+
+        <livewire:site.comments :commentable="$reviewModel" />
     @endif
 </x-layouts::site>

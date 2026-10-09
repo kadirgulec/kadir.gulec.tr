@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('yazilar/rss', [FeedController::class, 'posts'])->name('posts.feed');
 Route::get('ogrendiklerim/rss', [FeedController::class, 'notes'])->name('notes.feed');
+Route::get('hedefler/aylik/rss', [FeedController::class, 'reviews'])->name('goals.reviews.feed');
 Route::get('sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 Route::get('manifest.webmanifest', ManifestController::class)->name('manifest');

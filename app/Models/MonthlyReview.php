@@ -4,12 +4,14 @@ namespace App\Models;
 
 use App\Models\Concerns\HasPublication;
 use App\Support\Reviews\MonthlyReviewStats;
+use App\Support\TurkishDate;
 use Carbon\CarbonImmutable;
 use Database\Factories\MonthlyReviewFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * An honest look back at one month: numbers frozen from the site's records
@@ -60,6 +62,14 @@ class MonthlyReview extends Model
         return $this->month->format('Y-m');
     }
 
+    /**
+     * "Ekim 2026 değerlendirmesi", for notifications, feeds and the admin.
+     */
+    public function title(): string
+    {
+        return TurkishDate::monthYear($this->month).' değerlendirmesi';
+    }
+
     public function publicPath(): string
     {
         return '/hedefler/aylik/'.$this->monthKey();
@@ -71,6 +81,14 @@ class MonthlyReview extends Model
     public function previousReview(): ?self
     {
         return self::query()->whereDate('month', $this->month->subMonth()->toDateString())->first();
+    }
+
+    /**
+     * @return MorphMany<Comment, $this>
+     */
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable');
     }
 
     /**

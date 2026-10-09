@@ -13,6 +13,7 @@ use App\Models\MonthlyReview;
 use App\Models\Post;
 use App\Models\ReviewItem;
 use App\Support\GoalCensor;
+use App\Support\Og\OgUrl;
 use App\Support\TurkishDate;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection;
@@ -90,6 +91,7 @@ class ReviewContent
             'summary' => $review->summary,
             'score' => $review->score,
             'isDraft' => ! $review->isPublished(),
+            'ogImage' => OgUrl::for('aylik', $review->monthKey(), $review->updated_at),
             'nextMonthIn' => TurkishDate::inMonth($review->month->addMonth()),
             'monthIn' => TurkishDate::inMonth($review->month),
             'tiles' => $this->tiles($review),

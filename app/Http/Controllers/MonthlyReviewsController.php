@@ -33,6 +33,6 @@ class MonthlyReviewsController extends Controller
 
         abort_if($review === null, 404);
 
-        return view('site.goals.review', ['review' => $this->reviews->toArray($review)]);
+        return view('site.goals.review', ['review' => $this->reviews->toArray($review), 'reviewModel' => $review]);
     }
 }

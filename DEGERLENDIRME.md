@@ -85,7 +85,7 @@ Başlık: **"Her ayın sonunda dürüst bir bakış."** Alt metin: "Ne iyi gitti
 - [x] **Adım 2: Otomasyon** (`reviews:create` komutu ve zamanlaması, Kadir'e e-posta, `ReviewSuggestions`, testler).
 - [x] **Adım 3: Ziyaretçi sayfası** (`/hedefler/aylik`, ay sayfası, sekmeler, rakam kutuları, üç sütun, geçen ayın denemeleri, `/hedefler`'deki kart, demo veri). *Kadir'in onayı beklenir (2026-10-09: yapıldı, Kadir onayladı).*
 - [x] **Adım 4: Admin** (liste, düzenleme ekranı, öneriler, yeniden hesaplama, pano kartı, yedek sayımı).
-- [ ] **Adım 5: Yorum, bildirim, RSS, paylaşım** (yorum bileşeninin genelleşmesi, `notify_monthly_reviews`, duyuru, RSS, OG görseli, sitemap).
+- [x] **Adım 5: Yorum, bildirim, RSS, paylaşım** (yorum bileşeninin genelleşmesi, `notify_monthly_reviews`, duyuru, RSS, OG görseli, sitemap).
 
 ## 9. Uygulama notları
 
@@ -126,3 +126,12 @@ Başlık: **"Her ayın sonunda dürüst bir bakış."** Alt metin: "Ne iyi gitti
 - **Pano:** Taslakta bekleyen en yeni değerlendirme için en üstte yeşil bir şerit. E-postadaki ve push'taki link artık düzenleme ekranına gidiyor.
 - **Yedek:** `monthly_reviews` manifest sayımına ve yedek inceleme satırına eklendi. Dökümün kendisi zaten bütün tabloları içeriyor.
 - **Görsel kontrol yapılmadı:** Admin ekranları Livewire testlerinde baştan sona çiziliyor ama tarayıcıda bakılmadı (yerel admin girişi iki adımlı doğrulama istiyor).
+
+### Adım 5 (2026-10-09)
+
+- **Morph haritası:** `monthly_review` → `MonthlyReview` (`AppServiceProvider::configureMorphMap()`). Uygulama `enforceMorphMap` kullandığı için bu olmadan yorum ve bildirim kaydı hata verirdi.
+- **Yorumlar:** `⚡comments` bileşeni artık `:commentable` alıyor (`Post|MonthlyReview`), türü ve numarayı kilitli tutuyor. Yazı sayfası ve `CommentsTest` buna göre güncellendi. Aynı numaralı bir yazı ile değerlendirmenin yorumları karışmıyor (test var). Cevap bildirimi, admin moderasyon linki ve üyenin veri dışa aktarımı (`comments.*.review`) değerlendirmeyi tanıyor.
+- **Bildirim:** `users.notify_monthly_reviews` (varsayılan kapalı). Değerlendirme sayfasının başında abonelik düğmesi (`x-site.subscription kind="reviews"`) ve Hesabım → Bildirimler'de kutucuk. `notifications:announce` yayın zamanı gelen değerlendirmeyi bir kez duyurur (`announced_at`), yazılar gibi üyenin sıklık tercihine göre. Yayından geri alınıp tekrar yayınlanan değerlendirme yeniden duyurulmaz.
+- **RSS:** `/hedefler/aylik/rss` (`goals.reviews.feed`). Girdide özet, puan ve üç liste var. Rakam kutuları yok, çünkü sansürlü hedef başlıkları akışa giremez; girdinin sonunda "Rakamlarla birlikte sitede oku →" linki var. Layout'ta `<link rel="alternate">`.
+- **OG görseli:** kind `aylik`, anahtar `2026-09`: ay, puan ve özet. Taslağın görseli yok (404).
+- **Sitemap:** Yayındaki değerlendirmeler eklendi.

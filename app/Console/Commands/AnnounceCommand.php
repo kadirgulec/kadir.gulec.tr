@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Goal;
+use App\Models\MonthlyReview;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Watchable;
@@ -12,7 +13,7 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
 #[Signature('notifications:announce {--chain-breaks : Also look for chains missed yesterday (run once a day)}')]
-#[Description('Tell followers about posts, notes and reviews whose publication time has come')]
+#[Description('Tell followers about posts, notes, reviews and monthly reviews whose publication time has come')]
 class AnnounceCommand extends Command
 {
     public function handle(Announcements $announcements): int
@@ -25,6 +26,11 @@ class AnnounceCommand extends Command
         Note::query()->published()->whereNull('announced_at')->with('tag')->each(function (Note $note) use ($announcements): void {
             $announcements->note($note);
             $note->forceFill(['announced_at' => now()])->saveQuietly();
+        });
+
+        MonthlyReview::query()->published()->whereNull('announced_at')->each(function (MonthlyReview $review) use ($announcements): void {
+            $announcements->monthlyReview($review);
+            $review->forceFill(['announced_at' => now()])->saveQuietly();
         });
 
         Watchable::query()->published()
