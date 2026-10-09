@@ -35,7 +35,15 @@ class TurkishDate
      */
     public static function onDayMonth(CarbonInterface $date): string
     {
-        return $date->locale('tr')->translatedFormat('j F')."'".self::MONTH_LOCATIVE_SUFFIXES[$date->month];
+        return self::dayMonth($date)."'".self::MONTH_LOCATIVE_SUFFIXES[$date->month];
+    }
+
+    /**
+     * "30 Kasım".
+     */
+    public static function dayMonth(CarbonInterface $date): string
+    {
+        return $date->locale('tr')->translatedFormat('j F');
     }
 
     /**

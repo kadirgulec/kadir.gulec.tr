@@ -9,6 +9,7 @@ use App\Http\Controllers\FeedController;
 use App\Http\Controllers\GoalsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ManifestController;
+use App\Http\Controllers\MonthlyReviewsController;
 use App\Http\Controllers\NotesController;
 use App\Http\Controllers\OgImageController;
 use App\Http\Controllers\PostsController;
@@ -36,6 +37,9 @@ Route::middleware('page-view')->group(function () {
         ->whereIn('type', ['film', 'dizi'])
         ->name('watched.show');
     Route::get('hedefler', [GoalsController::class, 'index'])->name('goals.index');
+    // Before hedefler/{slug}: "aylik" would be taken for a goal's address.
+    Route::get('hedefler/aylik', [MonthlyReviewsController::class, 'index'])->name('goals.reviews.index');
+    Route::get('hedefler/aylik/{month}', [MonthlyReviewsController::class, 'show'])->where('month', '\\d{4}-\\d{2}')->name('goals.reviews.show');
     Route::get('hedefler/zincir/{slug}', [GoalsController::class, 'chain'])->name('goals.chain');
     Route::get('hedefler/{slug}', [GoalsController::class, 'show'])->name('goals.show');
     Route::get('projeler', [ProjectsController::class, 'index'])->name('projects.index');

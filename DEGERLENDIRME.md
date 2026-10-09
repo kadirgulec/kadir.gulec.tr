@@ -33,7 +33,7 @@ Başlık: **"Her ayın sonunda dürüst bir bakış."** Alt metin: "Ne iyi gitti
 - **Özet cümlesi (isteğe bağlı):** Tek satır, ör. "Spor rutini oturdu, yazı tarafı yine aksadı." Boşsa görünmez.
 - **Ayın puanı (isteğe bağlı):** 1–10, Kadir verir. Boşsa görünmez.
 - **Maddeler:** Üç tür: **İyi giden (+)**, **Zorlandığım (–)**, **[Sonraki ay]'da deneyeceğim (→)**. Her biri kısa düz metin (satır içi Markdown: kalın, eğik, link). Sıralanabilir. Boş tür sayfada görünmez.
-- **Geçen ayın denemeleri:** Önceki ayın "deneyeceğim" maddeleri bu ayın sayfasında "Eylül'de denediklerim" olarak tekrar çıkar. Kadir her birini **yaptım / yapmadım** diye işaretler (`outcome`). Yapılanlar işaretli kutuyla, yapılmayanlar hedeflerin geçmiş yıllar arşivindeki gibi **üstü karalanmış** ve "olmadı" notuyla görünür. İşaretlenmemiş olan nötr kalır.
+- **Geçen ayın denemeleri:** Eylül değerlendirmesindeki "Ekim'de deneyeceğim" maddeleri, Ekim değerlendirmesinde "Ekim'de denediklerim" olarak tekrar çıkar. Kadir her birini **yaptım / yapmadım** diye işaretler (`outcome`). Yapılanlar işaretli kutuyla, yapılmayanlar hedeflerin geçmiş yıllar arşivindeki gibi **üstü karalanmış** ve "olmadı" notuyla görünür. İşaretlenmemiş olan nötr kalır.
 - **Rakam kutuları:** Hepsi snapshot'ta. Admin'de kutu kutu gizlenebilir (ör. çok fazla zincir varsa).
   - **Zincirler:** Her açık ya da sansürlü zincir için o ay yapılan gün sayısı ("27 gün · Kitap"). Haftalık/aylık zincirde tutan dönem sayısı da ("4 / 4 hafta"). Gizli zincirler hiç girmez.
   - **Yayınlananlar:** O ay yayınlanan yazı, Öğrendiklerim notu, izlenen film/dizi (`viewings.watched_on`).
@@ -83,7 +83,7 @@ Başlık: **"Her ayın sonunda dürüst bir bakış."** Alt metin: "Ne iyi gitti
 
 - [x] **Adım 1: Model ve rakamlar** (migration'lar, `MonthlyReview`, `ReviewItem`, factory'ler, `MonthlyReviewStats`, testler).
 - [x] **Adım 2: Otomasyon** (`reviews:create` komutu ve zamanlaması, Kadir'e e-posta, `ReviewSuggestions`, testler).
-- [ ] **Adım 3: Ziyaretçi sayfası** (`/hedefler/aylik`, ay sayfası, sekmeler, rakam kutuları, üç sütun, geçen ayın denemeleri, `/hedefler`'deki kart, demo veri). *Kadir'in onayı beklenir.*
+- [x] **Adım 3: Ziyaretçi sayfası** (`/hedefler/aylik`, ay sayfası, sekmeler, rakam kutuları, üç sütun, geçen ayın denemeleri, `/hedefler`'deki kart, demo veri). *Kadir'in onayı beklenir (2026-10-09: yapıldı, onay bekliyor).*
 - [ ] **Adım 4: Admin** (liste, düzenleme ekranı, öneriler, yeniden hesaplama, pano kartı, yedek sayımı).
 - [ ] **Adım 5: Yorum, bildirim, RSS, paylaşım** (yorum bileşeninin genelleşmesi, `notify_monthly_reviews`, duyuru, RSS, OG görseli, sitemap).
 
@@ -106,3 +106,13 @@ Başlık: **"Her ayın sonunda dürüst bir bakış."** Alt metin: "Ne iyi gitti
 - **E-postadaki link** şimdilik admin panosuna gidiyor; adım 4'te düzenleme ekranına çevrilecek.
 - **Öneri eşikleri:** Zincir %90 ve üstü tuttuysa "iyi giden", %50'nin altındaysa "zorlandığım". Arası önerilmez. Sayısal hedef "önde" ise iyi, "biraz geride" ise zor. Hiç yazı yoksa zor, iki ve üstü yazı iyi. Tek yazı önerilmez.
 - **Ay adları** `TurkishDate::month()`, `monthYear()`, `inMonth()` ("Kasım'da"). `CarbonImmutable::locale()` PHPStan'da `static|string` döndüğü için Türkçe biçimlendirme hep bu sınıftan geçiyor.
+
+### Adım 3 (2026-10-09)
+
+- **Adresler:** `goals.reviews.index` (`/hedefler/aylik`, en son yayınlanan aya 302) ve `goals.reviews.show` (`/hedefler/aylik/{yyyy-mm}`). İkisi de `hedefler/{slug}`'tan önce kayıtlı; bu yüzden slug'ı `aylik` olan bir hedef sayfası açılamaz.
+- **Veri:** `App\Support\Content\ReviewContent` (diğer `*Content` sınıfları gibi). Hedef başlıkları her gösterimde çözülür: sansürlü hedef `x-site.censored` ile karalanır (Yakın rolü ve admin başlığı görür), sonradan gizlenen hedefin kutusu kaybolur. En çok okunan yazı yayından kalkarsa satır görünmez.
+- **Taslak:** Sadece `ManageGoals` iznine sahip olanlara, `noindex` ile. Geçen ay taslaksa onun denemeleri ziyaretçiye gösterilmez.
+- **Tasarım:** Ay sekmeleri etiket filtresindeki washi bant stili (son 4 yayınlanmış ay, şu anki ay hep içinde). Puan, film notlarındaki kırmızı kalemli `x-site.grade`. Rakam kutularında HTML'de önce etiket (`dt`) sonra sayı (`dd`), sayıyı CSS `order` üste alır. Denenmeyenler `scribbled-out` + "olmadı", geçmiş yıllar arşivi gibi.
+- **Hedefler sayfası:** Yıl ilerleme çubuğunun altında en son değerlendirmenin kartı (puan, ay, özet).
+- **Demo veri:** `DemoSeeder::seedReviews()` son iki ayı (`data/demo-reviews.php`) demo hedeflerden hesaplanan rakamlarla yayınlar; ikinci ay ilkinin denemelerini işaretler.
+- **Bilinen:** Yerelde ziyaret kaydı olmadığı için demo değerlendirmelerde "0 sayfa görüntüleme" görünür.

@@ -6,6 +6,7 @@ use App\Enums\GoalMeasure;
 use App\Enums\GoalPace;
 use App\Support\ChainStats;
 use App\Support\Content\GoalContent;
+use App\Support\Content\ReviewContent;
 use Illuminate\View\View;
 
 class GoalsController extends Controller
@@ -15,7 +16,7 @@ class GoalsController extends Controller
     /**
      * One page, three floors: daily chains, this year's goals and the long-term board.
      */
-    public function index(): View
+    public function index(ReviewContent $reviews): View
     {
         $today = now()->toImmutable();
 
@@ -29,6 +30,7 @@ class GoalsController extends Controller
             ], $this->goals->yearlyGoals()),
             'longTermGoals' => $this->goals->longTermGoals(),
             'pastYearGoals' => $this->goals->pastYearGoals(),
+            'reviewCard' => $reviews->card(),
         ]);
     }
 

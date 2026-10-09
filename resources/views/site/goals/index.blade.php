@@ -32,6 +32,21 @@
         <span class="shrink-0 font-mono text-xs text-ink-soft">%{{ round($yearShare * 100) }}</span>
     </div>
 
+    @if ($reviewCard)
+        <a href="{{ $reviewCard['url'] }}" class="group mt-8 flex max-w-xl items-center gap-4 rounded-sm bg-paper-deep p-4 {{ $cardShadow }}">
+            @if ($reviewCard['score'] !== null)
+                <x-site.grade :value="$reviewCard['score']" size="sm" />
+            @endif
+            <span class="min-w-0">
+                <span class="block font-mono text-[11px] tracking-wider text-ink-faint uppercase">aylık değerlendirme</span>
+                <span class="block font-display text-lg font-semibold group-hover:text-section-ink">{{ $reviewCard['monthName'] }} →</span>
+                @if ($reviewCard['summary'])
+                    <span class="block truncate text-sm text-ink-soft">{{ $reviewCard['summary'] }}</span>
+                @endif
+            </span>
+        </a>
+    @endif
+
     {{-- Floor 1: chains (daily, weekly, monthly habits) --}}
     <section class="mt-16" aria-labelledby="zincirler">
         <p class="font-hand text-xl text-section-ink">1 · alışkanlıklar</p>
