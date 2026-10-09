@@ -18,6 +18,9 @@ Schedule::command('notifications:send weekly')->weeklyOn(1, '18:00')->withoutOve
 Schedule::command('chains:remind')->dailyAt('08:00')->withoutOverlapping();
 Schedule::command('chains:remind --evening')->dailyAt('20:00')->withoutOverlapping();
 
+// The draft review of last month, numbers frozen, with a note to Kadir.
+Schedule::command('reviews:create')->monthlyOn(1, '00:15')->withoutOverlapping();
+
 // The server has no Supervisor: a short-lived worker drains the database queue every minute.
 Schedule::command('queue:work --stop-when-empty --tries=3 --max-time=55')->everyMinute()->withoutOverlapping();
 

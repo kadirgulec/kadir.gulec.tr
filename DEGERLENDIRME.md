@@ -82,7 +82,7 @@ Başlık: **"Her ayın sonunda dürüst bir bakış."** Alt metin: "Ne iyi gitti
 ## 8. Adımlar
 
 - [x] **Adım 1: Model ve rakamlar** (migration'lar, `MonthlyReview`, `ReviewItem`, factory'ler, `MonthlyReviewStats`, testler).
-- [ ] **Adım 2: Otomasyon** (`reviews:create` komutu ve zamanlaması, Kadir'e e-posta, `ReviewSuggestions`, testler).
+- [x] **Adım 2: Otomasyon** (`reviews:create` komutu ve zamanlaması, Kadir'e e-posta, `ReviewSuggestions`, testler).
 - [ ] **Adım 3: Ziyaretçi sayfası** (`/hedefler/aylik`, ay sayfası, sekmeler, rakam kutuları, üç sütun, geçen ayın denemeleri, `/hedefler`'deki kart, demo veri). *Kadir'in onayı beklenir.*
 - [ ] **Adım 4: Admin** (liste, düzenleme ekranı, öneriler, yeniden hesaplama, pano kartı, yedek sayımı).
 - [ ] **Adım 5: Yorum, bildirim, RSS, paylaşım** (yorum bileşeninin genelleşmesi, `notify_monthly_reviews`, duyuru, RSS, OG görseli, sitemap).
@@ -98,3 +98,11 @@ Başlık: **"Her ayın sonunda dürüst bir bakış."** Alt metin: "Ne iyi gitti
 - **Ziyaret:** `COUNT(DISTINCT visitor_hash)`, admin'deki ziyaretçi sayfasıyla aynı sayım. Hash günlük tuzlandığı için aynı kişi her gün yeni ziyaret sayılır; etiket "ziyaret", "ziyaretçi" değil.
 - **En çok okunan yazı:** `/yazilar/{slug}` yolları arasında en çok görüntülenen ve hâlâ yayında olan yazı (`post_id` saklanır, başlık her gösterimde yeniden okunur). Taslağa düşen yazı atlanır.
 - **Snapshot'ın şekli:** `MonthlyReviewStats` sınıfının PHPDoc'unda (`Stats` tipi). Hedefler `goal_id` ile tutulur, başlık hiç saklanmaz.
+
+### Adım 2 (2026-10-09)
+
+- **Komut:** `php artisan reviews:create` geçen ayı, `php artisan reviews:create 2026-09` verilen ayı oluşturur. Ay zaten varsa dokunmaz ve e-posta göndermez. Zamanlama: her ayın 1'i 00:15 (`routes/console.php`).
+- **E-posta ve push:** `MonthlyReviewReady` ("Ekim değerlendirmesi hazır") önerileri de listeler. Push, `ManageGoals` izni olanlara gider. Adres yoksa ya da gönderim hata verirse taslak yine oluşur; admin panosu (adım 4) onu gösterir.
+- **E-postadaki link** şimdilik admin panosuna gidiyor; adım 4'te düzenleme ekranına çevrilecek.
+- **Öneri eşikleri:** Zincir %90 ve üstü tuttuysa "iyi giden", %50'nin altındaysa "zorlandığım". Arası önerilmez. Sayısal hedef "önde" ise iyi, "biraz geride" ise zor. Hiç yazı yoksa zor, iki ve üstü yazı iyi. Tek yazı önerilmez.
+- **Ay adları** `TurkishDate::month()`, `monthYear()`, `inMonth()` ("Kasım'da"). `CarbonImmutable::locale()` PHPStan'da `static|string` döndüğü için Türkçe biçimlendirme hep bu sınıftan geçiyor.
