@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\ContactMessage;
+use App\Models\PageView;
 use Illuminate\Support\Facades\Schedule;
 
 /*
@@ -20,5 +21,5 @@ Schedule::command('chains:remind --evening')->dailyAt('20:00')->withoutOverlappi
 // The server has no Supervisor: a short-lived worker drains the database queue every minute.
 Schedule::command('queue:work --stop-when-empty --tries=3 --max-time=55')->everyMinute()->withoutOverlapping();
 
-// Contact messages older than ContactMessage::KEEP_MONTHS.
-Schedule::command('model:prune', ['--model' => [ContactMessage::class]])->dailyAt('03:00');
+// Contact messages older than ContactMessage::KEEP_MONTHS, page views older than PageView::KEEP_MONTHS.
+Schedule::command('model:prune', ['--model' => [ContactMessage::class, PageView::class]])->dailyAt('03:00');

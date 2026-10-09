@@ -10,5 +10,5 @@ return [
     'city' => 'Düren',
     'address' => env('LEGAL_ADDRESS', "[Sokak ve numara]\n[Posta kodu] Düren\nAlmanya"),
     'email' => env('LEGAL_EMAIL', 'info@kadirguelec.de'),
-    'updated_at' => '2 Ekim 2026',
+    'updated_at' => '9 Ekim 2026',
 ];

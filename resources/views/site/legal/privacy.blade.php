@@ -14,7 +14,7 @@
         @endunless
 
         <div class="prose-notebook mt-10">
-            <p>Bu site kişisel bir defter. Ziyaret etmek için hiçbir bilgi vermen gerekmez. Üye olursan, yorum yazabilmen ve takip ettiklerin hakkında e-posta alabilmen için gereken en az bilgiyi saklarım. Reklam, analitik ya da izleme aracı yok.</p>
+            <p>Bu site kişisel bir defter. Ziyaret etmek için hiçbir bilgi vermen gerekmez. Üye olursan, yorum yazabilmen ve takip ettiklerin hakkında e-posta alabilmen için gereken en az bilgiyi saklarım. Reklam ve izleme aracı yok. Hangi sayfaların okunduğunu sadece çerezsiz ve kimliksiz bir sayımla görürüm (aşağıda).</p>
 
             <h2>Sorumlu</h2>
             <p>{{ config('legal.name') }}, {{ config('legal.city') }}, Almanya · <a href="mailto:{{ config('legal.email') }}">{{ config('legal.email') }}</a>. Ayrıntılar <a href="{{ route('imprint') }}">künyede</a>.</p>
@@ -24,8 +24,12 @@
                 <li>Sunucu, isteği karşılamak için IP adresini ve tarayıcı bilgisini kısa süreli teknik kayıtlarda tutar (en fazla 14 gün), saldırıları ve hataları ayıklamak için.</li>
                 <li>Fontlar, afişler ve bütün görseller bu sunucudan gelir; üçüncü taraf bir sunucuya bağlanmazsın.</li>
                 <li>Açık/koyu tema tercihin sadece tarayıcında (<code>localStorage</code>) durur, bana gönderilmez.</li>
-                <li>Giriş yapmadıkça çerez gerekmez. Giriş yaptığında oturum çerezi ve form güvenliği için bir CSRF çerezi kullanılır; ikisi de zorunlu çerezdir, bu yüzden çerez bandı yok.</li>
+                <li>Site her ziyarette iki zorunlu çerez kullanır: bir oturum çerezi (<code>{{ config('session.cookie') }}</code>) ve formları sahte isteklere karşı koruyan bir CSRF çerezi (<code>XSRF-TOKEN</code>). İkisi de {{ config('session.lifetime') }} dakika hareketsizlikten sonra geçersiz olur. Oturumun kendisi sunucuda durur; oturum kaydında IP adresin ve tarayıcı bilgin de bulunur ve oturumun süresi dolunca silinir. Giriş yaparken "Beni hatırla"yı seçersen, her seferinde şifre sorulmasın diye bir hatırlama çerezi daha eklenir. Bu çerezlerin hepsi sitenin çalışması için gerekli (TDDDG md. 25/2), takip için kullanılmaz; bu yüzden çerez bandı yok.</li>
             </ul>
+
+            <h2>Ziyaret istatistikleri</h2>
+            <p>Hangi yazıların okunduğunu ve ziyaretçilerin nereden geldiğini görmek için sayfa görüntülemelerini kendi sunucumda sayarım. Bunun için çerez, JavaScript ya da üçüncü taraf bir hizmet kullanılmaz, tarayıcına hiçbir şey kaydedilmez. Her görüntülemede şunlar saklanır: açılan sayfanın adresi, seni bir bağlantıyla gönderen sitenin sadece alan adı (ör. <code>google.com</code>, arama terimleri olmadan), kaba tarayıcı, işletim sistemi ve cihaz türü (ör. "Firefox, Linux, masaüstü") ve zaman.</p>
+            <p>Aynı kişiyi bir gün içinde iki kez saymamak için IP adresinden ve tarayıcı bilgisinden, her gün yenilenen rastgele bir anahtarla geri çevrilemez bir özet üretilir. IP adresi saklanmaz. Anahtar ertesi gün silindiği için bu özetler sana ya da önceki günlere bağlanamaz. Tarayıcın "Do Not Track" ya da "Global Privacy Control" sinyali gönderiyorsa hiç sayılmazsın. Kayıtlar {{ \App\Models\PageView::KEEP_MONTHS }} ay sonra kendiliğinden silinir. Hukuki dayanak: GVO md. 6/1 (f), hangi içeriklerin okunduğunu anlayıp siteyi ona göre geliştirmek.</p>
 
             <h2>İletişim formunu kullandığında</h2>
             <p>Yazdığın ad, e-posta adresi ve mesaj bu sitenin veritabanına kaydedilir ve bana e-posta olarak da gönderilir. Mesajı sadece ben okurum; cevap verebilmek ve konuşmamızın kaydı için tutarım. Sitedeki kayıt en geç 12 ay sonra kendiliğinden silinir, istersen daha önce de silerim. Mesajla birlikte IP adresin ya da hesabın saklanmaz; kötüye kullanımı önlemek için IP adresinden üretilen geri çevrilemez bir özetle en fazla bir gün süren bir sayaç tutulur. Hukuki dayanak: GVO md. 6/1 (f), mesajına cevap verebilmem.</p>
@@ -46,7 +50,7 @@
             </ul>
 
             <h2>Ne kadar saklıyorum?</h2>
-            <p>Hesabın, sen silene kadar. İletişim formu mesajların en fazla 12 ay. Hesabını silince ad, e-posta, takiplerin ve tercihlerin silinir; yorumların konuşmalar bozulmasın diye "silinmiş üye" adıyla, sana bağlanamayacak şekilde kalır. Teknik kayıtlar en fazla 14 gün tutulur.</p>
+            <p>Hesabın, sen silene kadar. İletişim formu mesajların en fazla 12 ay. Ziyaret istatistikleri {{ \App\Models\PageView::KEEP_MONTHS }} ay. Hesabını silince ad, e-posta, takiplerin ve tercihlerin silinir; yorumların konuşmalar bozulmasın diye "silinmiş üye" adıyla, sana bağlanamayacak şekilde kalır. Teknik kayıtlar en fazla 14 gün tutulur.</p>
 
             <h2>Hakların</h2>
             <p>Verilerine erişme, düzeltme, silme, işlenmesini kısıtlama ve itiraz etme hakkın var. Çoğunu kendin yapabilirsin: <a href="{{ route('profile.edit') }}">hesabım</a> sayfasından adını ve e-postanı değiştirir, verilerini JSON olarak indirir ya da hesabını silebilirsin. Geri kalanı için bana yaz. Ayrıca bir veri koruma denetim makamına şikâyet edebilirsin (Kuzey Ren-Vestfalya için: Landesbeauftragte für Datenschutz und Informationsfreiheit NRW).</p>

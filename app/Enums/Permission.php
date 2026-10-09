@@ -19,6 +19,7 @@ enum Permission: string
     case ManageRoles = 'roles.manage';
     case ManageBackups = 'backups.manage';
     case ReadMessages = 'messages.read';
+    case ViewAnalytics = 'analytics.view';
     case CreateComments = 'comments.create';
     case ModerateComments = 'comments.moderate';
     case Follow = 'follows.create';
@@ -37,6 +38,7 @@ enum Permission: string
             self::ManageRoles => 'Rolleri yönetir',
             self::ManageBackups => 'Yedek alır ve geri yükler',
             self::ReadMessages => 'İletişim formu mesajlarını okur',
+            self::ViewAnalytics => 'Ziyaretçi istatistiklerini görür',
             self::CreateComments => 'Yorum yazabilir',
             self::ModerateComments => 'Yorumları onaylar ve siler',
             self::Follow => 'İçerik takip edebilir',
@@ -50,7 +52,7 @@ enum Permission: string
     public function group(): string
     {
         return match ($this) {
-            self::AccessAdmin, self::ManageBackups, self::ReadMessages => 'Admin',
+            self::AccessAdmin, self::ManageBackups, self::ReadMessages, self::ViewAnalytics => 'Admin',
             self::ManagePosts, self::ManageNotes, self::ManageWatched, self::ManageGoals, self::ManageProjects => 'İçerik',
             self::ManageUsers, self::ManageRoles => 'Üyeler',
             self::CreateComments, self::ModerateComments => 'Yorumlar',
