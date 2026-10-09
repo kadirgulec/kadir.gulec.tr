@@ -17,29 +17,33 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\WatchedController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', HomeController::class)->name('home');
-Route::get('yazilar', [PostsController::class, 'index'])->name('posts.index');
 Route::get('yazilar/rss', [FeedController::class, 'posts'])->name('posts.feed');
-Route::get('yazilar/{slug}', [PostsController::class, 'show'])->name('posts.show');
-Route::get('ogrendiklerim', [NotesController::class, 'index'])->name('notes.index');
 Route::get('ogrendiklerim/rss', [FeedController::class, 'notes'])->name('notes.feed');
-Route::get('ogrendiklerim/{id}', [NotesController::class, 'show'])->whereNumber('id')->name('notes.show');
-Route::get('izlediklerim', [WatchedController::class, 'index'])->name('watched.index');
-Route::get('izlediklerim/{type}/{slug}', [WatchedController::class, 'show'])
-    ->whereIn('type', ['film', 'dizi'])
-    ->name('watched.show');
-Route::get('hedefler', [GoalsController::class, 'index'])->name('goals.index');
-Route::get('hedefler/zincir/{slug}', [GoalsController::class, 'chain'])->name('goals.chain');
-Route::get('hedefler/{slug}', [GoalsController::class, 'show'])->name('goals.show');
-Route::get('projeler', [ProjectsController::class, 'index'])->name('projects.index');
-Route::get('projeler/{slug}', [ProjectsController::class, 'show'])->name('projects.show');
-Route::get('hakkimda', AboutController::class)->name('about');
-Route::view('gizlilik', 'site.legal.privacy')->name('privacy');
 Route::get('sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 Route::get('manifest.webmanifest', ManifestController::class)->name('manifest');
 Route::get('og/{kind}/{key}.png', OgImageController::class)->where('key', '[a-z0-9-]+')->name('og');
-Route::view('kunye', 'site.legal.imprint')->name('imprint');
+
+// The pages people read are counted for the visit statistics (RecordPageView).
+Route::middleware('page-view')->group(function () {
+    Route::get('/', HomeController::class)->name('home');
+    Route::get('yazilar', [PostsController::class, 'index'])->name('posts.index');
+    Route::get('yazilar/{slug}', [PostsController::class, 'show'])->name('posts.show');
+    Route::get('ogrendiklerim', [NotesController::class, 'index'])->name('notes.index');
+    Route::get('ogrendiklerim/{id}', [NotesController::class, 'show'])->whereNumber('id')->name('notes.show');
+    Route::get('izlediklerim', [WatchedController::class, 'index'])->name('watched.index');
+    Route::get('izlediklerim/{type}/{slug}', [WatchedController::class, 'show'])
+        ->whereIn('type', ['film', 'dizi'])
+        ->name('watched.show');
+    Route::get('hedefler', [GoalsController::class, 'index'])->name('goals.index');
+    Route::get('hedefler/zincir/{slug}', [GoalsController::class, 'chain'])->name('goals.chain');
+    Route::get('hedefler/{slug}', [GoalsController::class, 'show'])->name('goals.show');
+    Route::get('projeler', [ProjectsController::class, 'index'])->name('projects.index');
+    Route::get('projeler/{slug}', [ProjectsController::class, 'show'])->name('projects.show');
+    Route::get('hakkimda', AboutController::class)->name('about');
+    Route::view('gizlilik', 'site.legal.privacy')->name('privacy');
+    Route::view('kunye', 'site.legal.imprint')->name('imprint');
+});
 
 if (! app()->isProduction()) {
     Route::view('stil', 'site.styleguide', ['section' => Section::Home])->name('styleguide');
@@ -90,6 +94,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     });
 
     Route::livewire('mesajlar', 'pages::admin.messages.index')->middleware('can:'.Permission::ReadMessages->value)->name('messages.index');
+
+    Route::livewire('ziyaretciler', 'pages::admin.visitors')->middleware('can:'.Permission::ViewAnalytics->value)->name('visitors.index');
 
     Route::livewire('yorumlar', 'pages::admin.comments.index')->middleware('can:'.Permission::ModerateComments->value)->name('comments.index');
 

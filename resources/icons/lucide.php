@@ -15,6 +15,7 @@ return [
     'bold' => '<path d="M6 12h9a4 4 0 0 1 0 8H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h7a4 4 0 0 1 0 8"/>',
     'book-open-text' => '<path d="M12 5v16"/> <path d="M16 13h2"/> <path d="M16 9h2"/> <path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/> <path d="M6 13h2"/> <path d="M6 9h2"/>',
     'calendar' => '<path d="M8 2v3"/> <path d="M16 2v3"/> <rect x="3" y="3" width="18" height="18" rx="2"/> <path d="M3 9h18"/>',
+    'chart-column' => '<path d="M3 3v16a2 2 0 0 0 2 2h16"/> <path d="M18 17V9"/> <path d="M13 17V5"/> <path d="M8 17v-3"/>',
     'check' => '<path d="M20 6 9 17l-5-5"/>',
     'chevron-down' => '<path d="m6 9 6 6 6-6"/>',
     'chevron-left' => '<path d="m15 18-6-6 6-6"/>',

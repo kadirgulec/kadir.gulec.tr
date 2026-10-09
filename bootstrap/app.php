@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAdminAccess;
+use App\Http\Middleware\RecordPageView;
 use App\Models\Redirect;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => EnsureAdminAccess::class,
+            'page-view' => RecordPageView::class,
         ]);
 
         // Mail clients post one-click unsubscribes without a CSRF token (RFC 8058);
