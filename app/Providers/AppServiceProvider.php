@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Livewire;
@@ -39,10 +40,23 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureUrls();
         $this->configureAuthorization();
         $this->configureMorphMap();
 
         Announcements::register();
+    }
+
+    /**
+     * In production every generated address (links, canonical, sitemap) starts
+     * with APP_URL, whatever path reached the app: /index.php/yazilar is the
+     * same page as /yazilar and must not announce itself as another one.
+     */
+    protected function configureUrls(): void
+    {
+        if ($this->app->isProduction() && filled(config('app.url'))) {
+            URL::forceRootUrl(config('app.url'));
+        }
     }
 
     /**

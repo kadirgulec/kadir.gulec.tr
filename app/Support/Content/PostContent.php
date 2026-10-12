@@ -14,7 +14,7 @@ use Illuminate\Support\HtmlString;
  * Posts in the shape the site views expect.
  *
  * @phpstan-type PostData array{
- *     id: int, slug: string, title: string, excerpt: string, publishedAt: \Carbon\CarbonImmutable,
+ *     id: int, slug: string, title: string, excerpt: string, publishedAt: \Carbon\CarbonImmutable, updatedAt: \Carbon\CarbonImmutable,
  *     readingMinutes: int, tags: list<string>, tagSlugs: list<string>, isFeatured: bool, isDraft: bool,
  *     bodyHtml: HtmlString, url: string, metaDescription: string, ogImage: string
  * }
@@ -144,13 +144,16 @@ class PostContent
     public function toArray(Post $post): array
     {
         $excerpt = $post->excerptText();
+        $publishedAt = $post->published_at ?? now();
 
         return [
             'id' => $post->id,
             'slug' => $post->slug,
             'title' => $post->title,
             'excerpt' => $excerpt,
-            'publishedAt' => $post->published_at ?? now(),
+            'publishedAt' => $publishedAt,
+            // A scheduled post is saved before it goes live: never "changed" before it was published.
+            'updatedAt' => ($post->updated_at ?? $publishedAt)->max($publishedAt),
             'readingMinutes' => $post->reading_minutes,
             'tags' => array_values($post->tags->map(fn (Tag $tag): string => $tag->name)->all()),
             'tagSlugs' => array_values($post->tags->map(fn (Tag $tag): string => $tag->slug)->all()),

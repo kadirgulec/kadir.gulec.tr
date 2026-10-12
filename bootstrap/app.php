@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureAdminAccess;
 use App\Http\Middleware\RecordPageView;
+use App\Http\Middleware\StrictTransportSecurity;
 use App\Models\Redirect;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -20,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureAdminAccess::class,
             'page-view' => RecordPageView::class,
         ]);
+
+        $middleware->append(StrictTransportSecurity::class);
 
         // Mail clients post one-click unsubscribes without a CSRF token (RFC 8058);
         // the signed URL protects these routes instead.

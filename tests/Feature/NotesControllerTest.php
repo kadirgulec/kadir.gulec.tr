@@ -54,6 +54,19 @@ describe('board', function () {
             ->assertSeeText('En eski not.')
             ->assertSeeText('sayfa 2 / 2');
     });
+
+    it('gives a later page its own address and has no page past the last one', function () {
+        Note::factory()->count(NoteContent::PER_PAGE + 1)->create();
+
+        $this->get(route('notes.index'))
+            ->assertSee('<link rel="canonical" href="'.route('notes.index').'" />', false);
+
+        $this->get(route('notes.index', ['sayfa' => 2]))
+            ->assertSee('<link rel="canonical" href="'.route('notes.index', ['sayfa' => 2]).'" />', false)
+            ->assertSee('<title>Öğrendiklerim · sayfa 2 · Kadir Gülec</title>', false);
+
+        $this->get(route('notes.index', ['sayfa' => 3]))->assertNotFound();
+    });
 });
 
 describe('note page', function () {
@@ -67,6 +80,7 @@ describe('note page', function () {
         $this->get(route('notes.show', $note->id))
             ->assertOk()
             ->assertSee('<title>Bu not. · Kadir Gülec</title>', false)
+            ->assertSee('<h1 class="sr-only">Bu not.</h1>', false)
             ->assertSeeText('Daha eski not.')
             ->assertSeeText('Daha yeni not.')
             ->assertSeeText('#laravel etiketli başka notlar')

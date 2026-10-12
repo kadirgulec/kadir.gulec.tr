@@ -58,4 +58,20 @@ return [
             'isTurningPoint' => false,
         ],
     ],
+
+    /*
+     * Who writes the notebook, for search engines (App\Support\Seo\StructuredData):
+     * the Person every page and post points at. "same_as" are Kadir's other
+     * profiles, so the CV site and GitHub are tied to the same person.
+     */
+    'person' => [
+        'name' => 'Kadir Gülec',
+        'job_title' => 'Yazılım geliştirici',
+        'works_for' => 'aks-Service GmbH',
+        'home' => 'Düren',
+        'same_as' => [
+            'https://kadir.guelec.eu',
+            'https://github.com/kadirgulec',
+        ],
+    ],
 ];

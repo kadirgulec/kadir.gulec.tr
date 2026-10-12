@@ -959,6 +959,8 @@ html.lamp-off::view-transition-old(root) {
         display: block;
         max-height: 32rem;
         width: auto;
+        /* The width/height attributes only reserve the space; the image keeps its proportions. */
+        height: auto;
         max-width: 100%;
     }
 

@@ -4,6 +4,14 @@
     <a href="{{ route('notes.index') }}" class="font-hand text-xl text-ink-soft hover:text-section-ink">← Öğrendiklerim</a>
 
     <div class="mx-auto mt-14 max-w-xl">
+        {{--
+            Notes have no title by design; the post-it's opening words are the
+            page heading, for search engines and screen readers. The body can
+            hold paragraphs and lists, which may not sit inside an h1, so the
+            heading stays invisible.
+        --}}
+        <h1 class="sr-only">{{ $title }}</h1>
+
         <x-site.post-it :note="$note" size="lg" :linked="false" />
 
         <div class="mt-6 flex justify-end">

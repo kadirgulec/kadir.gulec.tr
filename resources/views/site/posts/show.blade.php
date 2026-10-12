@@ -1,12 +1,12 @@
 @use('App\Enums\Section')
 
-<x-layouts::site :section="Section::Posts" :title="$post['title']" :draft="$post['isDraft']" :description="$post['metaDescription']" :og-image="$post['ogImage']" og-type="article">
+<x-layouts::site :section="Section::Posts" :title="$post['title']" :draft="$post['isDraft']" :description="$post['metaDescription']" :og-image="$post['ogImage']" og-type="article" :published-at="$post['publishedAt']" :modified-at="$post['updatedAt']" :structured-data="[\App\Support\Seo\StructuredData::blogPosting($post)]">
     <article>
         <a href="{{ route('posts.index') }}" class="font-hand text-xl text-ink-soft hover:text-section-ink">← Yazılar</a>
 
         <header class="mt-8 max-w-3xl">
             <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">
-                {{ $post['publishedAt']->locale('tr')->translatedFormat('j F Y') }} · {{ $post['readingMinutes'] }} dk okuma
+                <time datetime="{{ $post['publishedAt']->toAtomString() }}">{{ $post['publishedAt']->locale('tr')->translatedFormat('j F Y') }}</time> · {{ $post['readingMinutes'] }} dk okuma
             </p>
 
             <h1 class="mt-3 font-display text-4xl leading-[1.08] font-extrabold tracking-tight text-balance sm:text-5xl">{{ $post['title'] }}</h1>

@@ -3,6 +3,7 @@
 namespace App\Support\Markdown;
 
 use App\Support\Images\ImageStore;
+use Illuminate\Support\Facades\Storage;
 use League\CommonMark\Extension\CommonMark\Node\Inline\Image;
 use League\CommonMark\Node\Block\Paragraph;
 use League\CommonMark\Node\Inline\Text;
@@ -42,15 +43,34 @@ final class PolaroidRenderer implements NodeRendererInterface
         $alt = htmlspecialchars($this->altText($image), ENT_QUOTES);
         $caption = trim((string) $image->getTitle());
         $srcset = '';
+        $size = '';
 
-        if (preg_match('#^/storage/(.+)-(?:480|960|1600)\.webp$#', $url, $match)) {
-            $srcset = ' srcset="'.htmlspecialchars((string) ImageStore::srcset($match[1]), ENT_QUOTES).'" sizes="(min-width: 48rem) 40rem, 100vw"';
+        if (preg_match('#^/storage/((.+)-(?:480|960|1600)\.webp)$#', $url, $match)) {
+            $srcset = ' srcset="'.htmlspecialchars((string) ImageStore::srcset($match[2]), ENT_QUOTES).'" sizes="(min-width: 48rem) 40rem, 100vw"';
+            $size = $this->sizeAttributes($match[1]);
         }
 
         return '<figure class="polaroid">'
-            .'<img src="'.htmlspecialchars($url, ENT_QUOTES).'"'.$srcset.' alt="'.$alt.'" loading="lazy">'
+            .'<img src="'.htmlspecialchars($url, ENT_QUOTES).'"'.$srcset.$size.' alt="'.$alt.'" loading="lazy">'
             .($caption !== '' ? '<figcaption>'.htmlspecialchars($caption, ENT_QUOTES).'</figcaption>' : '')
             .'</figure>';
+    }
+
+    /**
+     * width and height of a stored image, so the browser keeps its space
+     * before it loads and the text below does not jump (layout shift).
+     */
+    private function sizeAttributes(string $file): string
+    {
+        $disk = Storage::disk('public');
+
+        if (str_contains($file, '..') || ! $disk->exists($file)) {
+            return '';
+        }
+
+        $size = getimagesize($disk->path($file));
+
+        return $size ? ' width="'.$size[0].'" height="'.$size[1].'"' : '';
     }
 
     private function onlyImage(Paragraph $paragraph): ?Image
