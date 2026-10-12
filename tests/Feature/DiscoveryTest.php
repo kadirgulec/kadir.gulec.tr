@@ -9,8 +9,21 @@ use App\Models\ReviewItem;
 use App\Models\Tag;
 use App\Models\Watchable;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Testing\TestResponse;
 
 beforeEach(fn () => Storage::fake('public'));
+
+/**
+ * The page's JSON-LD nodes by their type.
+ *
+ * @return array<string, array<string, mixed>>
+ */
+function structuredData(TestResponse $response): array
+{
+    preg_match('#<script type="application/ld\+json">(.+?)</script>#s', $response->getContent(), $match);
+
+    return collect(json_decode($match[1] ?? '{}', true)['@graph'] ?? [])->keyBy('@type')->all();
+}
 
 describe('meta tags', function () {
     it('describes a post and points at its preview image', function () {
@@ -140,7 +153,8 @@ describe('monthly reviews', function () {
 
         $xml = $this->get(route('sitemap'))->assertOk()->getContent();
 
-        expect($xml)->toContain(route('goals.reviews.show', '2026-09'))->not->toContain('2026-08');
+        expect($xml)->toContain(route('goals.reviews.show', '2026-09'))->not->toContain('2026-08')
+            ->toContain('<loc>'.route('goals.reviews.index').'</loc>');
     });
 });
 
@@ -148,8 +162,7 @@ describe('sitemap and robots', function () {
     it('lists only what any visitor may read', function () {
         $post = Post::factory()->create();
         $draft = Post::factory()->draft()->create();
-        $chain = Goal::factory()->chain()->create();
-        $censored = Goal::factory()->chain()->censored()->create();
+        $goal = Goal::factory()->longTerm()->create();
         $hidden = Goal::factory()->longTerm()->hidden()->create();
         $note = Note::factory()->create();
         $draftNote = Note::factory()->draft()->create();
@@ -158,12 +171,35 @@ describe('sitemap and robots', function () {
 
         expect(simplexml_load_string($xml))->not->toBeFalse()
             ->and($xml)->toContain(route('posts.show', $post->slug))
-            ->toContain(route('goals.chain', $chain->slug))
+            ->toContain(route('goals.show', $goal->slug))
             ->not->toContain($draft->slug)
-            ->not->toContain($censored->slug)
             ->not->toContain($hidden->slug)
             ->toContain('<loc>'.route('notes.show', $note->id).'</loc>')
             ->not->toContain('<loc>'.route('notes.show', $draftNote->id).'</loc>');
+    });
+
+    it('leaves out the noindex pages: chains and the legal pages', function () {
+        $chain = Goal::factory()->chain()->create();
+
+        $xml = $this->get(route('sitemap'))->getContent();
+
+        expect($xml)->not->toContain($chain->slug)
+            ->not->toContain(route('privacy'))
+            ->not->toContain(route('imprint'));
+    });
+
+    it('dates a section by its newest entry', function () {
+        Post::factory()->create(['updated_at' => '2026-09-01 10:00:00']);
+        Post::factory()->create(['updated_at' => '2026-09-20 10:00:00']);
+
+        $lastmod = [];
+        foreach (simplexml_load_string($this->get(route('sitemap'))->getContent())->url as $url) {
+            $lastmod[(string) $url->loc] = (string) $url->lastmod;
+        }
+
+        expect($lastmod[route('posts.index')])->toStartWith('2026-09-20')
+            ->and($lastmod[route('home')])->toStartWith('2026-09-20')
+            ->and($lastmod[route('about')])->toBe('');
     });
 
     it('keeps crawlers out of the admin and account pages', function () {
@@ -171,5 +207,63 @@ describe('sitemap and robots', function () {
             ->assertSeeText('Disallow: /admin')
             ->assertSeeText('Disallow: /hesap')
             ->assertSeeText('Sitemap: '.route('sitemap'));
+    });
+});
+
+describe('structured data', function () {
+    it('describes a post as a blog post by Kadir, with its dates and the way back to the list', function () {
+        $post = Post::factory()->create(['title' => 'Bir yazı', 'published_at' => '2026-09-01 10:00:00', 'updated_at' => '2026-09-05 12:00:00']);
+
+        $response = $this->get(route('posts.show', $post->slug))
+            ->assertSee('<time datetime="2026-09-01T10:00:00+02:00">', false)
+            ->assertSee('<meta property="article:published_time" content="2026-09-01T10:00:00+02:00" />', false)
+            ->assertSee('<meta property="article:modified_time" content="2026-09-05T12:00:00+02:00" />', false);
+        $data = structuredData($response);
+
+        expect($data['BlogPosting'])->toMatchArray([
+            'headline' => 'Bir yazı',
+            'datePublished' => '2026-09-01T10:00:00+02:00',
+            'dateModified' => '2026-09-05T12:00:00+02:00',
+            'author' => ['@id' => $data['Person']['@id']],
+        ])
+            ->and($data['Person']['sameAs'])->toContain('https://github.com/kadirgulec')
+            ->and(array_column($data['BreadcrumbList']['itemListElement'], 'name'))->toBe(['Ana Sayfa', 'Yazılar', 'Bir yazı']);
+    });
+
+    it('turns a rated film into a review out of 10, and an unrated one into none', function () {
+        $film = Watchable::factory()->create(['title' => 'Arrival', 'rating' => 9.5]);
+        $series = Watchable::factory()->series()->create();
+
+        $review = structuredData($this->get(url($film->publicPath())))['Review'];
+
+        expect($review['itemReviewed'])->toMatchArray(['@type' => 'Movie', 'name' => 'Arrival'])
+            ->and($review['reviewRating'])->toMatchArray(['ratingValue' => 9.5, 'bestRating' => 10])
+            ->and(structuredData($this->get(url($series->publicPath()))))->not->toHaveKey('Review');
+    });
+
+    it('makes the about page the author profile', function () {
+        expect(structuredData($this->get(route('about')))['ProfilePage']['mainEntity'])->toHaveKey('@id');
+    });
+
+    it('keeps noindex pages out of search results without describing them', function () {
+        $chain = Goal::factory()->chain()->create();
+
+        foreach ([route('goals.chain', $chain->slug), route('privacy'), route('imprint')] as $url) {
+            $this->get($url)->assertOk()
+                ->assertSee('<meta name="robots" content="noindex, nofollow" />', false)
+                ->assertDontSee('application/ld+json', false);
+        }
+    });
+});
+
+describe('HSTS', function () {
+    it('asks browsers to stay on HTTPS in production', function () {
+        app()->instance('env', 'production');
+
+        $this->get('https://localhost/hakkimda')->assertHeader('Strict-Transport-Security', 'max-age=31536000');
+    });
+
+    it('leaves local development alone', function () {
+        $this->get(route('about'))->assertHeaderMissing('Strict-Transport-Security');
     });
 });

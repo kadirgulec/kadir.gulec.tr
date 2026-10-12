@@ -22,7 +22,8 @@
     ];
 @endphp
 
-<x-layouts::site :section="Section::Goals" :title="$chain['title'] ?? 'Sansürlü zincir'" :description="($chain['title'] ?? 'Sansürlü bir zincir').': '.$chain['cadence'].', '.$stats['streak'].' '.$period->adjective().' seri, en uzun '.$stats['bestStreak'].' '.$period->unit().'.'" :og-image="\App\Support\Og\OgUrl::for('goal', $chain['slug'], now()->startOfDay())">
+{{-- A calendar of marks with little text: kept out of search results (noindex) and the sitemap. --}}
+<x-layouts::site noindex :section="Section::Goals" :title="$chain['title'] ?? 'Sansürlü zincir'" :description="($chain['title'] ?? 'Sansürlü bir zincir').': '.$chain['cadence'].', '.$stats['streak'].' '.$period->adjective().' seri, en uzun '.$stats['bestStreak'].' '.$period->unit().'.'" :og-image="\App\Support\Og\OgUrl::for('goal', $chain['slug'], now()->startOfDay())">
     <a href="{{ route('goals.index') }}" class="font-hand text-xl text-ink-soft hover:text-section-ink">← Hedefler</a>
 
     <p class="mt-8 font-mono text-xs tracking-widest text-ink-faint uppercase">zincir · {{ $chain['cadence'] }} · {{ $lastDay->year }}</p>

@@ -4,7 +4,8 @@
     Privacy notice (Datenschutzerklärung) in Turkish. A DRAFT written by
     Claude: Kadir checks it with a generator or a lawyer before going live.
 --}}
-<x-layouts::site :section="Section::Home" title="Gizlilik">
+{{-- Not for search results (noindex); the footer links it on every page. --}}
+<x-layouts::site :section="Section::Home" title="Gizlilik" description="kadir.gulec.tr'nin gizlilik notu: hangi bilgilerin neden saklandığı, çerezsiz ziyaret sayımı ve hakların." noindex>
     <article class="max-w-2xl">
         <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">gizlilik · son güncelleme {{ config('legal.updated_at') }}</p>
         <h1 class="mt-3 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">Gizlilik notu</h1>

@@ -23,8 +23,16 @@ class NotesController extends Controller
 
         abort_if($activeTag !== null && ! $tags->contains('slug', $activeTag), 404);
 
+        $notes = $this->notes->board($activeTag);
+        $page = $notes->currentPage();
+
+        // Past the last page there is nothing to show: a real 404, not an empty board.
+        abort_if($page > 1 && $page > $notes->lastPage(), 404);
+
         return view('site.notes.index', [
-            'notes' => $this->notes->board($activeTag),
+            'notes' => $notes,
+            // A later page holds other notes than the first: it is its own address.
+            'canonical' => $page > 1 ? route('notes.index', array_filter(['etiket' => $activeTag, 'sayfa' => $page])) : null,
             'noteCount' => $tags->sum('count'),
             'tags' => $tags->all(),
             'activeTag' => $tags->firstWhere('slug', $activeTag),

@@ -11,28 +11,55 @@ use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
 use App\Models\Watchable;
+use Carbon\CarbonInterface;
 use Illuminate\Http\Response;
 
 /**
  * sitemap.xml and robots.txt. The sitemap lists only what any visitor can
- * read: published content and public goals (never censored or hidden ones).
+ * read and search engines should find: published content and public long-term
+ * goals (never censored or hidden ones). Chains and the legal pages are
+ * noindex, so they stay out. A section's lastmod is its newest entry's.
  */
 class SitemapController extends Controller
 {
     public function sitemap(): Response
     {
-        $urls = collect(Section::cases())->map(fn (Section $section): array => ['loc' => $section->url(), 'lastmod' => null]);
+        $entries = [
+            Section::Posts->value => Post::query()->published()->get(['slug', 'updated_at'])->map(fn (Post $post): array => $this->entry($post->publicPath(), $post->updated_at)),
+            Section::Notes->value => Note::query()->published()->get(['id', 'updated_at'])->map(fn (Note $note): array => $this->entry($note->publicPath(), $note->updated_at)),
+            Section::Watched->value => Watchable::query()->published()->get(['type', 'slug', 'updated_at'])->map(fn (Watchable $watchable): array => $this->entry($watchable->publicPath(), $watchable->updated_at)),
+            Section::Goals->value => Goal::query()->where('visibility', GoalVisibility::Public)->where('kind', GoalKind::LongTerm)->get(['kind', 'slug', 'updated_at'])->map(fn (Goal $goal): array => $this->entry($goal->publicPath(), $goal->updated_at)),
+            Section::Projects->value => Project::query()->published()->get(['slug', 'updated_at'])->map(fn (Project $project): array => $this->entry($project->publicPath(), $project->updated_at)),
+        ];
 
-        $urls = $urls->merge(Post::query()->published()->get(['slug', 'updated_at'])->map(fn (Post $post): array => ['loc' => url($post->publicPath()), 'lastmod' => $post->updated_at]))
-            ->merge(Note::query()->published()->get(['id', 'updated_at'])->map(fn (Note $note): array => ['loc' => url($note->publicPath()), 'lastmod' => $note->updated_at]))
-            ->merge(Project::query()->published()->get(['slug', 'updated_at'])->map(fn (Project $project): array => ['loc' => url($project->publicPath()), 'lastmod' => $project->updated_at]))
-            ->merge(Watchable::query()->published()->get(['type', 'slug', 'updated_at'])->map(fn (Watchable $watchable): array => ['loc' => url($watchable->publicPath()), 'lastmod' => $watchable->updated_at]))
-            ->merge(Goal::query()->where('visibility', GoalVisibility::Public)->whereIn('kind', [GoalKind::Chain, GoalKind::LongTerm])->get(['kind', 'slug', 'updated_at'])->map(fn (Goal $goal): array => ['loc' => url($goal->publicPath()), 'lastmod' => $goal->updated_at]))
-            ->merge(MonthlyReview::query()->published()->get(['month', 'updated_at'])->map(fn (MonthlyReview $review): array => ['loc' => url($review->publicPath()), 'lastmod' => $review->updated_at]))
-            ->push(['loc' => route('privacy'), 'lastmod' => null])
-            ->push(['loc' => route('imprint'), 'lastmod' => null]);
+        $reviews = MonthlyReview::query()->published()->get(['month', 'updated_at'])->map(fn (MonthlyReview $review): array => $this->entry($review->publicPath(), $review->updated_at));
 
-        return response()->view('feeds.sitemap', ['urls' => $urls])->header('Content-Type', 'application/xml; charset=UTF-8');
+        if ($reviews->isNotEmpty()) {
+            $entries[Section::Goals->value] = $entries[Section::Goals->value]->toBase()
+                ->push($this->entry(route('goals.reviews.index', absolute: false), $reviews->max('lastmod')))
+                ->merge($reviews);
+        }
+
+        $everything = collect($entries)->flatten(1);
+
+        $sections = collect(Section::cases())->map(fn (Section $section): array => [
+            'loc' => $section->url(),
+            'lastmod' => match ($section) {
+                Section::Home => $everything->max('lastmod'),
+                Section::About => null,
+                default => $entries[$section->value]->max('lastmod'),
+            },
+        ]);
+
+        return response()->view('feeds.sitemap', ['urls' => $sections->merge($everything)])->header('Content-Type', 'application/xml; charset=UTF-8');
+    }
+
+    /**
+     * @return array{loc: string, lastmod: ?CarbonInterface}
+     */
+    private function entry(string $path, ?CarbonInterface $lastmod): array
+    {
+        return ['loc' => url($path), 'lastmod' => $lastmod];
     }
 
     public function robots(): Response

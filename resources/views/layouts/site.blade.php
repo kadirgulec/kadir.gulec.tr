@@ -7,12 +7,21 @@
     'description' => null,
     'ogImage' => null,
     'ogType' => 'website',
+    'canonical' => null,
+    'publishedAt' => null,
+    'modifiedAt' => null,
+    'structuredData' => [],
 ])
 
 @php
-    $metaDescription = \Illuminate\Support\Str::limit(trim((string) ($description ?? "Kadir Gülec'in dijital defteri: yazılar, izledikleri, hedefleri ve projeleri.")), 200, '…', preserveWords: true);
-    $pageTitle = filled($title) ? $title.' · Kadir Gülec' : 'Kadir Gülec';
+    $metaDescription = \Illuminate\Support\Str::limit(trim((string) ($description ?? "Düren'de yazılım geliştirici Kadir Gülec'in dijital defteri: Laravel ve kariyer üzerine yazılar, öğrendiği küçük şeyler, izledikleri, hedefleri ve projeleri.")), 200, '…', preserveWords: true);
+    $pageTitle = filled($title) ? $title.' · Kadir Gülec' : "Kadir Gülec · Düren'de bir yazılımcının dijital defteri";
+    $ogTitle = $title ?? 'Kadir Gülec';
     $ogImage ??= \App\Support\Og\OgUrl::for('page', $section->value);
+    // Without the query string, so ?etiket=… and tracking parameters point at the plain page.
+    // A later page of a list is more than a filter: it passes its own address.
+    $canonical ??= url()->current();
+    $isIndexed = ! $draft && ! $noindex;
 @endphp
 
 <!DOCTYPE html>
@@ -23,17 +32,25 @@
 
         <title>{{ $pageTitle }}</title>
         <meta name="description" content="{{ $metaDescription }}" />
-        <link rel="canonical" href="{{ url()->current() }}" />
+        <link rel="canonical" href="{{ $canonical }}" />
         <meta property="og:site_name" content="kadir.gulec.tr" />
         <meta property="og:locale" content="tr_TR" />
         <meta property="og:type" content="{{ $ogType }}" />
-        <meta property="og:title" content="{{ $title ?? 'Kadir Gülec' }}" />
+        <meta property="og:title" content="{{ $ogTitle }}" />
         <meta property="og:description" content="{{ $metaDescription }}" />
-        <meta property="og:url" content="{{ url()->current() }}" />
+        <meta property="og:url" content="{{ $canonical }}" />
         <meta property="og:image" content="{{ $ogImage }}" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="{{ $ogTitle }} · kadir.gulec.tr" />
+        @if ($publishedAt)
+            <meta property="article:published_time" content="{{ $publishedAt->toAtomString() }}" />
+        @endif
+        @if ($modifiedAt)
+            <meta property="article:modified_time" content="{{ $modifiedAt->toAtomString() }}" />
+        @endif
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image:alt" content="{{ $ogTitle }} · kadir.gulec.tr" />
         @if (Route::has('posts.feed'))
             <link rel="alternate" type="application/atom+xml" title="Kadir Gülec · Yazılar" href="{{ route('posts.feed') }}" />
         @endif
@@ -43,7 +60,10 @@
         @if (Route::has('goals.reviews.feed'))
             <link rel="alternate" type="application/atom+xml" title="Kadir Gülec · Aylık değerlendirme" href="{{ route('goals.reviews.feed') }}" />
         @endif
-        @if ($draft || $noindex)
+        @if ($isIndexed)
+            {{-- What the page is, for search engines: App\Support\Seo\StructuredData. --}}
+            <script type="application/ld+json">{!! \App\Support\Seo\StructuredData::graph($section, $title, $canonical, $structuredData) !!}</script>
+        @else
             <meta name="robots" content="noindex, nofollow" />
         @endif
 

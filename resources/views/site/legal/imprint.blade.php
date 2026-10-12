@@ -1,7 +1,7 @@
 @use('App\Enums\Section')
 
 {{-- Imprint (Impressum). Kadir fills in the address in config/legal.php. --}}
-<x-layouts::site :section="Section::Home" title="Künye">
+<x-layouts::site :section="Section::Home" title="Künye" description="kadir.gulec.tr'nin künyesi (Impressum): sitenin sorumlusu ve iletişim bilgileri." noindex>
     <article class="max-w-2xl">
         <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">künye · impressum</p>
         <h1 class="mt-3 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">Künye</h1>

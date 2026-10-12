@@ -1,6 +1,6 @@
 @use('App\Enums\Section')
 
-<x-layouts::site :section="Section::Notes" :title="$activeTag ? '#'.$activeTag['name'].' · Öğrendiklerim' : 'Öğrendiklerim'" description="Küçük notlar, büyük birikim: yol üstünde öğrendiğim küçük şeyler.">
+<x-layouts::site :section="Section::Notes" :title="($activeTag ? '#'.$activeTag['name'].' · Öğrendiklerim' : 'Öğrendiklerim').($notes->currentPage() > 1 ? ' · sayfa '.$notes->currentPage() : '')" description="Küçük notlar, büyük birikim: yol üstünde öğrendiğim küçük şeyler." :canonical="$canonical">
     <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">{{ $noteCount }} not</p>
 
     <h1 class="relative mt-3 inline-block font-display text-4xl leading-[1.08] font-extrabold tracking-tight text-balance sm:text-5xl">

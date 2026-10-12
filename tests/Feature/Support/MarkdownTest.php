@@ -1,6 +1,9 @@
 <?php
 
+use App\Support\Images\ImageStore;
 use App\Support\Markdown\Markdown;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 it('turns footnotes into sidenotes where they are referenced', function () {
     $html = app(Markdown::class)->toHtml("Bir cümle[^1] burada.\n\n[^1]: Kenardaki **not**.", 'not-x');
@@ -57,4 +60,16 @@ it('opens links to other sites in a new tab, but not links within the site', fun
     expect($html)
         ->toContain('<a rel="noopener" target="_blank" href="https://www.youtube.com/watch?v=x">Video</a>')
         ->toContain('<a href="/hedefler">hedefler</a>');
+});
+
+it('gives a stored image its size, so the text below does not jump while it loads', function () {
+    Storage::fake('public');
+    $upload = UploadedFile::fake()->image('heide.png', 1200, 800);
+    $base = app(ImageStore::class)->store($upload->getRealPath(), 'posts');
+
+    $html = app(Markdown::class)->toHtml('![Funda](/storage/'.ImageStore::file($base, 960).')');
+    $missing = app(Markdown::class)->toHtml('![Yok](/storage/posts/olmayan-960.webp)');
+
+    expect($html)->toContain('width="960" height="640"')
+        ->and($missing)->toContain('<img src="/storage/posts/olmayan-960.webp"')->not->toContain('width=');
 });
