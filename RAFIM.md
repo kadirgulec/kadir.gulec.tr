@@ -110,7 +110,7 @@ Kadir kitapları çoğunlukla **e-kitap** olarak (Kindle) okuyor. Bu yüzden say
 
 ## 8. Adımlar
 
-- [ ] **Adım 1: Panom ve Masa** (sekme etiketi "Panom", alt başlık ve `<title>`; admin "Pano" → "Masa", zincir e-postası; Hedefler'deki boş pano cümlesi; testler). Tek başına yayına alınabilir.
+- [x] **Adım 1: Panom ve Masa** (sekme etiketi "Panom", alt başlık ve `<title>`; admin "Pano" → "Masa", zincir e-postası; Hedefler'deki boş pano cümlesi; testler). Tek başına yayına alınabilir.
 - [ ] **Adım 2: Prototip** (demo verilerle `/rafim` ortak sayfa, `/okuduklarim` liste, kitap detayı, alt sekmeler, Rafım ikonu, mobil çubuk; `Section::Shelf`). *Kadir'in onayı beklenir; onaysız Adım 3'e geçilmez.*
 - [ ] **Adım 3: Model** (kitap, okuma, alıntı tabloları ve modelleri, factory'ler, durum enum'u, morph map, `ManageBooks`, yedek sayımı, demo veriler).
 - [ ] **Adım 4: Admin** (liste, ekle, düzenle, okuyacaklarım, Open Library istemcisi ve kapak indirme, film/dizi alıntıları, ⓘ kılavuz, Masa'daki "Okuyorum" kartı, PWA kısayolu).
@@ -121,3 +121,5 @@ Kadir kitapları çoğunlukla **e-kitap** olarak (Kindle) okuyor. Bu yüzden say
 ## 9. Uygulama notları
 
 *(Her adımda buraya eklenir.)*
+
+- **Panom ve Masa (1):** `Section::Notes` etiketi "Panom" (yan sekme, mobil çubuk, JSON-LD breadcrumb hepsi `label()`'dan okur); değer `notes` ve adresler aynı. Pano başlığı `<title>` "Panom · öğrendiklerim" (etiketle "#etiket · Panom · öğrendiklerim"), not sayfasında "← Panom", manifest kısayolu "Panom". Başlık altındaki mevcut el yazısı satır ("yol üstünde öğrendiğim küçük şeyler") alt satır işini görüyor, ikinci satır eklenmedi (Kadir onayladı). İçeriğin adı olarak "Öğrendiklerim" kalanlar: RSS başlığı, not OG görselinin üst yazısı, hesap ayarlarındaki bildirim cümlesi, admin menüsü. Admin ana sayfası "Masa" (kenar çubuğu, başlık, zincir e-postası "Masada işaretle"). Hedefler'de "Henüz bir kart yok."

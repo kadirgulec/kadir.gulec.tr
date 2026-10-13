@@ -63,7 +63,7 @@ describe('board', function () {
 
         $this->get(route('notes.index', ['sayfa' => 2]))
             ->assertSee('<link rel="canonical" href="'.route('notes.index', ['sayfa' => 2]).'" />', false)
-            ->assertSee('<title>Öğrendiklerim · sayfa 2 · Kadir Gülec</title>', false);
+            ->assertSee('<title>Panom · öğrendiklerim · sayfa 2 · Kadir Gülec</title>', false);
 
         $this->get(route('notes.index', ['sayfa' => 3]))->assertNotFound();
     });

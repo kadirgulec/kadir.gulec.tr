@@ -49,7 +49,7 @@ class ManifestController extends Controller
     private function shortcuts(Request $request): array
     {
         $shortcuts = [
-            ['name' => 'Öğrendiklerim', 'url' => route('notes.index', absolute: false)],
+            ['name' => 'Panom', 'url' => route('notes.index', absolute: false)],
             ['name' => 'Hedefler', 'url' => route('goals.index', absolute: false)],
             ['name' => 'Yazılar', 'url' => route('posts.index', absolute: false)],
             ['name' => 'İzlediklerim', 'url' => route('watched.index', absolute: false)],

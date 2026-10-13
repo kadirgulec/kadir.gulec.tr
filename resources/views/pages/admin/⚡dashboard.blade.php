@@ -25,7 +25,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
+new #[Layout('layouts::admin'), Title('Masa')] class extends Component {
     /** @var array<int, string> Notes typed next to the +1 buttons, by goal id. */
     public array $progressNotes = [];
 
@@ -126,7 +126,7 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
 @endphp
 
 <div>
-    <x-admin.page-header heading="Pano" :description="'Merhaba '.auth()->user()->name.', defterde bugün ne var?'" />
+    <x-admin.page-header heading="Masa" :description="'Merhaba '.auth()->user()->name.', defterde bugün ne var?'" />
 
     @can(Permission::ManageGoals->value)
         @if ($this->draftReview)

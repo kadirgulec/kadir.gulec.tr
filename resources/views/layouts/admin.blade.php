@@ -76,7 +76,7 @@
 
             <nav class="flex flex-1 flex-col gap-5 text-sm">
                 <div class="space-y-0.5">
-                    <x-admin.nav-item :href="route('admin.dashboard')" icon="layout-dashboard" :current="request()->routeIs('admin.dashboard')">Pano</x-admin.nav-item>
+                    <x-admin.nav-item :href="route('admin.dashboard')" icon="layout-dashboard" :current="request()->routeIs('admin.dashboard')">Masa</x-admin.nav-item>
                 </div>
 
                 @php

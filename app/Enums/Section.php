@@ -24,7 +24,7 @@ enum Section: string
         return match ($this) {
             self::Home => 'Ana Sayfa',
             self::Posts => 'Yazılar',
-            self::Notes => 'Öğrendiklerim',
+            self::Notes => 'Panom',
             self::Watched => 'İzlediklerim',
             self::Goals => 'Hedefler',
             self::Projects => 'Projeler',
