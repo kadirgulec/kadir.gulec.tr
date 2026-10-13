@@ -44,7 +44,7 @@ new #[Layout('layouts::admin'), Title('İzlediklerim')] class extends Component 
 }; ?>
 
 <div>
-    <x-admin.page-header heading="İzlediklerim" description="Filmler ve diziler, en son dokunduğun en üstte." :dot="Section::Watched->adminDotClass()">
+    <x-admin.page-header heading="İzlediklerim" description="Filmler ve diziler, en son dokunduğun en üstte." :dot="Section::Shelf->adminDotClass()">
         <x-slot:actions>
             <x-admin.button variant="ghost" icon="list" :href="route('admin.watched.watchlist')" wire:navigate>İzleyeceğim</x-admin.button>
             <x-admin.button variant="primary" icon="plus" :href="route('admin.watched.create')" wire:navigate>Film / dizi ekle</x-admin.button>

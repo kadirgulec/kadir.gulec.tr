@@ -44,7 +44,7 @@
                 <div>
                     {{-- Last watched film --}}
                     @if ($lastWatched)
-                    <x-site.note :section="Section::Watched" tilt="-1.2" tape="left" label="son izlediğim" :more-href="route('watched.index')" more-label="tümü →" class="mb-12">
+                    <x-site.note :section="Section::Shelf" tilt="-1.2" tape="left" label="son izlediğim" :more-href="route('watched.index')" more-label="tümü →" class="mb-12">
                         <div class="flex gap-5">
                             <x-site.poster
                                 :title="$lastWatched['title']"
@@ -83,7 +83,7 @@
 
                     {{-- Currently watching --}}
                     @if ($currentlyWatching)
-                    <x-site.note :section="Section::Watched" tilt="0.8" label="şu an izliyorum" :more-href="route('watched.index')" more-label="tümü →" class="mb-12">
+                    <x-site.note :section="Section::Shelf" tilt="0.8" label="şu an izliyorum" :more-href="route('watched.index')" more-label="tümü →" class="mb-12">
                         <ul class="flex flex-col gap-5">
                             @foreach ($currentlyWatching as $series)
                                 <li class="flex items-center gap-4">

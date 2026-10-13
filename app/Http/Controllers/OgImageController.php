@@ -148,7 +148,7 @@ class OgImageController extends Controller
             'title' => $watchable->title,
             'kicker' => 'İzlediklerim · '.mb_strtolower($watchable->type->label()),
             'subtitle' => collect([$watchable->creator, $watchable->year])->filter()->implode(' · '),
-            'section' => Section::Watched,
+            'section' => Section::Shelf,
             'poster' => $watchable->poster_path ? Storage::disk('public')->path(ImageStore::file($watchable->poster_path, 480)) : null,
             'grade' => $watchable->rating,
         ], $watchable->updated_at];

@@ -27,7 +27,7 @@ class SitemapController extends Controller
         $entries = [
             Section::Posts->value => Post::query()->published()->get(['slug', 'updated_at'])->map(fn (Post $post): array => $this->entry($post->publicPath(), $post->updated_at)),
             Section::Notes->value => Note::query()->published()->get(['id', 'updated_at'])->map(fn (Note $note): array => $this->entry($note->publicPath(), $note->updated_at)),
-            Section::Watched->value => Watchable::query()->published()->get(['type', 'slug', 'updated_at'])->map(fn (Watchable $watchable): array => $this->entry($watchable->publicPath(), $watchable->updated_at)),
+            Section::Shelf->value => Watchable::query()->published()->get(['type', 'slug', 'updated_at'])->map(fn (Watchable $watchable): array => $this->entry($watchable->publicPath(), $watchable->updated_at)),
             Section::Goals->value => Goal::query()->where('visibility', GoalVisibility::Public)->where('kind', GoalKind::LongTerm)->get(['kind', 'slug', 'updated_at'])->map(fn (Goal $goal): array => $this->entry($goal->publicPath(), $goal->updated_at)),
             Section::Projects->value => Project::query()->published()->get(['slug', 'updated_at'])->map(fn (Project $project): array => $this->entry($project->publicPath(), $project->updated_at)),
         ];

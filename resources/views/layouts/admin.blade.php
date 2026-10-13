@@ -83,7 +83,7 @@
                     $contentLinks = [
                         ['admin.posts.index', 'Yazılar', 'file-text', Section::Posts, 'admin.posts.*'],
                         ['admin.notes.index', 'Öğrendiklerim', 'sticky-note', Section::Notes, 'admin.notes.*'],
-                        ['admin.watched.index', 'İzlediklerim', 'clapperboard', Section::Watched, 'admin.watched.*'],
+                        ['admin.watched.index', 'İzlediklerim', 'clapperboard', Section::Shelf, 'admin.watched.*'],
                         ['admin.goals.index', 'Hedefler', 'target', Section::Goals, 'admin.goals.*'],
                         ['admin.reviews.index', 'Aylık değerlendirme', 'calendar-check', Section::Goals, 'admin.reviews.*'],
                         ['admin.projects.index', 'Projeler', 'folder-git-2', Section::Projects, 'admin.projects.*'],

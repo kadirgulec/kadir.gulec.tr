@@ -52,7 +52,7 @@ class ManifestController extends Controller
             ['name' => 'Panom', 'url' => route('notes.index', absolute: false)],
             ['name' => 'Hedefler', 'url' => route('goals.index', absolute: false)],
             ['name' => 'Yazılar', 'url' => route('posts.index', absolute: false)],
-            ['name' => 'İzlediklerim', 'url' => route('watched.index', absolute: false)],
+            ['name' => 'Rafım', 'url' => route('shelf.index', absolute: false)],
         ];
 
         $chores = [];
