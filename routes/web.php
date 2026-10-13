@@ -94,6 +94,13 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::livewire('izlediklerim/{watchable}', 'pages::admin.watched.edit')->name('watched.edit');
     });
 
+    Route::middleware('can:'.Permission::ManageBooks->value)->group(function () {
+        Route::livewire('okuduklarim', 'pages::admin.books.index')->name('books.index');
+        Route::livewire('okuduklarim/ekle', 'pages::admin.books.create')->name('books.create');
+        Route::livewire('okuduklarim/okuyacagim', 'pages::admin.books.reading-list')->name('books.reading-list');
+        Route::livewire('okuduklarim/{book}', 'pages::admin.books.edit')->name('books.edit');
+    });
+
     Route::middleware('can:'.Permission::ManageProjects->value)->group(function () {
         Route::livewire('projeler', 'pages::admin.projects.index')->name('projects.index');
         Route::livewire('projeler/yeni', 'pages::admin.projects.edit')->name('projects.create');

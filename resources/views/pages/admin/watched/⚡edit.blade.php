@@ -241,6 +241,8 @@ new #[Layout('layouts::admin')] class extends Component {
                 </div>
             </x-admin.card>
 
+            <livewire:admin.quotes type="watchable" :id="$watchable->id" />
+
             <x-admin.card>
                 <x-slot:heading>İzleme günlüğü</x-slot:heading>
 
