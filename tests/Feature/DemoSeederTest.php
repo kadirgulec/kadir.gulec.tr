@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Book;
 use App\Models\Note;
 use App\Models\Tag;
 use App\Models\Watchable;
@@ -32,4 +33,20 @@ it('seeds the sample notes with their tags once, keeping drafts as drafts', func
     expect(Note::query()->count())->toBe(13)
         ->and(Note::query()->published()->count())->toBe(12)
         ->and(Tag::query()->where('name', 'laravel')->sole()->notes()->count())->toBe(2);
+});
+
+it('seeds the sample books with their readings and quotes, and the reading list in file order, once', function () {
+    Storage::fake('public');
+
+    $this->seed(DemoSeeder::class);
+    $this->seed(DemoSeeder::class);
+
+    $tutunamayanlar = Book::query()->where('slug', 'tutunamayanlar')->sole();
+
+    expect(Book::query()->count())->toBe(14)
+        ->and(Book::query()->onReadingList()->pluck('title')->all())->toBe(['Huzur', 'Dune', 'Kafamda Bir Tuhaflık', 'Thinking, Fast and Slow', 'Der Steppenwolf'])
+        ->and(Book::query()->inProgress()->pluck('slug')->sort()->values()->all())->toBe(['clean-code', 'saatleri-ayarlama-enstitusu'])
+        ->and($tutunamayanlar->readings()->pluck('started_on')->map->toDateString()->all())->toBe(['2025-12-01', '2019-02-10'])
+        ->and($tutunamayanlar->quotes()->count())->toBe(2)
+        ->and($tutunamayanlar->hasPublishedReview())->toBeTrue();
 });

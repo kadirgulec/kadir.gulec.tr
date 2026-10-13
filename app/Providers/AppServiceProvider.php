@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Enums\Permission;
 use App\Http\Middleware\EnsureAdminAccess;
+use App\Models\Book;
 use App\Models\Comment;
 use App\Models\Follow;
 use App\Models\Goal;
@@ -11,6 +12,8 @@ use App\Models\MonthlyReview;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
+use App\Models\Quote;
+use App\Models\Reading;
 use App\Models\User;
 use App\Models\Watchable;
 use App\Support\Notifications\Announcements;
@@ -71,6 +74,9 @@ class AppServiceProvider extends ServiceProvider
             'post' => Post::class,
             'note' => Note::class,
             'watchable' => Watchable::class,
+            'book' => Book::class,
+            'reading' => Reading::class,
+            'quote' => Quote::class,
             'goal' => Goal::class,
             'monthly_review' => MonthlyReview::class,
             'comment' => Comment::class,

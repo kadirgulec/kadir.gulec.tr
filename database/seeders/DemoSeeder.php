@@ -6,6 +6,7 @@ use App\Actions\Watched\StorePoster;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
 use App\Enums\ReviewItemKind;
+use App\Models\Book;
 use App\Models\Goal;
 use App\Models\MonthlyReview;
 use App\Models\Note;
@@ -17,7 +18,8 @@ use Illuminate\Database\Seeder;
 
 /**
  * The sample content of the design prototype (posts, notes, films and series,
- * the watchlist and goals), so the site looks filled on a local machine.
+ * the watchlist, books and the reading list, goals), so the site looks filled
+ * on a local machine.
  * DatabaseSeeder only calls it outside production.
  */
 class DemoSeeder extends Seeder
@@ -28,6 +30,7 @@ class DemoSeeder extends Seeder
         $this->seedNotes();
         $this->seedWatched($storePoster);
         $this->seedWatchlist();
+        $this->seedBooks();
         $this->seedGoals();
         $this->seedReviews();
     }
@@ -150,6 +153,53 @@ class DemoSeeder extends Seeder
 
             $watchable->forceFill(['accent' => $data['accent'], 'poster_colors' => $data['poster_colors']])->save();
             $watchable->addToWatchlist($data['note']);
+        }
+    }
+
+    /**
+     * Books with their readings and quotes, then the reading list in file order.
+     */
+    private function seedBooks(): void
+    {
+        /** @var array{books: list<array<string, mixed>>, reading_list: list<array<string, mixed>>} $data */
+        $data = require __DIR__.'/data/demo-books.php';
+
+        foreach ($data['books'] as $entry) {
+            if (Book::query()->where('slug', $entry['slug'])->exists()) {
+                continue;
+            }
+
+            /** @var non-empty-list<array{0: string, 1: string, 2: ?string, 3: ?int}> $readings */
+            $readings = $entry['readings'];
+            $lastDay = CarbonImmutable::parse($readings[0][2] ?? $readings[0][1]);
+
+            $book = Book::query()->create([
+                ...collect($entry)->except(['cover_colors', 'quotes', 'readings'])->all(),
+                'review_published_at' => $entry['review'] !== null ? $lastDay->addDay() : null,
+                'published_at' => CarbonImmutable::parse($readings[array_key_last($readings)][1]),
+            ]);
+            $book->forceFill(['accent' => $entry['cover_colors'][1], 'cover_colors' => $entry['cover_colors']])->save();
+
+            foreach (array_reverse($readings) as [$status, $startedOn, $finishedOn, $progress]) {
+                $book->readings()->create(['status' => $status, 'started_on' => $startedOn, 'finished_on' => $finishedOn, 'progress' => $progress]);
+            }
+
+            /** @var list<array{0: string, 1: ?string, 2: ?string}> $quotes */
+            $quotes = $entry['quotes'];
+
+            foreach ($quotes as [$body, $saidBy, $location]) {
+                $book->quotes()->create(['body' => $body, 'said_by' => $saidBy, 'location' => $location, 'published_at' => $book->published_at]);
+            }
+        }
+
+        foreach ($data['reading_list'] as $entry) {
+            if (Book::query()->where('slug', $entry['slug'])->exists()) {
+                continue;
+            }
+
+            $book = Book::query()->create(collect($entry)->except(['cover_colors', 'note'])->all());
+            $book->forceFill(['accent' => $entry['cover_colors'][1], 'cover_colors' => $entry['cover_colors']])->save();
+            $book->addToReadingList($entry['note']);
         }
     }
 
