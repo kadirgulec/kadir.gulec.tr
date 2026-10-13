@@ -38,7 +38,7 @@
         </div>
 
         <div class="mt-10">
-            {{-- Two thematic columns on wide screens: watching and habits on the left, writing on the right.
+            {{-- Two thematic columns on wide screens: the shelf and habits on the left, writing on the right.
                  Each column is its own block, so the visual order is the reading order on every screen. --}}
             <div class="grid items-start gap-x-8 md:grid-cols-2">
                 <div>
@@ -99,6 +99,33 @@
                                             :max="$series['episodeCount']"
                                             :label="$series['title'].' sezon ilerlemesi'"
                                             class="mt-2"
+                                        />
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </x-site.note>
+                    @endif
+
+                    {{-- Currently reading --}}
+                    @if ($currentlyReading)
+                    <x-site.note :section="Section::Shelf" tilt="-0.6" tape="right" label="şu an okuyorum" :more-href="route('books.index')" more-label="tümü →" class="mb-12">
+                        <ul class="flex flex-col gap-5">
+                            @foreach ($currentlyReading as $book)
+                                <li class="flex items-center gap-4">
+                                    <x-site.book-cover :title="$book['title']" :image-url="$book['coverUrl']" :colors="$book['coverColors']" :framed="false" class="w-12" />
+
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-baseline justify-between gap-3">
+                                            <a href="{{ $book['url'] }}" class="truncate font-display text-lg font-semibold hover:text-section-ink">{{ $book['title'] }}</a>
+                                            <span class="shrink-0 font-mono text-xs text-ink-soft">%{{ $book['progress'] ?? 0 }}</span>
+                                        </div>
+                                        <p class="truncate font-hand text-lg leading-tight text-ink-soft">{{ $book['author'] }}</p>
+                                        <x-site.pencil-progress
+                                            :value="$book['progress'] ?? 0"
+                                            :max="100"
+                                            :label="$book['title'].' okuma ilerlemesi'"
+                                            class="mt-1"
                                         />
                                     </div>
                                 </li>

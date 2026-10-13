@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\Content\BookContent;
 use App\Support\Content\GoalContent;
 use App\Support\Content\NoteContent;
 use App\Support\Content\PostContent;
@@ -14,13 +15,14 @@ class HomeController extends Controller
     /**
      * The notebook cover: a "lately" board with one live snippet per section.
      */
-    public function __invoke(ProjectContent $projects, PostContent $posts, NoteContent $notes, WatchedContent $watched, GoalContent $goals): View
+    public function __invoke(ProjectContent $projects, PostContent $posts, NoteContent $notes, WatchedContent $watched, BookContent $books, GoalContent $goals): View
     {
         return view('site.home', [
             'latestPost' => $posts->latest(),
             'latestNote' => $notes->latest(),
             'lastWatched' => $watched->lastWatched(),
             'currentlyWatching' => $watched->currentlyWatching(),
+            'currentlyReading' => $books->currentlyReading(),
             'chains' => $goals->chains(14),
             'featuredProject' => $projects->featured(),
         ]);

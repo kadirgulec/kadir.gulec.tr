@@ -19,12 +19,6 @@
 
     <x-site.shelf-tabs current="books" class="mt-8" />
 
-    @unless (app()->isProduction())
-        <p class="mt-8 inline-block rotate-[-0.5deg] border border-dashed border-ink/30 px-3 py-1.5 font-hand text-lg text-ink-faint">
-            ✎ prototip: kitaplar, yorumlar ve alıntılar örnek veri
-        </p>
-    @endunless
-
     {{-- Cover strip --}}
     <section class="mt-14" aria-labelledby="son-okuduklarim">
         <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">

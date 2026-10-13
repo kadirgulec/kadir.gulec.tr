@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ToolboxGroup;
 use App\Models\Technology;
+use App\Support\Content\BookContent;
 use App\Support\Content\GoalContent;
 use App\Support\Content\PostContent;
 use App\Support\Content\ProjectContent;
@@ -15,7 +16,7 @@ class AboutController extends Controller
     /**
      * The story, a "now" list fed by the other sections, the toolbox and contact details.
      */
-    public function __invoke(ProjectContent $projects, PostContent $posts, WatchedContent $watched, GoalContent $goals): View
+    public function __invoke(ProjectContent $projects, PostContent $posts, WatchedContent $watched, BookContent $books, GoalContent $goals): View
     {
         return view('site.about', [
             'stops' => config('about.stops'),
@@ -23,6 +24,7 @@ class AboutController extends Controller
             'now' => [
                 'project' => $projects->featured(),
                 'series' => $watched->currentlyWatching()[0] ?? null,
+                'book' => $books->currentlyReading()[0] ?? null,
                 'chain' => $goals->firstPublicChain(),
                 'post' => $posts->latest(),
                 'books' => $goals->readingGoal(),

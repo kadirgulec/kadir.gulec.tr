@@ -19,12 +19,6 @@
 
     <x-site.shelf-tabs current="all" class="mt-8" />
 
-    @unless (app()->isProduction())
-        <p class="mt-8 inline-block rotate-[-0.5deg] border border-dashed border-ink/30 px-3 py-1.5 font-hand text-lg text-ink-faint">
-            ✎ prototip: kitaplar örnek veri, filmler ve diziler gerçek
-        </p>
-    @endunless
-
     {{-- What is on the nightstand right now --}}
     <div class="mt-14 grid gap-12 lg:grid-cols-2">
         <section class="min-w-0" aria-labelledby="su-an-okuyorum">

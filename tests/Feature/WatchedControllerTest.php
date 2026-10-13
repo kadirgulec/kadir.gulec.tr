@@ -61,6 +61,16 @@ describe('show', function () {
             ->assertSeeText('— Hirayama');
     });
 
+    it('shows the collected lines apart from the review, without the hidden ones', function () {
+        $film = Watchable::factory()->create();
+        $film->quotes()->create(['body' => 'Şimdi şimdidir.', 'said_by' => 'Hirayama', 'published_at' => now()]);
+        $film->quotes()->create(['body' => 'Gizli replik.']);
+
+        $this->get(route('watched.show', ['type' => 'film', 'slug' => $film->slug]))
+            ->assertSeeTextInOrder(['Aklımda kalan replikler', 'Şimdi şimdidir.', '— Hirayama'])
+            ->assertDontSeeText('Gizli replik.');
+    });
+
     it('keeps a review with a future publication time hidden', function () {
         $film = Watchable::factory()->create(['review' => 'Gizli yorum.', 'review_published_at' => now()->addDay(), 'overview' => 'TMDB özeti.']);
 

@@ -132,6 +132,21 @@
     @endif
 
     {{-- Seasons: progress per season, optional mark and note --}}
+    {{-- Collected lines: kept apart from the review, so a film without one can have them too --}}
+    @if ($entry['quotes'])
+        <section class="mt-20" aria-labelledby="replikler">
+            <h2 id="replikler" class="font-display text-2xl font-semibold">Aklımda kalan replikler</h2>
+
+            <ul class="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($entry['quotes'] as $index => $quote)
+                    <li>
+                        <x-site.quote-note :quote="$quote" :tilt="[1.5, -1, 2, -1.5][$index % 4]" />
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
+
     @if ($entry['seasons'])
         <section class="mt-16 max-w-2xl" aria-labelledby="sezonlar">
             <h2 id="sezonlar" class="font-display text-2xl font-semibold">Sezonlar</h2>
