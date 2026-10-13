@@ -3,6 +3,7 @@
 use App\Enums\Permission;
 use App\Enums\ReadingStatus;
 use App\Models\Book;
+use App\Models\Goal;
 use App\Models\Reading;
 use App\Models\Role;
 use App\Models\User;
@@ -288,6 +289,33 @@ describe('the Okuyorum card on Masa', function () {
         expect($book->quotes()->sole()->only(['body', 'location']))->toBe(['body' => 'Her şey saatlerle başladı.', 'location' => '%43'])
             ->and($reading->fresh()->status)->toBe(ReadingStatus::Finished)
             ->and($reading->fresh()->finished_on->toDateString())->toBe('2026-10-13');
+    });
+
+    it('keeps the +1 away from a goal counted from Okuduklarım', function () {
+        $counted = Goal::factory()->countingBooks()->create(['title' => '20 kitap oku', 'target' => 20]);
+        Goal::factory()->yearly()->create(['title' => '500 km koş', 'target' => 500]);
+
+        Livewire::test('pages::admin.dashboard')
+            ->assertSeeInOrder(['20 kitap oku', 'Okuduklarım\'dan sayılıyor', '500 km koş'])
+            ->call('addOne', $counted->id)
+            ->assertNotFound();
+
+        expect($counted->current())->toBe(0);
+    });
+
+    it('offers to copy last year\'s book goal in January only', function () {
+        Goal::factory()->countingBooks(2026)->create(['title' => '20 kitap oku', 'target' => 20]);
+
+        $this->travelTo('2027-02-01');
+        Livewire::test('pages::admin.dashboard')->assertDontSee('kitap hedefin yok');
+
+        $this->travelTo('2027-01-05');
+        Livewire::test('pages::admin.dashboard')
+            ->assertSee('2027 için kitap hedefin yok. Geçen yılki (20 kitap) kopyalansın mı?')
+            ->call('copyReadingGoal')
+            ->assertDontSee('kitap hedefin yok');
+
+        expect(Goal::query()->countingBooksIn(2027)->sole()->only(['title', 'target']))->toBe(['title' => '20 kitap oku', 'target' => 20]);
     });
 
     it('is not on the desk of someone who does not keep the books', function () {

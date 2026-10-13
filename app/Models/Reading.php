@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Actions\Goals\CountFinishedBooks;
 use App\Enums\ReadingStatus;
 use Carbon\CarbonImmutable;
 use Database\Factories\ReadingFactory;
@@ -36,6 +37,13 @@ class Reading extends Model
         static::saving(function (Reading $reading): void {
             if ($reading->status === ReadingStatus::Finished) {
                 $reading->progress = 100;
+            }
+        });
+
+        // Finished, undone or moved to another year: the counting goal follows.
+        static::saved(function (Reading $reading): void {
+            if ($reading->wasRecentlyCreated || $reading->wasChanged(['status', 'finished_on'])) {
+                app(CountFinishedBooks::class)->forReading($reading);
             }
         });
 

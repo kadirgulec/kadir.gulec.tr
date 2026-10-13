@@ -103,6 +103,16 @@ describe('show', function () {
             ->assertSee('film / dizi');
     });
 
+    it('shows the finished books only for months that counted them', function () {
+        $numbers = octoberNumbers(Goal::factory()->chain('')->create());
+        MonthlyReview::factory()->forMonth('2026-09')->create(['stats' => $numbers]);
+        $numbers['published']['books'] = 3;
+        MonthlyReview::factory()->forMonth('2026-10')->create(['stats' => $numbers]);
+
+        $this->get(route('goals.reviews.show', '2026-10'))->assertSeeInOrder(['film / dizi', 'kitap', '3']);
+        $this->get(route('goals.reviews.show', '2026-09'))->assertDontSee(route('books.index'));
+    });
+
     it('links the most read post that is still published', function () {
         $post = Post::factory()->create(['title' => 'Okunan yazı', 'slug' => 'okunan-yazi']);
         $numbers = octoberNumbers(Goal::factory()->chain('')->create());

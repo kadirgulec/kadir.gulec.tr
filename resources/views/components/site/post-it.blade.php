@@ -2,12 +2,15 @@
     'note',
     'size' => 'md',
     'linked' => true,
+    'withSource' => true,
 ])
 
 {{--
     A note on a post-it, held onto the page by its tag's washi tape (the tape
     filters the board by that tag). Paper color and tilt come from the note's
-    number. "linked" makes the whole card lead to the note's own page.
+    number. "linked" makes the whole card lead to the note's own page; the
+    source line ("kaynak: Körlük") sits above that link; "with-source" off
+    leaves it out on the source's own page.
 --}}
 <article
     data-color="{{ $note['color'] }}"
@@ -30,6 +33,17 @@
         'prose-compact' => $size === 'md',
         'text-xl leading-9' => $size === 'lg',
     ])>{{ $note['bodyHtml'] }}</div>
+
+    @if ($withSource && ($note['source'] ?? null))
+        <p class="mt-3 font-hand text-lg leading-tight text-(--postit-soft)">
+            kaynak:
+            @if ($note['source']['url'])
+                <a href="{{ $note['source']['url'] }}" class="relative z-10 underline decoration-dotted underline-offset-4 hover:text-(--postit-ink)">{{ $note['source']['title'] }}</a>
+            @else
+                {{ $note['source']['title'] }}
+            @endif
+        </p>
+    @endif
 
     <footer class="mt-4 flex items-baseline justify-between gap-3 text-(--postit-soft)">
         <time datetime="{{ $note['publishedAt']->toDateString() }}" class="font-mono text-xs">{{ $note['publishedAt']->format('d.m.Y') }}</time>

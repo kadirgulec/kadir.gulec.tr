@@ -147,6 +147,21 @@
         </section>
     @endif
 
+    {{-- Notes on the board that came out of this film or series --}}
+    @if ($notes)
+        <section class="mt-20" aria-labelledby="notlarim">
+            <h2 id="notlarim" class="font-display text-2xl font-semibold">{{ $entry['type'] === WatchableType::Series ? 'Bu diziden notlarım' : 'Bu filmden notlarım' }}</h2>
+
+            <ul class="mt-10 grid items-start gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($notes as $note)
+                    <li class="pt-3">
+                        <x-site.post-it :note="$note" :with-source="false" />
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
+
     @if ($entry['seasons'])
         <section class="mt-16 max-w-2xl" aria-labelledby="sezonlar">
             <h2 id="sezonlar" class="font-display text-2xl font-semibold">Sezonlar</h2>

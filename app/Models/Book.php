@@ -7,6 +7,7 @@ use App\Enums\ReadingStatus;
 use App\Models\Concerns\HasPublication;
 use App\Models\Concerns\HasQuotes;
 use App\Models\Concerns\HasSlugRedirects;
+use App\Models\Concerns\IsNoteSource;
 use App\Models\Concerns\RendersMarkdown;
 use App\Models\Concerns\Sortable;
 use App\Support\Images\ImageStore;
@@ -62,7 +63,7 @@ use Illuminate\Support\Str;
 class Book extends Model
 {
     /** @use HasFactory<BookFactory> */
-    use HasFactory, HasPublication, HasQuotes, RendersMarkdown, Sortable;
+    use HasFactory, HasPublication, HasQuotes, IsNoteSource, RendersMarkdown, Sortable;
 
     use HasSlugRedirects {
         uniqueSlug as numberedSlug;

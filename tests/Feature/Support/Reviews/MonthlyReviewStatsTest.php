@@ -2,11 +2,13 @@
 
 use App\Enums\ChainPeriod;
 use App\Enums\GoalMeasure;
+use App\Models\Book;
 use App\Models\Goal;
 use App\Models\GoalProgress;
 use App\Models\Note;
 use App\Models\PageView;
 use App\Models\Post;
+use App\Models\Reading;
 use App\Models\Viewing;
 use App\Models\Watchable;
 use App\Support\Reviews\MonthlyReviewStats;
@@ -147,8 +149,12 @@ it('counts what was published in the month', function () {
     Note::factory()->count(2)->create(['published_at' => '2026-10-20 10:00']);
     Viewing::factory()->create(['watched_on' => '2026-10-12']);
     Viewing::factory()->for(Watchable::factory()->draft())->create(['watched_on' => '2026-10-12']);
+    Reading::factory()->create(['started_on' => '2026-09-20', 'finished_on' => '2026-10-05']);
+    Reading::factory()->create(['started_on' => '2026-09-01', 'finished_on' => '2026-09-30']);
+    Reading::factory()->abandoned()->create(['started_on' => '2026-10-01', 'finished_on' => '2026-10-08']);
+    Reading::factory()->for(Book::factory()->draft())->create(['started_on' => '2026-10-01', 'finished_on' => '2026-10-09']);
 
-    expect(octoberStats()['published'])->toBe(['posts' => 1, 'notes' => 2, 'viewings' => 1]);
+    expect(octoberStats()['published'])->toBe(['posts' => 1, 'notes' => 2, 'viewings' => 1, 'books' => 1]);
 });
 
 it('counts views and visits and finds the most read published post', function () {

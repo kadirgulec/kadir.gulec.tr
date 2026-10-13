@@ -2,6 +2,7 @@
 
 use App\Models\Book;
 use App\Models\Goal;
+use App\Models\Note;
 use App\Models\Reading;
 use App\Models\User;
 
@@ -48,7 +49,7 @@ describe('index', function () {
         finishedBook('İki', '2026-02-01', '2026-02-20');
         finishedBook('Geçen Yıl', '2025-11-01', '2025-12-20');
         Reading::factory()->abandoned()->create(['started_on' => '2026-03-01', 'finished_on' => '2026-03-10']);
-        $goal = Goal::factory()->yearly()->create(['target' => 20]);
+        $goal = Goal::factory()->countingBooks()->create(['target' => 20]);
 
         $this->get(route('books.index'))
             ->assertSee('2026: 2 kitap')
@@ -112,6 +113,19 @@ describe('show', function () {
             ->get(route('books.show', $book->slug))
             ->assertOk()
             ->assertSeeText('Henüz okumadım');
+    });
+
+    it('collects the published notes that came out of the book, without repeating the source', function () {
+        $book = finishedBook('Körlük', '2026-07-20', '2026-08-10');
+        Note::factory()->create(['body' => 'Körlükten bir not.', 'source_type' => 'book', 'source_id' => $book->id]);
+        Note::factory()->draft()->create(['body' => 'Taslak not.', 'source_type' => 'book', 'source_id' => $book->id]);
+        Note::factory()->create(['body' => 'Başka bir not.']);
+
+        $this->get(route('books.show', $book->slug))
+            ->assertSeeTextInOrder(['Bu kitaptan notlarım', 'Körlükten bir not.'])
+            ->assertDontSeeText('Taslak not.')
+            ->assertDontSeeText('Başka bir not.')
+            ->assertDontSeeText('kaynak:');
     });
 
     it('answers 404 for an unknown book', function () {

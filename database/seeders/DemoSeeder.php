@@ -233,16 +233,18 @@ class DemoSeeder extends Seeder
                 'year' => $today->year, 'measure' => $goal['measure'], 'target' => $goal['target'], 'unit' => $goal['unit'],
                 'achieved_at' => $goal['achieved_at'], 'parent_id' => $ids[$goal['parent']] ?? null, 'sort_order' => $order,
                 'show_progress_notes' => $goal['unit'] === 'kitap',
+                // The book goal counts the demo books (seeded before) instead of made-up steps.
+                'counts_books' => $goal['unit'] === 'kitap',
             ]);
 
-            if ($goal['measure'] === GoalMeasure::Numeric->value && $goal['current']) {
+            if ($goal['measure'] === GoalMeasure::Numeric->value && $goal['current'] && $goal['unit'] !== 'kitap') {
                 $steps = $goal['current'] <= 30 ? $goal['current'] : 1;
 
                 for ($step = 0; $step < $steps; $step++) {
                     $yearly->progressEntries()->create([
                         'date' => $today->startOfYear()->addDays((int) floor($today->dayOfYear / max(1, $steps) * $step)),
                         'amount' => $steps === 1 ? $goal['current'] : 1,
-                        'note' => $goal['unit'] === 'kitap' ? 'Kitap '.($step + 1) : null,
+                        'note' => null,
                     ]);
                 }
             }

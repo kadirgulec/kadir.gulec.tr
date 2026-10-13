@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Goals\CopyYearlyGoals;
 use App\Actions\Goals\MarkChainDay;
 use App\Actions\Notes\SaveNote;
 use App\Enums\ChainDayState;
@@ -63,6 +64,21 @@ new #[Layout('layouts::admin'), Title('Masa')] class extends Component {
         return Goal::query()->ofKind(GoalKind::Yearly)->where('year', now()->year)->where('measure', GoalMeasure::Numeric)
             ->with('progressEntries')->orderBy('sort_order')->get()
             ->reject(fn (Goal $goal): bool => $goal->isAchieved());
+    }
+
+    /**
+     * In January, last year's book goal when this year has none yet: one click copies it.
+     */
+    #[Computed]
+    public function readingGoalToCopy(): ?Goal
+    {
+        $year = now()->year;
+
+        if (now()->month !== 1 || Goal::query()->countingBooksIn($year)->exists()) {
+            return null;
+        }
+
+        return Goal::query()->countingBooksIn($year - 1)->first();
     }
 
     /**
@@ -185,12 +201,26 @@ new #[Layout('layouts::admin'), Title('Masa')] class extends Component {
         unset($this->chains);
     }
 
+    public function copyReadingGoal(CopyYearlyGoals $copy): void
+    {
+        $this->authorize(Permission::ManageGoals->value);
+
+        $source = $this->readingGoalToCopy ?? abort(404);
+        $copy->handle([$source->id], now()->year);
+
+        unset($this->readingGoalToCopy, $this->numericGoals);
+        $this->dispatch('toast', text: now()->year.' kitap hedefi hazır: '.$source->target.' kitap.', variant: 'success');
+    }
+
+    /**
+     * Not for a goal that counts its books from Okuduklarım: it would count them twice.
+     */
     public function addOne(int $goalId): void
     {
         $this->authorize(Permission::ManageGoals->value);
         $this->validate(['progressNotes.'.$goalId => ['nullable', 'string', 'max:160']], attributes: ['progressNotes.'.$goalId => 'not']);
 
-        $goal = Goal::query()->ofKind(GoalKind::Yearly)->where('measure', GoalMeasure::Numeric)->findOrFail($goalId);
+        $goal = Goal::query()->ofKind(GoalKind::Yearly)->where('measure', GoalMeasure::Numeric)->where('counts_books', false)->findOrFail($goalId);
         $goal->progressEntries()->create(['date' => today(), 'amount' => 1, 'note' => ($this->progressNotes[$goalId] ?? '') ?: null]);
 
         unset($this->progressNotes[$goalId], $this->numericGoals);
@@ -220,6 +250,13 @@ new #[Layout('layouts::admin'), Title('Masa')] class extends Component {
         @can(Permission::ManageGoals->value)
             <x-admin.card>
                 <x-slot:heading>Bugün · {{ $today->locale('tr')->translatedFormat('j F l') }}</x-slot:heading>
+
+                @if ($this->readingGoalToCopy)
+                    <div class="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-section-goals/40 bg-section-goals/10 px-4 py-3 text-sm">
+                        <span class="flex-1 basis-60">{{ $today->year }} için kitap hedefin yok. Geçen yılki ({{ $this->readingGoalToCopy->target }} kitap) kopyalansın mı?</span>
+                        <x-admin.button size="sm" icon="copy" wire:click="copyReadingGoal">Kopyala</x-admin.button>
+                    </div>
+                @endif
 
                 @if ($this->chains->isEmpty() && $this->numericGoals->isEmpty())
                     <x-admin.empty icon="flame" heading="Bugün işaretlenecek bir şey yok">
@@ -280,8 +317,12 @@ new #[Layout('layouts::admin'), Title('Masa')] class extends Component {
                                 <a href="{{ route('admin.goals.edit', $goal) }}" wire:navigate class="block truncate font-bold hover:text-accent">{{ $goal->title }}</a>
                                 <span class="font-mono text-xs text-zinc-500">{{ $goal->current() }} / {{ $goal->target }} {{ $goal->unit }}</span>
                             </div>
-                            <x-admin.input wire:model="progressNotes.{{ $goal->id }}" placeholder="not (opsiyonel)" aria-label="{{ $goal->title }}: not" class="w-44" />
-                            <x-admin.button size="sm" icon="plus" wire:click="addOne({{ $goal->id }})">1</x-admin.button>
+                            @if ($goal->counts_books)
+                                <span class="text-xs text-zinc-500">📖 Okuduklarım'dan sayılıyor</span>
+                            @else
+                                <x-admin.input wire:model="progressNotes.{{ $goal->id }}" placeholder="not (opsiyonel)" aria-label="{{ $goal->title }}: not" class="w-44" />
+                                <x-admin.button size="sm" icon="plus" wire:click="addOne({{ $goal->id }})">1</x-admin.button>
+                            @endif
                         </li>
                     @endforeach
                 </ul>

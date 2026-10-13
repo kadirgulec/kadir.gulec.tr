@@ -8,6 +8,7 @@ use App\Models\Concerns\HasFollowers;
 use App\Models\Concerns\HasPublication;
 use App\Models\Concerns\HasQuotes;
 use App\Models\Concerns\HasSlugRedirects;
+use App\Models\Concerns\IsNoteSource;
 use App\Models\Concerns\RendersMarkdown;
 use App\Models\Concerns\Sortable;
 use App\Support\Images\ImageStore;
@@ -65,7 +66,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Watchable extends Model
 {
     /** @use HasFactory<WatchableFactory> */
-    use HasFactory, HasFollowers, HasPublication, HasQuotes, HasSlugRedirects, RendersMarkdown, Sortable;
+    use HasFactory, HasFollowers, HasPublication, HasQuotes, HasSlugRedirects, IsNoteSource, RendersMarkdown, Sortable;
 
     protected static function booted(): void
     {

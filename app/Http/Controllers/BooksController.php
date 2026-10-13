@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Support\Content\BookContent;
 use App\Support\Content\GoalContent;
+use App\Support\Content\NoteContent;
 use Illuminate\View\View;
 
 class BooksController extends Controller
@@ -30,7 +31,7 @@ class BooksController extends Controller
     /**
      * One template for every book; the review sections appear only when there is a review.
      */
-    public function show(string $slug): View
+    public function show(string $slug, NoteContent $notes): View
     {
         $entry = $this->books->find($slug);
 
@@ -38,8 +39,7 @@ class BooksController extends Controller
 
         return view('site.books.show', [
             'entry' => $entry,
-            // Notes get a source in step 6 (RAFIM.md); until then no book has any.
-            'notes' => [],
+            'notes' => $notes->forSource('book', $entry['id']),
         ]);
     }
 }

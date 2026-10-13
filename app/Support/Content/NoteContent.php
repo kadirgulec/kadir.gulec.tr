@@ -3,9 +3,11 @@
 namespace App\Support\Content;
 
 use App\Enums\Permission;
+use App\Models\Book;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Tag;
+use App\Models\Watchable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +18,8 @@ use Illuminate\Support\HtmlString;
  *
  * @phpstan-type NoteData array{
  *     id: int, bodyHtml: HtmlString, text: string, tagName: string, tagSlug: string,
- *     color: string, tilt: float, publishedAt: \Carbon\CarbonImmutable, isDraft: bool, url: string
+ *     color: string, tilt: float, publishedAt: \Carbon\CarbonImmutable, isDraft: bool, url: string,
+ *     source: array{title: string, url: ?string}|null
  * }
  */
 class NoteContent
@@ -74,7 +77,7 @@ class NoteContent
      */
     public function find(int $id): ?Note
     {
-        $note = Note::query()->with('tag')->find($id);
+        $note = Note::query()->with(['tag', 'source'])->find($id);
 
         if ($note === null || (! $note->isPublished() && ! Gate::allows(Permission::ManageNotes->value))) {
             return null;
@@ -131,11 +134,23 @@ class NoteContent
     }
 
     /**
+     * Published notes that name this book or film/series as their source, newest first.
+     *
+     * @return list<NoteData>
+     */
+    public function forSource(string $type, int $id): array
+    {
+        $notes = $this->published()->where('source_type', $type)->where('source_id', $id)->get();
+
+        return array_values($notes->map($this->toArray(...))->all());
+    }
+
+    /**
      * @return Builder<Note>
      */
     private function published(): Builder
     {
-        return Note::query()->published()->with('tag')->orderByDesc('published_at')->orderByDesc('id');
+        return Note::query()->published()->with(['tag', 'source'])->orderByDesc('published_at')->orderByDesc('id');
     }
 
     /**
@@ -155,6 +170,23 @@ class NoteContent
             'publishedAt' => $note->published_at ?? now()->toImmutable(),
             'isDraft' => ! $note->isPublished(),
             'url' => route('notes.show', $note->id),
+            'source' => $this->source($note),
         ];
+    }
+
+    /**
+     * The note's book or film/series; a draft one is named but not linked.
+     *
+     * @return array{title: string, url: ?string}|null
+     */
+    private function source(Note $note): ?array
+    {
+        $source = $note->source;
+
+        if (! $source instanceof Book && ! $source instanceof Watchable) {
+            return null;
+        }
+
+        return ['title' => $source->title, 'url' => $source->isPublished() ? url($source->publicPath()) : null];
     }
 }

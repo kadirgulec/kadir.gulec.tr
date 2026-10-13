@@ -156,7 +156,7 @@
             <ul class="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($notes as $note)
                     <li class="pt-3">
-                        <x-site.post-it :note="$note" />
+                        <x-site.post-it :note="$note" :with-source="false" />
                     </li>
                 @endforeach
             </ul>

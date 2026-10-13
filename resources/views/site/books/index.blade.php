@@ -28,7 +28,7 @@
             <p class="font-hand text-2xl text-ink-soft">
                 {{ now()->year }}: {{ $finishedThisYear }} kitap
                 @if ($readingGoal)
-                    · <a href="{{ route('goals.show', $readingGoal['slug']) }}" class="text-section-ink underline decoration-section decoration-wavy underline-offset-6 [text-decoration-skip-ink:none]">hedef {{ $finishedThisYear }} / {{ $readingGoal['target'] }}</a>
+                    · <a href="{{ route('goals.show', $readingGoal['slug']) }}" class="text-section-ink underline decoration-section decoration-wavy underline-offset-6 [text-decoration-skip-ink:none]">hedef {{ $readingGoal['current'] }} / {{ $readingGoal['target'] }}</a>
                 @endif
             </p>
         </div>

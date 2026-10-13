@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 class SaveNote
 {
     /**
-     * @param  array{body: string, published_at: mixed}  $attributes  Validated note columns.
+     * @param  array{body: string, published_at: mixed, source_type?: ?string, source_id?: ?int}  $attributes  Validated note columns.
      */
     public function handle(?Note $note, array $attributes, string $tagName): Note
     {

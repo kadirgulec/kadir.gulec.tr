@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Carries chosen goals of last year into a new year: same title, measure,
- * target, milestones (undone) and parent, but no progress.
+ * target, milestones (undone), parent and "Okuduklarım'dan sayılsın"
+ * switch, but no progress (books already finished in the new year are counted).
  */
 class CopyYearlyGoals
 {
@@ -34,6 +35,7 @@ class CopyYearlyGoals
                     'target' => $source->target,
                     'unit' => $source->unit,
                     'show_progress_notes' => $source->show_progress_notes,
+                    'counts_books' => $source->counts_books,
                 ]);
                 $copy->sort_order = $copy->nextSortOrder();
                 $copy->save();

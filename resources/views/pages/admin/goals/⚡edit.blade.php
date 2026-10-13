@@ -93,7 +93,8 @@ new #[Layout('layouts::admin')] class extends Component {
 
     public function deleteProgress(int $id): void
     {
-        $this->goal()->progressEntries()->findOrFail($id)->delete();
+        // A book entry follows its reading; it goes when the reading is undone.
+        $this->goal()->progressEntries()->whereNull('reading_id')->findOrFail($id)->delete();
     }
 
     public function addMilestone(): void
@@ -242,6 +243,7 @@ new #[Layout('layouts::admin')] class extends Component {
                             <x-admin.input wire:model="form.target" type="number" min="1" label="Hedef sayı" />
                             <x-admin.input wire:model="form.unit" label="Birim" placeholder="kitap, km, yazı…" />
                             <x-admin.switch wire:model="form.show_progress_notes" label="İlerleme notlarını sitede göster" description="ör. okuduğun kitapların adları" class="sm:col-span-2" />
+                            <x-admin.switch wire:model="form.counts_books" label="Okuduklarım'dan sayılsın" description="Bu yıl bitirdiğin her kitap kendiliğinden +1 olur (tekrar okumalar da; yarım bıraktıkların sayılmaz). Açınca yılın başından beri bitirdiklerin de sayılır: daha önce elle eklediğin kitap kayıtlarını sil. Masa'daki +1 düğmesi bu hedefte çıkmaz." class="sm:col-span-2" />
                         @endif
                     @else
                         <x-admin.input wire:model="form.started_year" type="number" label="Başlangıç yılı" />
@@ -354,7 +356,11 @@ new #[Layout('layouts::admin')] class extends Component {
                                             <span class="w-24 font-mono text-xs text-zinc-500">{{ $entry->date->format('d.m.Y') }}</span>
                                             <span class="w-12 font-mono">+{{ $entry->amount }}</span>
                                             <span class="flex-1 text-zinc-600 dark:text-zinc-400">{{ $entry->note }}</span>
-                                            <x-admin.button size="sm" variant="ghost" square icon="trash-2" wire:click="deleteProgress({{ $entry->id }})" wire:confirm="Bu kayıt silinsin mi?" aria-label="Sil" />
+                                            @if ($entry->isFromReading())
+                                                <x-admin.badge color="watched" title="Okumayı değiştirince kendiliğinden güncellenir">📖 Okuduklarım'dan</x-admin.badge>
+                                            @else
+                                                <x-admin.button size="sm" variant="ghost" square icon="trash-2" wire:click="deleteProgress({{ $entry->id }})" wire:confirm="Bu kayıt silinsin mi?" aria-label="Sil" />
+                                            @endif
                                         </li>
                                     @endforeach
                                 </ul>

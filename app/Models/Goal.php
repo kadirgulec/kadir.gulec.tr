@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Actions\Goals\CountFinishedBooks;
 use App\Enums\ChainDayState;
 use App\Enums\ChainPeriod;
 use App\Enums\GoalKind;
@@ -43,6 +44,7 @@ use Illuminate\Support\Facades\Gate;
  * @property string|null $unit
  * @property CarbonImmutable|null $achieved_at
  * @property bool $show_progress_notes
+ * @property bool $counts_books
  * @property string|null $why
  * @property string|null $why_html
  * @property string|null $image_path
@@ -56,7 +58,7 @@ use Illuminate\Support\Facades\Gate;
  */
 #[Fillable([
     'kind', 'title', 'slug', 'visibility', 'parent_id', 'sort_order', 'year', 'measure', 'target', 'unit',
-    'achieved_at', 'show_progress_notes', 'why', 'started_year', 'started_on', 'ended_on', 'chain_period', 'chain_target',
+    'achieved_at', 'show_progress_notes', 'counts_books', 'why', 'started_year', 'started_on', 'ended_on', 'chain_period', 'chain_target',
 ])]
 class Goal extends Model
 {
@@ -72,6 +74,7 @@ class Goal extends Model
         'visibility' => 'hidden',
         'sort_order' => 0,
         'show_progress_notes' => false,
+        'counts_books' => false,
         'chain_period' => 'day',
         'chain_target' => 1,
     ];
@@ -81,6 +84,13 @@ class Goal extends Model
         static::deleting(function (Goal $goal): void {
             $goal->updates()->delete();
             app(ImageStore::class)->delete($goal->image_path);
+        });
+
+        // Switched on, off or moved to another year: the books follow.
+        static::saved(function (Goal $goal): void {
+            if ($goal->wasChanged(['counts_books', 'year', 'measure', 'kind']) || ($goal->wasRecentlyCreated && $goal->counts_books)) {
+                app(CountFinishedBooks::class)->forGoal($goal);
+            }
         });
     }
 
@@ -102,6 +112,22 @@ class Goal extends Model
     protected function visible(Builder $query): void
     {
         $query->where('visibility', '!=', GoalVisibility::Hidden);
+    }
+
+    /**
+     * Numeric yearly goals that count the books finished in a year ("Okuduklarım'dan sayılsın").
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function countingBooksIn(Builder $query, int $year): void
+    {
+        $query->where('kind', GoalKind::Yearly)
+            ->where('measure', GoalMeasure::Numeric)
+            ->where('counts_books', true)
+            ->where('year', $year)
+            ->orderBy('sort_order')
+            ->orderBy('id');
     }
 
     /**
@@ -394,6 +420,7 @@ class Goal extends Model
             'target' => 'integer',
             'started_year' => 'integer',
             'show_progress_notes' => 'boolean',
+            'counts_books' => 'boolean',
             'achieved_at' => 'immutable_datetime',
             'started_on' => 'immutable_date',
             'ended_on' => 'immutable_date',
