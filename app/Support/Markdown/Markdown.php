@@ -31,7 +31,8 @@ use League\CommonMark\Node\Block\Paragraph;
  *   ```php     code card with syntax colors (tempest/highlight)
  *   ![alt](src "caption")  on its own line: a taped polaroid
  *   :::spoiler … :::         a spoiler crossed out with marker
- *   :::replik Kişi … :::     a favorite line on a post-it
+ *   :::replik Kişi … :::     a favorite line on a post-it (films)
+ *   :::alıntı Kişi … :::     a favorite passage on a post-it (books)
  *
  * Links to other sites open in a new tab. Raw HTML is escaped and unsafe links are dropped, so nothing typed into a
  * text field can inject markup. HTML is produced once when a model is saved

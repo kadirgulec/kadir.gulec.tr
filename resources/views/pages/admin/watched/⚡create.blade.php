@@ -87,7 +87,7 @@ new #[Layout('layouts::admin'), Title('Film / dizi ekle · İzlediklerim')] clas
 }; ?>
 
 <div class="space-y-6">
-    <x-admin.page-header heading="Film / dizi ekle" description="TMDB'de ara, seç; bilgiler ve afiş buraya kopyalanır." :dot="Section::Watched->adminDotClass()">
+    <x-admin.page-header heading="Film / dizi ekle" description="TMDB'de ara, seç; bilgiler ve afiş buraya kopyalanır." :dot="Section::Shelf->adminDotClass()">
         <x-slot:actions>
             <x-admin.button :href="route('admin.watched.index')" icon="arrow-left" variant="ghost" wire:navigate>İzlediklerim</x-admin.button>
         </x-slot:actions>

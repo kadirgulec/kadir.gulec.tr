@@ -5,13 +5,15 @@ namespace App\Enums;
 /**
  * The public sections of the site. Each section is a notebook tab with its own
  * accent color, which the CSS picks up through the `data-section` attribute.
+ * The shelf ("Rafım") holds films and series (İzlediklerim) and books
+ * (Okuduklarım); it keeps the watched color tokens (`--color-watched`).
  */
 enum Section: string
 {
     case Home = 'home';
     case Posts = 'posts';
     case Notes = 'notes';
-    case Watched = 'watched';
+    case Shelf = 'shelf';
     case Goals = 'goals';
     case Projects = 'projects';
     case About = 'about';
@@ -24,8 +26,8 @@ enum Section: string
         return match ($this) {
             self::Home => 'Ana Sayfa',
             self::Posts => 'Yazılar',
-            self::Notes => 'Öğrendiklerim',
-            self::Watched => 'İzlediklerim',
+            self::Notes => 'Panom',
+            self::Shelf => 'Rafım',
             self::Goals => 'Hedefler',
             self::Projects => 'Projeler',
             self::About => 'Hakkımda',
@@ -41,7 +43,7 @@ enum Section: string
             self::Home => 'home',
             self::Posts => 'posts.index',
             self::Notes => 'notes.index',
-            self::Watched => 'watched.index',
+            self::Shelf => 'shelf.index',
             self::Goals => 'goals.index',
             self::Projects => 'projects.index',
             self::About => 'about',
@@ -72,7 +74,7 @@ enum Section: string
             self::Home => 'bg-section-home',
             self::Posts => 'bg-section-posts',
             self::Notes => 'bg-section-notes',
-            self::Watched => 'bg-section-watched',
+            self::Shelf => 'bg-section-watched',
             self::Goals => 'bg-section-goals',
             self::Projects => 'bg-section-projects',
             self::About => 'bg-section-about',

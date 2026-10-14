@@ -6,7 +6,9 @@ use App\Enums\SeriesStatus;
 use App\Enums\WatchableType;
 use App\Models\Concerns\HasFollowers;
 use App\Models\Concerns\HasPublication;
+use App\Models\Concerns\HasQuotes;
 use App\Models\Concerns\HasSlugRedirects;
+use App\Models\Concerns\IsNoteSource;
 use App\Models\Concerns\RendersMarkdown;
 use App\Models\Concerns\Sortable;
 use App\Support\Images\ImageStore;
@@ -24,7 +26,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * A film or a series: its facts (mostly from TMDB, stored locally) and
  * Kadir's take on it (one current rating, favorite, review, series progress).
- * Each time it was watched is a Viewing; a series has Seasons.
+ * Each time it was watched is a Viewing; a series has Seasons; quotes are
+ * collected apart from the review.
  *
  * @property int $id
  * @property WatchableType $type
@@ -63,7 +66,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Watchable extends Model
 {
     /** @use HasFactory<WatchableFactory> */
-    use HasFactory, HasFollowers, HasPublication, HasSlugRedirects, RendersMarkdown, Sortable;
+    use HasFactory, HasFollowers, HasPublication, HasQuotes, HasSlugRedirects, IsNoteSource, RendersMarkdown, Sortable;
 
     protected static function booted(): void
     {

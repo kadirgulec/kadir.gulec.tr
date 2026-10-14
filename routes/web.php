@@ -5,6 +5,7 @@ use App\Enums\Section;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\BackupDownloadController;
 use App\Http\Controllers\Admin\MarkdownPreviewController;
+use App\Http\Controllers\BooksController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\GoalsController;
 use App\Http\Controllers\HomeController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\NotesController;
 use App\Http\Controllers\OgImageController;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\ProjectsController;
+use App\Http\Controllers\ShelfController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\WatchedController;
 use Illuminate\Support\Facades\Route;
@@ -33,10 +35,13 @@ Route::middleware('page-view')->group(function () {
     Route::get('yazilar/{slug}', [PostsController::class, 'show'])->name('posts.show');
     Route::get('ogrendiklerim', [NotesController::class, 'index'])->name('notes.index');
     Route::get('ogrendiklerim/{id}', [NotesController::class, 'show'])->whereNumber('id')->name('notes.show');
+    Route::get('rafim', ShelfController::class)->name('shelf.index');
     Route::get('izlediklerim', [WatchedController::class, 'index'])->name('watched.index');
     Route::get('izlediklerim/{type}/{slug}', [WatchedController::class, 'show'])
         ->whereIn('type', ['film', 'dizi'])
         ->name('watched.show');
+    Route::get('okuduklarim', [BooksController::class, 'index'])->name('books.index');
+    Route::get('okuduklarim/{slug}', [BooksController::class, 'show'])->name('books.show');
     Route::get('hedefler', [GoalsController::class, 'index'])->name('goals.index');
     // Before hedefler/{slug}: "aylik" would be taken for a goal's address.
     Route::get('hedefler/aylik', [MonthlyReviewsController::class, 'index'])->name('goals.reviews.index');
@@ -87,6 +92,13 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::livewire('izlediklerim/ekle', 'pages::admin.watched.create')->name('watched.create');
         Route::livewire('izlediklerim/izleyecegim', 'pages::admin.watched.watchlist')->name('watched.watchlist');
         Route::livewire('izlediklerim/{watchable}', 'pages::admin.watched.edit')->name('watched.edit');
+    });
+
+    Route::middleware('can:'.Permission::ManageBooks->value)->group(function () {
+        Route::livewire('okuduklarim', 'pages::admin.books.index')->name('books.index');
+        Route::livewire('okuduklarim/ekle', 'pages::admin.books.create')->name('books.create');
+        Route::livewire('okuduklarim/okuyacagim', 'pages::admin.books.reading-list')->name('books.reading-list');
+        Route::livewire('okuduklarim/{book}', 'pages::admin.books.edit')->name('books.edit');
     });
 
     Route::middleware('can:'.Permission::ManageProjects->value)->group(function () {

@@ -5,6 +5,8 @@ namespace App\Support\Notifications;
 use App\Enums\ChainDayState;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
+use App\Enums\ReadingStatus;
+use App\Models\Book;
 use App\Models\ChainDay;
 use App\Models\Comment;
 use App\Models\DevlogEntry;
@@ -15,6 +17,7 @@ use App\Models\MonthlyReview;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Project;
+use App\Models\Reading;
 use App\Models\Season;
 use App\Models\User;
 use App\Models\Viewing;
@@ -36,6 +39,7 @@ class Announcements
         $announce = fn (): self => app(self::class);
 
         Viewing::created(fn (Viewing $viewing) => $announce()->viewing($viewing));
+        Reading::saved(fn (Reading $reading) => $reading->status === ReadingStatus::Finished && ($reading->wasRecentlyCreated || $reading->wasChanged('status')) ? $announce()->finishedBook($reading) : null);
         Season::saved(fn (Season $season) => $season->wasChanged('note') || ($season->wasRecentlyCreated && filled($season->note)) ? $announce()->seasonNote($season) : null);
         Watchable::updated(fn (Watchable $watchable) => $watchable->wasChanged('series_status') ? $announce()->seriesStatus($watchable) : null);
         Project::updated(fn (Project $project) => $project->wasChanged('status') ? $announce()->projectStatus($project) : null);
@@ -98,6 +102,34 @@ class Announcements
         $this->notifier->toFollowers($watchable, 'review', fn (User $user): array => [
             'title' => $watchable->title.' hakkında yorum yazdım',
             'url' => url($watchable->publicPath()).'#yorumum',
+        ]);
+    }
+
+    /**
+     * A finished book is small news: it waits for the digest, like a note.
+     */
+    public function finishedBook(Reading $reading): void
+    {
+        $book = $reading->book;
+
+        if (! $book->isPublished()) {
+            return;
+        }
+
+        $this->notifier->toFollowers($book, 'finished-'.$reading->id, fn (User $user): array => [
+            'title' => $book->title.': bitirdim',
+            'url' => url($book->publicPath()),
+        ], digestOnly: true);
+    }
+
+    /**
+     * A book review whose publication time passed (called by the announce command).
+     */
+    public function bookReview(Book $book): void
+    {
+        $this->notifier->toFollowers($book, 'review', fn (User $user): array => [
+            'title' => $book->title.' hakkında yorum yazdım',
+            'url' => url($book->publicPath()).'#yorumum',
         ]);
     }
 

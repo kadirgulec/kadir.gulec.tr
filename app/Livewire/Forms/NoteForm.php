@@ -3,8 +3,11 @@
 namespace App\Livewire\Forms;
 
 use App\Actions\Notes\SaveNote;
+use App\Models\Book;
 use App\Models\Note;
+use App\Models\Watchable;
 use App\Support\FormControl;
+use Closure;
 use Livewire\Attributes\Locked;
 use Livewire\Form;
 
@@ -26,6 +29,9 @@ class NoteForm extends Form
 
     public string $tagName = '';
 
+    /** Where the note came from: "book:12", "watchable:3", or empty for none. */
+    public string $source = '';
+
     /** "Y-m-d\TH:i" from a datetime-local input; empty means draft. */
     public string $published_at = '';
 
@@ -34,6 +40,7 @@ class NoteForm extends Form
         $this->note = $note;
         $this->body = $note->body;
         $this->tagName = $note->tag->name;
+        $this->source = $note->source_type !== null ? $note->source_type.':'.$note->source_id : '';
         $this->published_at = FormControl::dateTimeLocal($note->published_at);
     }
 
@@ -53,6 +60,11 @@ class NoteForm extends Form
         return [
             'body' => ['required', 'string', 'max:5000'],
             'tagName' => ['required', 'string', 'max:40'],
+            'source' => ['nullable', 'string', function (string $attribute, mixed $value, Closure $fail): void {
+                if (filled($value) && self::resolveSource((string) $value) === null) {
+                    $fail('Bu kaynak bulunamadı.');
+                }
+            }],
             'published_at' => ['nullable', 'date'],
         ];
     }
@@ -65,6 +77,7 @@ class NoteForm extends Form
         return [
             'body' => 'not',
             'tagName' => 'etiket',
+            'source' => 'kaynak',
             'published_at' => 'yayın tarihi',
         ];
     }
@@ -78,6 +91,7 @@ class NoteForm extends Form
             [
                 'body' => trim($this->body),
                 'published_at' => FormControl::parseDateTimeLocal($this->published_at),
+                ...$this->sourceColumns(),
             ],
             $this->tagName,
         );
@@ -85,5 +99,27 @@ class NoteForm extends Form
         $this->setNote($note->fresh(['tag']) ?? $note);
 
         return $note;
+    }
+
+    /**
+     * @return array{source_type: ?string, source_id: ?int}
+     */
+    private function sourceColumns(): array
+    {
+        $source = self::resolveSource($this->source);
+
+        return ['source_type' => $source?->getMorphClass(), 'source_id' => $source?->getKey()];
+    }
+
+    /**
+     * The book or film/series a "type:id" value points at.
+     */
+    public static function resolveSource(string $value): Book|Watchable|null
+    {
+        if (preg_match('/^(book|watchable):(\d+)$/', $value, $match) !== 1) {
+            return null;
+        }
+
+        return $match[1] === 'book' ? Book::query()->find((int) $match[2]) : Watchable::query()->find((int) $match[2]);
     }
 }

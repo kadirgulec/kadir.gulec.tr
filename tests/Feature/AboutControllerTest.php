@@ -1,9 +1,11 @@
 <?php
 
 use App\Enums\SeriesStatus;
+use App\Models\Book;
 use App\Models\Goal;
 use App\Models\Post;
 use App\Models\Project;
+use App\Models\Reading;
 use App\Models\Watchable;
 
 beforeEach(function () {
@@ -22,9 +24,11 @@ it('tells the story from Ankara to Düren in order', function () {
 });
 
 it('fills the "now" list from the other sections', function () {
+    Reading::factory()->reading(43)->for(Book::factory()->create(['title' => 'Saatleri Ayarlama Enstitüsü']))->create();
+
     $response = $this->get(route('about'));
 
-    $response->assertSeeTextInOrder(['Şu an', 'CoMon', 'Severance', 'Her gün 30 dk kod', '23. gündeyim', 'Yapay zekâyla kod yazarken']);
+    $response->assertSeeTextInOrder(['Şu an', 'CoMon', 'Severance', 'Saatleri Ayarlama Enstitüsü okuyorum (%43)', 'Her gün 30 dk kod', '23. gündeyim', 'Yapay zekâyla kod yazarken']);
 });
 
 it('never puts a censored chain on the "now" list', function () {

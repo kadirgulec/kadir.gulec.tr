@@ -41,6 +41,9 @@ class GoalForm extends Form
 
     public bool $show_progress_notes = false;
 
+    /** "Okuduklarım'dan sayılsın": every finished book adds one. */
+    public bool $counts_books = false;
+
     public string $why = '';
 
     public ?int $started_year = null;
@@ -74,6 +77,7 @@ class GoalForm extends Form
         $this->target = $goal->target;
         $this->unit = (string) $goal->unit;
         $this->show_progress_notes = $goal->show_progress_notes;
+        $this->counts_books = $goal->counts_books;
         $this->why = (string) $goal->why;
         $this->started_year = $goal->started_year;
         $this->started_on = $goal->started_on?->toDateString() ?? '';
@@ -107,6 +111,7 @@ class GoalForm extends Form
             'target' => $kind === GoalKind::Yearly && $this->measure === GoalMeasure::Numeric->value ? ['required', 'integer', 'min:1'] : ['nullable', 'integer'],
             'unit' => ['nullable', 'string', 'max:40'],
             'show_progress_notes' => ['boolean'],
+            'counts_books' => ['boolean'],
             'why' => ['nullable', 'string', 'max:5000'],
             'started_year' => ['nullable', 'integer', 'between:1980,2100'],
             'started_on' => $kind === GoalKind::Chain ? ['required', 'date'] : ['nullable'],
@@ -164,6 +169,7 @@ class GoalForm extends Form
             'target' => $kind === GoalKind::Yearly && $this->measure === GoalMeasure::Numeric->value ? $this->target : null,
             'unit' => $kind === GoalKind::Yearly && $this->unit !== '' ? $this->unit : null,
             'show_progress_notes' => $kind === GoalKind::Yearly && $this->show_progress_notes,
+            'counts_books' => $kind === GoalKind::Yearly && $this->measure === GoalMeasure::Numeric->value && $this->counts_books,
             'why' => $kind === GoalKind::LongTerm && $this->why !== '' ? $this->why : null,
             'started_year' => $kind === GoalKind::LongTerm ? $this->started_year : null,
             'started_on' => $kind === GoalKind::Chain && $this->started_on !== '' ? CarbonImmutable::parse($this->started_on) : null,

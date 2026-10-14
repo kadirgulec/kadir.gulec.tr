@@ -8,11 +8,11 @@ use League\CommonMark\Parser\Cursor;
 use League\CommonMark\Parser\MarkdownParserStateInterface;
 
 /**
- * Opens a container on ":::spoiler" or ":::replik Kişi".
+ * Opens a container on ":::spoiler", ":::replik Kişi" (films) or ":::alıntı Kişi" (books).
  */
 final class ContainerStartParser implements BlockStartParserInterface
 {
-    public const KINDS = ['spoiler', 'replik'];
+    public const KINDS = ['spoiler', 'replik', 'alıntı'];
 
     public function tryStart(Cursor $cursor, MarkdownParserStateInterface $parserState): ?BlockStart
     {

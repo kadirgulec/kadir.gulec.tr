@@ -17,6 +17,12 @@ it('puts a quote on a post-it with who said it', function () {
     expect($html)->toContain('“İlk kural…”')->toContain('— Tyler Durden');
 });
 
+it('puts a book passage on the same post-it', function () {
+    $html = app(Markdown::class)->toHtml(":::alıntı Raif Efendi\nBir cümle.\n:::");
+
+    expect($html)->toContain('“Bir cümle.”')->toContain('— Raif Efendi')->not->toContain(':::alıntı');
+});
+
 it('escapes the speaker name', function () {
     $html = app(Markdown::class)->toHtml(":::replik <b>x</b>\nmetin\n:::");
 

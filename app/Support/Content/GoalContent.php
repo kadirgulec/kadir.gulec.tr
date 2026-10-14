@@ -173,15 +173,13 @@ class GoalContent
     }
 
     /**
-     * This year's public reading goal (a numeric goal counted in "kitap").
+     * This year's public reading goal: the one counted from Okuduklarım.
      *
      * @return array<string, mixed>|null
      */
     public function readingGoal(): ?array
     {
-        return array_find($this->yearlyGoals(), fn (array $goal): bool => $goal['visibility'] === GoalVisibility::Public
-            && $goal['type'] === GoalMeasure::Numeric->value
-            && mb_strtolower((string) $goal['unit']) === 'kitap');
+        return array_find($this->yearlyGoals(), fn (array $goal): bool => $goal['visibility'] === GoalVisibility::Public && $goal['countsBooks']);
     }
 
     /**
@@ -292,6 +290,7 @@ class GoalContent
                     : [],
             ]),
             'parentGoal' => $this->chip($goal->parent),
+            'countsBooks' => $goal->counts_books,
         ];
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\WatchableType;
+use App\Support\Content\NoteContent;
 use App\Support\Content\WatchedContent;
 use Illuminate\View\View;
 
@@ -31,13 +32,13 @@ class WatchedController extends Controller
     /**
      * One template for every film or series; the review sections appear only when there is a published review.
      */
-    public function show(string $type, string $slug): View
+    public function show(string $type, string $slug, NoteContent $notes): View
     {
         $watchableType = WatchableType::fromRouteSegment($type);
         $entry = $watchableType ? $this->watched->find($watchableType, $slug) : null;
 
         abort_if($entry === null, 404);
 
-        return view('site.watched.show', ['entry' => $entry]);
+        return view('site.watched.show', ['entry' => $entry, 'notes' => $notes->forSource('watchable', $entry['id'])]);
     }
 }

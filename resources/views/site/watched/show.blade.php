@@ -15,7 +15,7 @@
     $facts = collect([$entry['type']->label(), $entry['year'], $runtime])->filter()->implode(' · ');
 @endphp
 
-<x-layouts::site :section="Section::Watched" :title="$entry['title']" :accent="$entry['accent']" :draft="$entry['isDraft']" :description="$entry['metaDescription']" :og-image="$entry['ogImage']" :structured-data="array_filter([\App\Support\Seo\StructuredData::review($entry)])">
+<x-layouts::site :section="Section::Shelf" :title="$entry['title']" :accent="$entry['accent']" :draft="$entry['isDraft']" :description="$entry['metaDescription']" :og-image="$entry['ogImage']" :structured-data="array_filter([\App\Support\Seo\StructuredData::review($entry)])">
     <a href="{{ route('watched.index') }}" class="font-hand text-xl text-ink-soft hover:text-section-ink">← İzlediklerim</a>
 
     <div class="mt-8 grid items-start gap-12 md:grid-cols-[15rem_1fr] md:gap-14">
@@ -132,6 +132,36 @@
     @endif
 
     {{-- Seasons: progress per season, optional mark and note --}}
+    {{-- Collected lines: kept apart from the review, so a film without one can have them too --}}
+    @if ($entry['quotes'])
+        <section class="mt-20" aria-labelledby="replikler">
+            <h2 id="replikler" class="font-display text-2xl font-semibold">Aklımda kalan replikler</h2>
+
+            <ul class="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($entry['quotes'] as $index => $quote)
+                    <li>
+                        <x-site.quote-note :quote="$quote" :tilt="[1.5, -1, 2, -1.5][$index % 4]" />
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
+
+    {{-- Notes on the board that came out of this film or series --}}
+    @if ($notes)
+        <section class="mt-20" aria-labelledby="notlarim">
+            <h2 id="notlarim" class="font-display text-2xl font-semibold">{{ $entry['type'] === WatchableType::Series ? 'Bu diziden notlarım' : 'Bu filmden notlarım' }}</h2>
+
+            <ul class="mt-10 grid items-start gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($notes as $note)
+                    <li class="pt-3">
+                        <x-site.post-it :note="$note" :with-source="false" />
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
+
     @if ($entry['seasons'])
         <section class="mt-16 max-w-2xl" aria-labelledby="sezonlar">
             <h2 id="sezonlar" class="font-display text-2xl font-semibold">Sezonlar</h2>

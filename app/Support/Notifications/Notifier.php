@@ -19,8 +19,9 @@ class Notifier
 {
     /**
      * @param  Closure(User): array{title: string, body?: ?string, url: string}  $message
+     * @param  bool  $digestOnly  Wait for the daily or weekly digest even when the member wants e-mails at once.
      */
-    public function toFollowers(Model $subject, string $key, Closure $message): void
+    public function toFollowers(Model $subject, string $key, Closure $message, bool $digestOnly = false): void
     {
         if ($subject instanceof Goal && ! $subject->visibility->isVisible()) {
             return;
@@ -33,7 +34,7 @@ class Notifier
             ->get();
 
         foreach ($follows as $follow) {
-            $this->toUser($follow->user, $subject, $key, $message($follow->user));
+            $this->toUser($follow->user, $subject, $key, $message($follow->user), $digestOnly);
         }
     }
 

@@ -4,7 +4,9 @@ use App\Enums\ChainDayState;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
 use App\Enums\Permission;
+use App\Models\Book;
 use App\Models\Goal;
+use App\Models\Reading;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -30,6 +32,23 @@ describe('editor', function () {
         'yearly' => ['yillik', ['measure' => 'numeric', 'target' => 12, 'unit' => 'kitap'], GoalKind::Yearly],
         'long-term' => ['uzun-vade', ['why' => 'Çünkü ==önemli==.'], GoalKind::LongTerm],
     ]);
+
+    it('turns on "Okuduklarım\'dan sayılsın", which counts this year\'s books and keeps their entries', function () {
+        Reading::factory()->for(Book::factory()->create(['title' => 'Körlük']))->create(['started_on' => now()->startOfYear(), 'finished_on' => now()->startOfYear()->addDays(10)]);
+        $goal = Goal::factory()->yearly()->create();
+
+        $component = Livewire::test('pages::admin.goals.edit', ['goal' => $goal])
+            ->set('form.counts_books', true)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertSee('📖 Okuduklarım');
+
+        $entry = $goal->progressEntries()->sole();
+        $component->call('deleteProgress', $entry->id);
+
+        expect($goal->fresh()->counts_books)->toBeTrue()
+            ->and($entry->fresh())->not->toBeNull();
+    });
 
     it('starts new goals hidden, so nothing shows up before Kadir opens it', function () {
         Livewire::test('pages::admin.goals.edit', ['kind' => 'zincir'])->set('form.title', 'Sessiz başlangıç')->call('save');

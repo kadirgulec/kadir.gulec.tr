@@ -9,7 +9,7 @@ use League\CommonMark\Renderer\NodeRendererInterface;
 
 /**
  * Renders review containers: a spoiler crossed out with marker and a quote
- * on a post-it.
+ * on a post-it (a film's "replik" and a book's "alıntı" look the same).
  */
 final class ContainerRenderer implements NodeRendererInterface
 {
@@ -19,7 +19,7 @@ final class ContainerRenderer implements NodeRendererInterface
             return '';
         }
 
-        return $node->kind === 'replik' ? $this->quote($node, $childRenderer) : $this->spoiler($node, $childRenderer);
+        return $node->kind === 'spoiler' ? $this->spoiler($node, $childRenderer) : $this->quote($node, $childRenderer);
     }
 
     private function spoiler(Container $node, ChildNodeRendererInterface $childRenderer): string

@@ -73,6 +73,14 @@ class GoalFactory extends Factory
         ]);
     }
 
+    /**
+     * "Okuduklarım'dan sayılsın": a numeric yearly goal fed by finished books.
+     */
+    public function countingBooks(?int $year = null): static
+    {
+        return $this->yearly(GoalMeasure::Numeric, $year)->state(fn (array $attributes) => ['counts_books' => true]);
+    }
+
     public function censored(): static
     {
         return $this->state(fn (array $attributes) => ['visibility' => GoalVisibility::Censored]);

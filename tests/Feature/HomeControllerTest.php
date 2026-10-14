@@ -1,9 +1,11 @@
 <?php
 
 use App\Enums\SeriesStatus;
+use App\Models\Book;
 use App\Models\Goal;
 use App\Models\Post;
 use App\Models\Project;
+use App\Models\Reading;
 use App\Models\Watchable;
 
 beforeEach(function () {
@@ -25,6 +27,17 @@ it('shows one snippet from every section on the lately board', function () {
         'Yapay zekâyla kod yazarken kendime koyduğum beş kural',
         'CoMon',
     ]);
+});
+
+it('puts the books being read under the series being watched', function () {
+    Reading::factory()->reading(43)->for(Book::factory()->create(['title' => 'Saatleri Ayarlama Enstitüsü', 'author' => 'Ahmet Hamdi Tanpınar']))->create();
+
+    $this->get(route('home'))
+        ->assertSeeTextInOrder(['şu an izliyorum', 'Severance', 'şu an okuyorum', 'Saatleri Ayarlama Enstitüsü', '%43', 'Ahmet Hamdi Tanpınar', 'zincirler']);
+});
+
+it('leaves the reading note out when no book is being read', function () {
+    $this->get(route('home'))->assertDontSeeText('şu an okuyorum');
 });
 
 it('tells when the last film was watched in Turkish', function () {

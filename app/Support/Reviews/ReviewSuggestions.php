@@ -74,6 +74,12 @@ class ReviewSuggestions
             $suggestions[] = $this->good($posts.' yazı yayınlandı');
         }
 
+        $books = $stats['published']['books'] ?? 0;
+
+        if ($books > 0) {
+            $suggestions[] = $this->good($books.' kitap bitirildi');
+        }
+
         $topPost = $stats['visitors']['topPost'];
         $topTitle = $topPost !== null ? Post::query()->whereKey($topPost['post_id'])->value('title') : null;
 

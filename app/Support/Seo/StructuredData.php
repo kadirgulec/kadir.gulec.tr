@@ -4,18 +4,20 @@ namespace App\Support\Seo;
 
 use App\Enums\Section;
 use App\Enums\WatchableType;
+use App\Support\Content\BookContent;
 use App\Support\Content\PostContent;
 use App\Support\Content\WatchedContent;
 
 /**
  * schema.org data (JSON-LD) that tells search engines what a page is: the
  * site and its author on every page, the breadcrumb trail, and the page's own
- * node (a blog post, a film review, the about page).
+ * node (a blog post, a film or book review, the about page).
  *
  * The site layout prints graph(); pages hand their own nodes to the layout.
  *
  * @phpstan-import-type PostData from PostContent
  * @phpstan-import-type WatchedEntry from WatchedContent
+ * @phpstan-import-type BookEntry from BookContent
  */
 class StructuredData
 {
@@ -162,6 +164,46 @@ class StructuredData
             ],
             'reviewBody' => $entry['reviewExcerpt'],
             'datePublished' => $entry['watchedAt']->toDateString(),
+            'author' => ['@id' => self::personId()],
+            'inLanguage' => 'tr-TR',
+        ], filled(...));
+    }
+
+    /**
+     * Kadir's review of a book, only when it has his rating (out of 10).
+     *
+     * @param  BookEntry  $entry
+     * @return array<string, mixed>|null
+     */
+    public static function bookReview(array $entry): ?array
+    {
+        if ($entry['rating'] === null) {
+            return null;
+        }
+
+        return array_filter([
+            '@type' => 'Review',
+            '@id' => $entry['url'].'#degerlendirme',
+            'url' => $entry['url'],
+            'itemReviewed' => array_filter([
+                '@type' => 'Book',
+                'name' => $entry['title'],
+                'alternateName' => $entry['originalTitle'],
+                'image' => $entry['coverUrl'] ? url($entry['coverUrl']) : null,
+                'author' => array_map(fn (string $name): array => ['@type' => 'Person', 'name' => trim($name)], explode(',', $entry['author'])),
+                'translator' => $entry['translator'] ? ['@type' => 'Person', 'name' => $entry['translator']] : null,
+                'publisher' => $entry['publisher'] ? ['@type' => 'Organization', 'name' => $entry['publisher']] : null,
+                'isbn' => $entry['isbn'],
+                'dateCreated' => $entry['year'] ? (string) $entry['year'] : null,
+            ], filled(...)),
+            'reviewRating' => [
+                '@type' => 'Rating',
+                'ratingValue' => $entry['rating'],
+                'bestRating' => 10,
+                'worstRating' => 0,
+            ],
+            'reviewBody' => $entry['reviewExcerpt'],
+            'datePublished' => $entry['readAt']?->toDateString(),
             'author' => ['@id' => self::personId()],
             'inLanguage' => 'tr-TR',
         ], filled(...));

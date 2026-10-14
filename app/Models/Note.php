@@ -11,13 +11,17 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * A small thing Kadir learned: two or three sentences of Markdown on a post-it,
- * without a title, held by exactly one tag. Its number is its address.
+ * without a title, held by exactly one tag. Its number is its address. It may
+ * name the book or film/series it came from (its source).
  *
  * @property int $id
  * @property int $tag_id
+ * @property string|null $source_type
+ * @property int|null $source_id
  * @property string $body
  * @property string|null $body_html
  * @property CarbonImmutable|null $announced_at
@@ -25,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable|null $updated_at
  * @property-read Tag $tag
  */
-#[Fillable(['body', 'published_at'])]
+#[Fillable(['body', 'published_at', 'source_type', 'source_id'])]
 class Note extends Model
 {
     /** @use HasFactory<NoteFactory> */
@@ -37,6 +41,16 @@ class Note extends Model
     public function tag(): BelongsTo
     {
         return $this->belongsTo(Tag::class);
+    }
+
+    /**
+     * The book or film/series the note came from, if any.
+     *
+     * @return MorphTo<Model, $this>
+     */
+    public function source(): MorphTo
+    {
+        return $this->morphTo();
     }
 
     /**

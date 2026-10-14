@@ -18,11 +18,14 @@
                 <path d="M19.3 14.8l-4.2.1c-.6 0-1 .5-1 1.1l-.2 3.9" />
                 <path d="M8 9.1h7.6M8 12.4h5" />
                 @break
-            @case(\App\Enums\Section::Watched)
-                {{-- Clapperboard --}}
-                <path d="M4.2 10.2h15.6l-.3 8.6c0 .7-.6 1.2-1.3 1.2H5.8c-.7 0-1.3-.5-1.3-1.2l-.3-8.6Z" />
-                <path d="m4 10-.6-3.1c-.1-.7.3-1.3 1-1.4l12.8-2.3c.7-.1 1.3.3 1.4 1l.4 2.3L4 10Z" />
-                <path d="m8.2 5 2 3.6M12.8 4.2l2 3.6" />
+            @case(\App\Enums\Section::Shelf)
+                {{-- A shelf with two book spines and a film reel --}}
+                <path d="M2.8 20.3c6.2-.3 12.3-.3 18.4.1" />
+                <path d="M4.6 20.1 4.4 6.2c0-.5.3-.8.8-.8h2.1c.5 0 .8.3.8.8l.2 13.9" />
+                <path d="m8.4 20 1.5-11.6c.1-.5.5-.8 1-.7l1.6.3c.5.1.8.5.7 1l-1.8 11.1" />
+                <path d="M4.5 9.2h3.6" />
+                <path d="M17.2 12.4c2.2-.1 3.9 1.6 3.9 3.8-.1 2.2-1.8 3.9-4 3.9s-3.9-1.8-3.8-3.9c0-2.1 1.7-3.8 3.9-3.8Z" />
+                <path d="M17.2 14.5v.3M17.2 17.7v.3M15.5 16.2h.3M18.7 16.2h.3" />
                 @break
             @case(\App\Enums\Section::Goals)
                 {{-- Flag on a hill --}}

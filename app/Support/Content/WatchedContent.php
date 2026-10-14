@@ -5,6 +5,7 @@ namespace App\Support\Content;
 use App\Enums\Permission;
 use App\Enums\SeriesStatus;
 use App\Enums\WatchableType;
+use App\Models\Quote;
 use App\Models\Season;
 use App\Models\Viewing;
 use App\Models\Watchable;
@@ -29,7 +30,8 @@ use Illuminate\Support\Str;
  *     status: ?SeriesStatus, season: ?int, episode: ?int, episodeCount: ?int,
  *     seasons: list<array{number: int, episodeCount: int, rating: ?float, note: ?string}>,
  *     posterUrl: ?string, posterColors: array{0: string, 1: string}, accent: string,
- *     hasReview: bool, reviewHtml: ?HtmlString, reviewExcerpt: ?string, url: string, isDraft: bool, metaDescription: string, ogImage: string
+ *     hasReview: bool, reviewHtml: ?HtmlString, reviewExcerpt: ?string, quotes: list<array{text: string, by: ?string, location: ?string}>,
+ *     url: string, isDraft: bool, metaDescription: string, ogImage: string
  * }
  */
 class WatchedContent
@@ -126,7 +128,7 @@ class WatchedContent
      */
     public function find(WatchableType $type, string $slug): ?array
     {
-        $watchable = Watchable::query()->with(['seasons', 'viewings'])->where('type', $type)->where('slug', $slug)->first();
+        $watchable = Watchable::query()->with(['seasons', 'viewings', 'quotes'])->where('type', $type)->where('slug', $slug)->first();
 
         if ($watchable === null || (! $watchable->isPublished() && ! Gate::allows(Permission::ManageWatched->value))) {
             return null;
@@ -178,6 +180,12 @@ class WatchedContent
             'hasReview' => $reviewIsPublic,
             'reviewHtml' => $reviewIsPublic ? new HtmlString((string) $watchable->review_html) : null,
             'reviewExcerpt' => $reviewIsPublic ? $this->markdown->excerpt($this->withoutSpoilers((string) $watchable->review), 180) : null,
+            // Only the detail page loads the quotes; lists never show them.
+            'quotes' => $watchable->relationLoaded('quotes') ? array_values($watchable->quotes->filter(fn (Quote $quote): bool => $quote->isPublished())->map(fn (Quote $quote): array => [
+                'text' => $quote->body,
+                'by' => $quote->said_by,
+                'location' => $quote->location,
+            ])->all()) : [],
             'url' => url($watchable->publicPath()),
             'isDraft' => ! $watchable->isPublished(),
             'metaDescription' => $watchable->meta_description ?: Str::limit((string) $watchable->overview, 155, '…', preserveWords: true),

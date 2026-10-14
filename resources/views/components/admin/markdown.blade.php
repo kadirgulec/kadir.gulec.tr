@@ -2,7 +2,8 @@
     Markdown editor: monospace textarea, toolbar, preview tab (rendered with
     the site's own CSS in an iframe) and the ⓘ syntax guide next to the label.
     <x-admin.markdown wire:model="body" label="Vaka çalışması" section="projects" />
-    "reviews" adds the spoiler and quote buttons of film reviews. "upload" names a
+    "reviews" adds the spoiler and quote buttons of reviews: a film's lines
+    (:::replik), or a book's passages with reviews="book" (:::alıntı). "upload" names a
     Livewire property for in-text images: the page stores the upload and
     dispatches 'markdown-insert' with the Markdown to put at the cursor.
     "inline" is for short notes: the guide and toolbar only offer inline marks
@@ -41,7 +42,12 @@
                 <p><code>![ne görünüyor](adres "altyazı")</code> tek satırda: polaroid görsel</p>
                 @if ($reviews)
                     <p><code>:::spoiler</code> … <code>:::</code> spoiler (markörle kapalı)</p>
-                    <p><code>:::replik Kişi</code> … <code>:::</code> replik post-it'i</p>
+                    @if ($reviews === 'book')
+                        <p><code>:::alıntı Kişi</code> … <code>:::</code> kitaptan alıntı post-it'i (kişi opsiyonel)</p>
+                    @else
+                        <p><code>:::replik Kişi</code> … <code>:::</code> replik post-it'i</p>
+                    @endif
+                    <p class="opacity-75">Yorumun akışında geçen alıntıyı burada blokla yaz. Yorumdan bağımsız biriktirdiklerini aşağıdaki Alıntılar bölümüne ekle; onlar sayfada ayrı bir koleksiyon olur.</p>
                 @endif
                 @endif
                 <p class="opacity-75">HTML yazılamaz, güvenlik için kaçırılır.</p>
@@ -67,7 +73,11 @@
                     @endif
                     @if ($reviews)
                         <x-admin.button size="sm" variant="ghost" square icon="eye-off" x-on:click="block(':::spoiler', ':::', 'spoiler metni')" aria-label="Spoiler" title="Spoiler" />
-                        <x-admin.button size="sm" variant="ghost" square icon="quote" x-on:click="block(':::replik Kişi', ':::', 'replik')" aria-label="Replik" title="Replik" />
+                        @if ($reviews === 'book')
+                            <x-admin.button size="sm" variant="ghost" square icon="quote" x-on:click="block(':::alıntı Kişi', ':::', 'alıntı')" aria-label="Alıntı" title="Alıntı" />
+                        @else
+                            <x-admin.button size="sm" variant="ghost" square icon="quote" x-on:click="block(':::replik Kişi', ':::', 'replik')" aria-label="Replik" title="Replik" />
+                        @endif
                     @endif
                     @if ($upload)
                         <input type="file" x-ref="imageInput" wire:model="{{ $upload }}" x-on:livewire-upload-finish="$el.value = ''" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" class="hidden" tabindex="-1" aria-hidden="true" />

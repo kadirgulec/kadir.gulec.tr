@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Book;
 use App\Models\Goal;
 use App\Models\MonthlyReview;
 use App\Models\Note;
@@ -81,8 +82,10 @@ describe('preview images', function () {
         $this->get(route('og', ['kind' => 'note', 'key' => Note::factory()->draft()->create()->id]))->assertNotFound();
     });
 
-    it('draws films and pages', function () {
+    it('draws films, books and pages', function () {
         $this->get(route('og', ['kind' => 'film', 'key' => Watchable::factory()->create()->slug]))->assertOk();
+        $this->get(route('og', ['kind' => 'kitap', 'key' => Book::factory()->create()->slug]))->assertOk();
+        $this->get(route('og', ['kind' => 'kitap', 'key' => Book::factory()->draft()->create()->slug]))->assertNotFound();
         $this->get(route('og', ['kind' => 'page', 'key' => 'home']))->assertOk();
     });
 });
@@ -178,6 +181,19 @@ describe('sitemap and robots', function () {
             ->not->toContain('<loc>'.route('notes.show', $draftNote->id).'</loc>');
     });
 
+    it('lists the shelf, both of its lists and every published book', function () {
+        $book = Book::factory()->create();
+        $draft = Book::factory()->draft()->onReadingList()->create();
+
+        $xml = $this->get(route('sitemap'))->getContent();
+
+        expect($xml)->toContain('<loc>'.route('shelf.index').'</loc>')
+            ->toContain('<loc>'.route('watched.index').'</loc>')
+            ->toContain('<loc>'.route('books.index').'</loc>')
+            ->toContain('<loc>'.route('books.show', $book->slug).'</loc>')
+            ->not->toContain($draft->slug);
+    });
+
     it('leaves out the noindex pages: chains and the legal pages', function () {
         $chain = Goal::factory()->chain()->create();
 
@@ -239,6 +255,22 @@ describe('structured data', function () {
         expect($review['itemReviewed'])->toMatchArray(['@type' => 'Movie', 'name' => 'Arrival'])
             ->and($review['reviewRating'])->toMatchArray(['ratingValue' => 9.5, 'bestRating' => 10])
             ->and(structuredData($this->get(url($series->publicPath()))))->not->toHaveKey('Review');
+    });
+
+    it('turns a rated book into a review of the book, with its author and preview image', function () {
+        $book = Book::factory()->create(['title' => 'Körlük', 'author' => 'José Saramago', 'translator' => 'Aykut Derman', 'isbn' => '9789752896', 'rating' => 8.5]);
+
+        $response = $this->get(route('books.show', $book->slug));
+        $review = structuredData($response)['Review'];
+
+        expect($review['itemReviewed'])->toMatchArray([
+            '@type' => 'Book', 'name' => 'Körlük', 'isbn' => '9789752896',
+            'author' => [['@type' => 'Person', 'name' => 'José Saramago']],
+            'translator' => ['@type' => 'Person', 'name' => 'Aykut Derman'],
+        ])
+            ->and($review['reviewRating'])->toMatchArray(['ratingValue' => 8.5, 'bestRating' => 10]);
+
+        $response->assertSee(route('og', ['kind' => 'kitap', 'key' => $book->slug, 'v' => $book->updated_at->getTimestamp()]), false);
     });
 
     it('makes the about page the author profile', function () {

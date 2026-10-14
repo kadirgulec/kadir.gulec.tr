@@ -140,7 +140,7 @@
         --color-section-on: var(--color-notes-on);
     }
 
-    [data-section='watched'] {
+    [data-section='shelf'] {
         --color-section: var(--color-watched);
         --color-section-ink: var(--color-watched-ink);
         --color-section-on: var(--color-watched-on);

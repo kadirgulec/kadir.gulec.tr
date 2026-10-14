@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permission;
+use App\Models\Book;
 use App\Models\Note;
 use App\Models\Role;
 use App\Models\Tag;
@@ -55,6 +56,30 @@ describe('editor', function () {
         expect($note->body)->toBe("Laravel'de `Model::preventLazyLoading()` N+1'i yakalıyor.")
             ->and($note->tag->name)->toBe('laravel')
             ->and($note->published_at->format('Y-m-d H:i'))->toBe('2026-10-06 21:15');
+    });
+
+    it('names a book or a film as the note\'s source, and drops an unknown one', function () {
+        $book = Book::factory()->create(['title' => 'Körlük']);
+        $note = Note::factory()->create();
+
+        Livewire::test('pages::admin.notes.edit', ['note' => $note])
+            ->assertSee('Körlük')
+            ->set('form.source', 'book:'.$book->id)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        expect($note->fresh()->source)->toBeInstanceOf(Book::class);
+
+        Livewire::test('pages::admin.notes.edit', ['note' => $note->fresh()])
+            ->assertSet('form.source', 'book:'.$book->id)
+            ->set('form.source', 'book:999')
+            ->call('save')
+            ->assertHasErrors(['form.source'])
+            ->set('form.source', '')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        expect($note->fresh()->source_type)->toBeNull();
     });
 
     it('asks for the text and the tag', function () {

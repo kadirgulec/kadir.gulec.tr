@@ -1,12 +1,15 @@
 <?php
 
+use App\Actions\Goals\CopyYearlyGoals;
 use App\Actions\Goals\MarkChainDay;
 use App\Actions\Notes\SaveNote;
 use App\Enums\ChainDayState;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
 use App\Enums\Permission;
+use App\Enums\ReadingStatus;
 use App\Livewire\Forms\NoteForm;
+use App\Models\Book;
 use App\Models\Goal;
 use App\Models\MonthlyReview;
 use App\Models\Note;
@@ -17,6 +20,7 @@ use App\Models\Watchable;
 use App\Enums\ChainPeriod;
 use App\Support\ChainReminders;
 use App\Support\ChainStats;
+use App\Support\ReadingProgress;
 use App\Support\TurkishDate;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection;
@@ -25,12 +29,22 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
+new #[Layout('layouts::admin'), Title('Masa')] class extends Component {
     /** @var array<int, string> Notes typed next to the +1 buttons, by goal id. */
     public array $progressNotes = [];
 
     /** The "quick note" card: a note published the moment it is stuck on. */
     public NoteForm $quickNote;
+
+    /** @var array<int, string> Progress typed on the "Okuyorum" card ("43", "143/671"), by book id. */
+    public array $progressInputs = [];
+
+    /** The book whose quick quote form is open on the "Okuyorum" card. */
+    public ?int $quoteBookId = null;
+
+    public string $quoteBody = '';
+
+    public string $quoteLocation = '';
 
     /**
      * @return Collection<int, Goal>
@@ -53,6 +67,21 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
     }
 
     /**
+     * In January, last year's book goal when this year has none yet: one click copies it.
+     */
+    #[Computed]
+    public function readingGoalToCopy(): ?Goal
+    {
+        $year = now()->year;
+
+        if (now()->month !== 1 || Goal::query()->countingBooksIn($year)->exists()) {
+            return null;
+        }
+
+        return Goal::query()->countingBooksIn($year - 1)->first();
+    }
+
+    /**
      * The newest review that is not out yet, to remind Kadir to write it.
      */
     #[Computed]
@@ -62,7 +91,7 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
     }
 
     /**
-     * @return array{posts: int, notes: int, projects: int, watched: int}
+     * @return array{posts: int, notes: int, projects: int, watched: int, books: int}
      */
     #[Computed]
     public function drafts(): array
@@ -72,7 +101,21 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
             'notes' => Note::query()->whereNull('published_at')->count(),
             'projects' => Project::query()->whereNull('published_at')->count(),
             'watched' => Watchable::query()->whereNull('published_at')->count(),
+            'books' => Book::query()->whereNull('published_at')->whereNull('reading_list_position')->count(),
         ];
+    }
+
+    /**
+     * Books being read or paused, most recently started first.
+     *
+     * @return Collection<int, Book>
+     */
+    #[Computed]
+    public function booksInProgress(): Collection
+    {
+        return Book::query()->inProgress()->with('latestReading')->get()
+            ->sortByDesc(fn (Book $book): string => (string) $book->latestReading?->started_on->toDateString())
+            ->values();
     }
 
     /**
@@ -96,6 +139,57 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
         $this->dispatch('toast', text: 'Not #'.$note->id.' panoya yapıştı.', variant: 'success');
     }
 
+    public function updateProgress(int $bookId): void
+    {
+        $this->authorize(Permission::ManageBooks->value);
+        $this->validate(['progressInputs.'.$bookId => ['required', 'string', 'max:20', ReadingProgress::rule()]], attributes: ['progressInputs.'.$bookId => 'ilerleme']);
+
+        $book = $this->bookInProgress($bookId);
+        $progress = ReadingProgress::parse($this->progressInputs[$bookId]);
+        $book->latestReading?->update(['progress' => $progress, 'status' => ReadingStatus::Reading]);
+
+        unset($this->progressInputs[$bookId], $this->booksInProgress);
+        $this->dispatch('toast', text: $book->title.': %'.$progress);
+    }
+
+    public function finishBook(int $bookId): void
+    {
+        $this->authorize(Permission::ManageBooks->value);
+
+        $book = $this->bookInProgress($bookId);
+        $book->latestReading?->update(['status' => ReadingStatus::Finished, 'finished_on' => today()]);
+
+        unset($this->progressInputs[$bookId], $this->booksInProgress);
+        $this->dispatch('toast', text: $book->title.' bitti! Puanını ve yorumunu kitabın sayfasında ekleyebilirsin.', variant: 'success');
+    }
+
+    public function openQuote(int $bookId): void
+    {
+        $this->quoteBookId = $this->quoteBookId === $bookId ? null : $bookId;
+        $this->reset('quoteBody', 'quoteLocation');
+        $this->resetValidation();
+    }
+
+    public function addQuote(): void
+    {
+        $this->authorize(Permission::ManageBooks->value);
+        $validated = $this->validate([
+            'quoteBody' => ['required', 'string', 'max:2000'],
+            'quoteLocation' => ['nullable', 'string', 'max:60'],
+        ], attributes: ['quoteBody' => 'alıntı', 'quoteLocation' => 'yer']);
+
+        $book = $this->bookInProgress((int) $this->quoteBookId);
+        $book->quotes()->create(['body' => trim($validated['quoteBody']), 'location' => trim((string) $validated['quoteLocation']) ?: null, 'published_at' => now()]);
+
+        $this->reset('quoteBookId', 'quoteBody', 'quoteLocation');
+        $this->dispatch('toast', text: $book->title.': alıntı eklendi.', variant: 'success');
+    }
+
+    private function bookInProgress(int $bookId): Book
+    {
+        return Book::query()->inProgress()->with('latestReading')->findOrFail($bookId);
+    }
+
     public function mark(int $chainId, string $day, string $state, MarkChainDay $markChainDay): void
     {
         $this->authorize(Permission::ManageGoals->value);
@@ -107,12 +201,26 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
         unset($this->chains);
     }
 
+    public function copyReadingGoal(CopyYearlyGoals $copy): void
+    {
+        $this->authorize(Permission::ManageGoals->value);
+
+        $source = $this->readingGoalToCopy ?? abort(404);
+        $copy->handle([$source->id], now()->year);
+
+        unset($this->readingGoalToCopy, $this->numericGoals);
+        $this->dispatch('toast', text: now()->year.' kitap hedefi hazır: '.$source->target.' kitap.', variant: 'success');
+    }
+
+    /**
+     * Not for a goal that counts its books from Okuduklarım: it would count them twice.
+     */
     public function addOne(int $goalId): void
     {
         $this->authorize(Permission::ManageGoals->value);
         $this->validate(['progressNotes.'.$goalId => ['nullable', 'string', 'max:160']], attributes: ['progressNotes.'.$goalId => 'not']);
 
-        $goal = Goal::query()->ofKind(GoalKind::Yearly)->where('measure', GoalMeasure::Numeric)->findOrFail($goalId);
+        $goal = Goal::query()->ofKind(GoalKind::Yearly)->where('measure', GoalMeasure::Numeric)->where('counts_books', false)->findOrFail($goalId);
         $goal->progressEntries()->create(['date' => today(), 'amount' => 1, 'note' => ($this->progressNotes[$goalId] ?? '') ?: null]);
 
         unset($this->progressNotes[$goalId], $this->numericGoals);
@@ -126,7 +234,7 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
 @endphp
 
 <div>
-    <x-admin.page-header heading="Pano" :description="'Merhaba '.auth()->user()->name.', defterde bugün ne var?'" />
+    <x-admin.page-header heading="Masa" :description="'Merhaba '.auth()->user()->name.', defterde bugün ne var?'" />
 
     @can(Permission::ManageGoals->value)
         @if ($this->draftReview)
@@ -142,6 +250,13 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
         @can(Permission::ManageGoals->value)
             <x-admin.card>
                 <x-slot:heading>Bugün · {{ $today->locale('tr')->translatedFormat('j F l') }}</x-slot:heading>
+
+                @if ($this->readingGoalToCopy)
+                    <div class="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-section-goals/40 bg-section-goals/10 px-4 py-3 text-sm">
+                        <span class="flex-1 basis-60">{{ $today->year }} için kitap hedefin yok. Geçen yılki ({{ $this->readingGoalToCopy->target }} kitap) kopyalansın mı?</span>
+                        <x-admin.button size="sm" icon="copy" wire:click="copyReadingGoal">Kopyala</x-admin.button>
+                    </div>
+                @endif
 
                 @if ($this->chains->isEmpty() && $this->numericGoals->isEmpty())
                     <x-admin.empty icon="flame" heading="Bugün işaretlenecek bir şey yok">
@@ -202,8 +317,12 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
                                 <a href="{{ route('admin.goals.edit', $goal) }}" wire:navigate class="block truncate font-bold hover:text-accent">{{ $goal->title }}</a>
                                 <span class="font-mono text-xs text-zinc-500">{{ $goal->current() }} / {{ $goal->target }} {{ $goal->unit }}</span>
                             </div>
-                            <x-admin.input wire:model="progressNotes.{{ $goal->id }}" placeholder="not (opsiyonel)" aria-label="{{ $goal->title }}: not" class="w-44" />
-                            <x-admin.button size="sm" icon="plus" wire:click="addOne({{ $goal->id }})">1</x-admin.button>
+                            @if ($goal->counts_books)
+                                <span class="text-xs text-zinc-500">📖 Okuduklarım'dan sayılıyor</span>
+                            @else
+                                <x-admin.input wire:model="progressNotes.{{ $goal->id }}" placeholder="not (opsiyonel)" aria-label="{{ $goal->title }}: not" class="w-44" />
+                                <x-admin.button size="sm" icon="plus" wire:click="addOne({{ $goal->id }})">1</x-admin.button>
+                            @endif
                         </li>
                     @endforeach
                 </ul>
@@ -211,6 +330,53 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
         @endcan
 
         <div class="space-y-6">
+        @can(Permission::ManageBooks->value)
+            <x-admin.card>
+                <x-slot:heading>Okuyorum</x-slot:heading>
+                <x-slot:actions>
+                    <x-admin.link :href="route('admin.books.index')" class="text-xs">Okuduklarım</x-admin.link>
+                </x-slot:actions>
+
+                @if ($this->booksInProgress->isEmpty())
+                    <x-admin.text>Şu an okuduğun bir kitap yok.</x-admin.text>
+                    <x-admin.button size="sm" icon="plus" class="mt-3" :href="route('admin.books.create')" wire:navigate>Kitap ekle</x-admin.button>
+                @else
+                    <ul class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                        @foreach ($this->booksInProgress as $book)
+                            @php($reading = $book->latestReading)
+                            <li wire:key="reading-book-{{ $book->id }}" class="space-y-2 py-3 first:pt-0 last:pb-0">
+                                <div class="flex items-baseline justify-between gap-2">
+                                    <a href="{{ route('admin.books.edit', $book) }}" wire:navigate class="min-w-0 truncate font-bold hover:text-accent">{{ $book->title }}</a>
+                                    <span class="shrink-0 font-mono text-xs text-zinc-500">
+                                        @if ($reading?->status === ReadingStatus::Paused) ⏸️ @endif
+                                        %{{ $reading?->progress ?? 0 }}
+                                    </span>
+                                </div>
+                                <div class="h-1.5 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800" role="progressbar" aria-label="{{ $book->title }}: ilerleme" aria-valuenow="{{ $reading?->progress ?? 0 }}" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="h-full rounded-full bg-section-watched" style="width: {{ $reading?->progress ?? 0 }}%"></div>
+                                </div>
+                                <form wire:submit="updateProgress({{ $book->id }})" class="flex flex-wrap items-start gap-2">
+                                    <x-admin.input wire:model="progressInputs.{{ $book->id }}" placeholder="%{{ $reading?->progress ?? 0 }} ya da 143/671" aria-label="{{ $book->title }}: ilerleme" class="w-40" mono />
+                                    <x-admin.button type="submit" size="sm" class="mt-1">Güncelle</x-admin.button>
+                                    <x-admin.button size="sm" variant="ghost" icon="quote" class="mt-1" wire:click="openQuote({{ $book->id }})" :aria-expanded="$quoteBookId === $book->id ? 'true' : 'false'">Alıntı</x-admin.button>
+                                    <x-admin.button size="sm" variant="ghost" icon="check" class="mt-1" wire:click="finishBook({{ $book->id }})" wire:confirm="{{ $book->title }} bitti mi?">Bitirdim</x-admin.button>
+                                </form>
+                                @if ($quoteBookId === $book->id)
+                                    <form wire:submit="addQuote" class="space-y-2 rounded-lg bg-zinc-50 p-3 dark:bg-zinc-800/50">
+                                        <x-admin.textarea wire:model="quoteBody" rows="3" aria-label="{{ $book->title }}: alıntı" placeholder="Altını çizdiğin cümle…" />
+                                        <div class="flex items-start gap-2">
+                                            <x-admin.input wire:model="quoteLocation" placeholder="%{{ $reading?->progress ?? 0 }}" aria-label="Yer" class="w-28" mono />
+                                            <x-admin.button type="submit" size="sm" variant="primary" class="mt-1">Ekle</x-admin.button>
+                                        </div>
+                                    </form>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </x-admin.card>
+        @endcan
+
         @can(Permission::ManageNotes->value)
             <x-admin.card>
                 <x-slot:heading>Hızlı not</x-slot:heading>
@@ -239,7 +405,7 @@ new #[Layout('layouts::admin'), Title('Pano')] class extends Component {
         <x-admin.card>
             <x-slot:heading>Taslaklar</x-slot:heading>
             <ul class="space-y-2 text-sm">
-                @foreach ([['admin.posts.index', 'Yazılar', 'posts', ['durum' => 'draft']], ['admin.notes.index', 'Öğrendiklerim', 'notes', ['durum' => 'draft']], ['admin.projects.index', 'Projeler', 'projects', []], ['admin.watched.index', 'İzlediklerim', 'watched', []]] as [$routeName, $label, $key, $query])
+                @foreach ([['admin.posts.index', 'Yazılar', 'posts', ['durum' => 'draft']], ['admin.notes.index', 'Öğrendiklerim', 'notes', ['durum' => 'draft']], ['admin.projects.index', 'Projeler', 'projects', []], ['admin.watched.index', 'İzlediklerim', 'watched', []], ['admin.books.index', 'Okuduklarım', 'books', []]] as [$routeName, $label, $key, $query])
                     @if (Route::has($routeName))
                         <li class="flex items-center justify-between">
                             <x-admin.link :href="route($routeName, $query)">{{ $label }}</x-admin.link>

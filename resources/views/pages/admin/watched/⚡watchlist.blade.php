@@ -63,7 +63,7 @@ new #[Layout('layouts::admin'), Title('İzleyeceğim · İzlediklerim')] class e
 }; ?>
 
 <div>
-    <x-admin.page-header heading="İzleyeceğim" description="İzlediklerim sayfasındaki 'Sırada' listesi. Sırayı sürükleyerek değiştir; ilk izlemeyi eklediğinde kayıt listeden kendiliğinden düşer." :dot="Section::Watched->adminDotClass()">
+    <x-admin.page-header heading="İzleyeceğim" description="İzlediklerim sayfasındaki 'Sırada' listesi. Sırayı sürükleyerek değiştir; ilk izlemeyi eklediğinde kayıt listeden kendiliğinden düşer." :dot="Section::Shelf->adminDotClass()">
         <x-slot:actions>
             <x-admin.tooltip label="İzleyeceğim listesi nasıl çalışır?">
                 <strong>Sitede:</strong> İzlediklerim sayfasındaki "Sırada" bölümü bu listeyi aynı sırayla gösterir. İlk 6 kayıt hep görünür, kalanlar "hepsini göster" ile açılır. Not, afişin altında el yazısıyla çıkar.<br><br>

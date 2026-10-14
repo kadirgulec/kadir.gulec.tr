@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Book;
 use App\Models\Follow;
 use App\Models\Goal;
 use App\Models\Project;
@@ -37,6 +38,7 @@ new #[Layout('layouts::account'), Title('Takip ettiklerim')] class extends Compo
 
         return match (true) {
             $followable instanceof Watchable => ['name' => $followable->title, 'kind' => $followable->type->label(), 'url' => url($followable->publicPath()), 'muted' => false],
+            $followable instanceof Book => ['name' => $followable->title, 'kind' => 'Kitap', 'url' => url($followable->publicPath()), 'muted' => false],
             $followable instanceof Project => ['name' => $followable->name, 'kind' => 'Proje', 'url' => url($followable->publicPath()), 'muted' => false],
             $followable instanceof Goal => [
                 'name' => app(Notifier::class)->goalTitle($followable, auth()->user()),

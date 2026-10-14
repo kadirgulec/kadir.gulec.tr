@@ -6,12 +6,14 @@ use App\Enums\ChainDayState;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
 use App\Enums\GoalPace;
+use App\Enums\ReadingStatus;
 use App\Models\ChainDay;
 use App\Models\Goal;
 use App\Models\GoalProgress;
 use App\Models\Note;
 use App\Models\PageView;
 use App\Models\Post;
+use App\Models\Reading;
 use App\Models\Viewing;
 use App\Support\ChainStats;
 use Carbon\CarbonImmutable;
@@ -25,7 +27,7 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * @phpstan-type ChainNumbers array{goal_id: int, period: string, target: int, doneDays: int, excusedDays: int, links: int, held: int, excused: int, successRate: int, bestStreak: int, record: int|null}
  * @phpstan-type YearlyNumbers array{goal_id: int, unit: string|null, target: int, added: int, current: int, pace: string}
- * @phpstan-type Stats array{chains: list<ChainNumbers>, yearly: list<YearlyNumbers>, published: array{posts: int, notes: int, viewings: int}, visitors: array{views: int, visits: int, topPost: array{post_id: int, views: int}|null}}
+ * @phpstan-type Stats array{chains: list<ChainNumbers>, yearly: list<YearlyNumbers>, published: array{posts: int, notes: int, viewings: int, books?: int}, visitors: array{views: int, visits: int, topPost: array{post_id: int, views: int}|null}}
  */
 class MonthlyReviewStats
 {
@@ -129,7 +131,10 @@ class MonthlyReviewStats
     }
 
     /**
-     * @return array{posts: int, notes: int, viewings: int}
+     * Books count when they were finished in the month (reviews before
+     * Okuduklarım have no "books" number at all).
+     *
+     * @return array{posts: int, notes: int, viewings: int, books: int}
      */
     private function published(CarbonImmutable $start, CarbonImmutable $end): array
     {
@@ -139,6 +144,11 @@ class MonthlyReviewStats
             'viewings' => Viewing::query()
                 ->whereBetween('watched_on', [$start->toDateString(), $end->toDateString()])
                 ->whereHas('watchable', fn (Builder $query) => $query->published())
+                ->count(),
+            'books' => Reading::query()
+                ->where('status', ReadingStatus::Finished)
+                ->whereBetween('finished_on', [$start->toDateString(), $end->toDateString()])
+                ->whereHas('book', fn (Builder $query) => $query->published())
                 ->count(),
         ];
     }

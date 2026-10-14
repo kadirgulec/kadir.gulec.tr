@@ -199,7 +199,7 @@ new #[Layout('layouts::admin')] class extends Component {
 @endphp
 
 <div class="space-y-6">
-    <x-admin.page-header :heading="$watchable->title" :description="$watchable->type->label().($watchable->year ? ' · '.$watchable->year : '')" :dot="Section::Watched->adminDotClass()">
+    <x-admin.page-header :heading="$watchable->title" :description="$watchable->type->label().($watchable->year ? ' · '.$watchable->year : '')" :dot="Section::Shelf->adminDotClass()">
         <x-slot:actions>
             <x-admin.button :href="route('admin.watched.index')" icon="arrow-left" variant="ghost" wire:navigate>İzlediklerim</x-admin.button>
             @if ($watchable->tmdb_id)
@@ -233,13 +233,15 @@ new #[Layout('layouts::admin')] class extends Component {
                 @endif
 
                 <div class="space-y-4">
-                    <x-admin.markdown wire:model="form.review" section="watched" reviews rows="18" description="Boşsa sayfada özet gösterilir. Yorum, kayıttan ayrı yayınlanır." />
+                    <x-admin.markdown wire:model="form.review" section="shelf" reviews rows="18" description="Boşsa sayfada özet gösterilir. Yorum, kayıttan ayrı yayınlanır." />
                     <div class="flex flex-wrap items-end gap-2">
                         <x-admin.input wire:model="form.review_published_at" type="datetime-local" label="Yorumun yayın tarihi" description="Boş: yorum taslakta kalır." class="flex-1" />
                         <x-admin.button size="sm" variant="subtle" class="mb-0.5" wire:click="publishReviewNow">Şimdi</x-admin.button>
                     </div>
                 </div>
             </x-admin.card>
+
+            <livewire:admin.quotes type="watchable" :id="$watchable->id" />
 
             <x-admin.card>
                 <x-slot:heading>İzleme günlüğü</x-slot:heading>

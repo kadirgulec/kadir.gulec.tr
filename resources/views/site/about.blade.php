@@ -103,6 +103,13 @@
                 </li>
             @endif
 
+            @if ($now['book'])
+                <li class="flex gap-3">
+                    <span aria-hidden="true">📖</span>
+                    <span><a href="{{ $now['book']['url'] }}" class="font-semibold underline decoration-section decoration-2 underline-offset-4 hover:text-section-ink">{{ $now['book']['title'] }}</a> okuyorum <span class="font-mono text-sm text-ink-soft">(%{{ $now['book']['progress'] ?? 0 }})</span></span>
+                </li>
+            @endif
+
             @if ($now['chain'])
                 <li class="flex gap-3">
                     <span aria-hidden="true">🔥</span>

@@ -245,7 +245,7 @@
 
         <div class="cork mt-6 rounded-md p-6 pt-8 sm:p-10">
             @unless ($longTermGoals)
-                <p class="font-hand text-2xl text-paper">Panoda henüz bir kart yok.</p>
+                <p class="font-hand text-2xl text-paper">Henüz bir kart yok.</p>
             @endunless
 
             <div class="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">

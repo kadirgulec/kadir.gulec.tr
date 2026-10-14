@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\SeriesStatus;
+use App\Models\Note;
 use App\Models\User;
 use App\Models\Watchable;
 
@@ -59,6 +60,24 @@ describe('show', function () {
             ->assertSee('data-spoiler', false)
             ->assertSeeText('Şimdi şimdidir.')
             ->assertSeeText('— Hirayama');
+    });
+
+    it('shows the collected lines apart from the review, without the hidden ones', function () {
+        $film = Watchable::factory()->create();
+        $film->quotes()->create(['body' => 'Şimdi şimdidir.', 'said_by' => 'Hirayama', 'published_at' => now()]);
+        $film->quotes()->create(['body' => 'Gizli replik.']);
+
+        $this->get(route('watched.show', ['type' => 'film', 'slug' => $film->slug]))
+            ->assertSeeTextInOrder(['Aklımda kalan replikler', 'Şimdi şimdidir.', '— Hirayama'])
+            ->assertDontSeeText('Gizli replik.');
+    });
+
+    it('collects the notes that came out of a series', function () {
+        $series = Watchable::factory()->series()->create();
+        Note::factory()->create(['body' => 'Diziden bir not.', 'source_type' => 'watchable', 'source_id' => $series->id]);
+
+        $this->get(route('watched.show', ['type' => 'dizi', 'slug' => $series->slug]))
+            ->assertSeeTextInOrder(['Bu diziden notlarım', 'Diziden bir not.']);
     });
 
     it('keeps a review with a future publication time hidden', function () {

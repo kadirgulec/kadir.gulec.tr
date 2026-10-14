@@ -13,6 +13,7 @@ enum Permission: string
     case ManagePosts = 'posts.manage';
     case ManageNotes = 'notes.manage';
     case ManageWatched = 'watched.manage';
+    case ManageBooks = 'books.manage';
     case ManageGoals = 'goals.manage';
     case ManageProjects = 'projects.manage';
     case ManageUsers = 'users.manage';
@@ -32,6 +33,7 @@ enum Permission: string
             self::ManagePosts => 'Yazıları yönetir',
             self::ManageNotes => 'Öğrendiklerimi yönetir',
             self::ManageWatched => 'İzlediklerimi yönetir',
+            self::ManageBooks => 'Okuduklarımı yönetir',
             self::ManageGoals => 'Hedefleri yönetir',
             self::ManageProjects => 'Projeleri yönetir',
             self::ManageUsers => 'Kullanıcıları yönetir',
@@ -53,7 +55,7 @@ enum Permission: string
     {
         return match ($this) {
             self::AccessAdmin, self::ManageBackups, self::ReadMessages, self::ViewAnalytics => 'Admin',
-            self::ManagePosts, self::ManageNotes, self::ManageWatched, self::ManageGoals, self::ManageProjects => 'İçerik',
+            self::ManagePosts, self::ManageNotes, self::ManageWatched, self::ManageBooks, self::ManageGoals, self::ManageProjects => 'İçerik',
             self::ManageUsers, self::ManageRoles => 'Üyeler',
             self::CreateComments, self::ModerateComments => 'Yorumlar',
             self::Follow, self::ViewCensoredGoals => 'Takip ve hedefler',

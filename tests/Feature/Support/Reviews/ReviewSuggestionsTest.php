@@ -84,6 +84,11 @@ it('suggests the month\'s writing by how many posts came out', function (int $po
     'several' => [3, ['3 yazı yayınlandı']],
 ]);
 
+it('suggests the books finished in the month, when there were any', function () {
+    expect(array_column(suggestionsFor(['published' => ['posts' => 1, 'notes' => 0, 'viewings' => 0, 'books' => 2]]), 'text'))->toBe(['2 kitap bitirildi'])
+        ->and(suggestionsFor(['published' => ['posts' => 1, 'notes' => 0, 'viewings' => 0, 'books' => 0]]))->toBe([]);
+});
+
 it('suggests the most read post by its current title', function () {
     $post = Post::factory()->create(['title' => 'Eski başlık']);
     $post->update(['title' => 'Yeni başlık']);

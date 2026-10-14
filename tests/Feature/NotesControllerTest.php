@@ -1,9 +1,11 @@
 <?php
 
+use App\Models\Book;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
+use App\Models\Watchable;
 use App\Support\Content\NoteContent;
 
 function noteTagged(string $tag, string $body, ?string $publishedAt = '2026-09-01'): Note
@@ -63,7 +65,7 @@ describe('board', function () {
 
         $this->get(route('notes.index', ['sayfa' => 2]))
             ->assertSee('<link rel="canonical" href="'.route('notes.index', ['sayfa' => 2]).'" />', false)
-            ->assertSee('<title>Öğrendiklerim · sayfa 2 · Kadir Gülec</title>', false);
+            ->assertSee('<title>Panom · öğrendiklerim · sayfa 2 · Kadir Gülec</title>', false);
 
         $this->get(route('notes.index', ['sayfa' => 3]))->assertNotFound();
     });
@@ -96,6 +98,26 @@ describe('note page', function () {
             ->get(route('notes.show', $draft->id))
             ->assertOk()
             ->assertSeeText('Taslak · sadece sen görüyorsun');
+    });
+
+    it('names its source on the post-it, linked only while the source is public', function () {
+        $book = Book::factory()->create(['title' => 'Körlük', 'slug' => 'korluk']);
+        $draftFilm = Watchable::factory()->draft()->create(['title' => 'Taslak Film']);
+        $fromBook = Note::factory()->create(['source_type' => 'book', 'source_id' => $book->id]);
+        $fromFilm = Note::factory()->create(['source_type' => 'watchable', 'source_id' => $draftFilm->id]);
+
+        $this->get(route('notes.show', $fromBook))->assertSeeText('kaynak: Körlük')->assertSee('/okuduklarim/korluk');
+        $this->get(route('notes.show', $fromFilm))->assertSeeText('kaynak: Taslak Film')->assertDontSee($draftFilm->publicPath());
+        $this->get(route('notes.index'))->assertSeeText('kaynak: Körlük');
+    });
+
+    it('keeps a note when its source is deleted, only without the source', function () {
+        $book = Book::factory()->create();
+        $note = Note::factory()->create(['source_type' => 'book', 'source_id' => $book->id]);
+
+        $book->delete();
+
+        expect($note->fresh()->only(['source_type', 'source_id']))->toBe(['source_type' => null, 'source_id' => null]);
     });
 
     it('returns 404 for an address that is not a note number', function () {

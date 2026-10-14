@@ -7,4 +7,4 @@ Zinciri kırma
 
 --
 Mazeretli günler de sayılır. Bu hatırlatma sadece sana gider, takipçiler görmez.
-Panoda işaretle: {!! $dashboardUrl !!}
+Masada işaretle: {!! $dashboardUrl !!}

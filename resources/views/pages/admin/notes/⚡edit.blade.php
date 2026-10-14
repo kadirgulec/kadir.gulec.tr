@@ -3,8 +3,10 @@
 use App\Actions\Notes\SaveNote;
 use App\Enums\Section;
 use App\Livewire\Forms\NoteForm;
+use App\Models\Book;
 use App\Models\Note;
 use App\Models\Tag;
+use App\Models\Watchable;
 use App\Support\FormControl;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -63,6 +65,20 @@ new #[Layout('layouts::admin')] class extends Component {
         return Tag::query()->orderBy('name')->pluck('name')->all();
     }
 
+    /**
+     * The books and films/series a note can name as its source, by title.
+     *
+     * @return array{books: array<string, string>, watchables: array<string, string>}
+     */
+    #[Computed]
+    public function sourceOptions(): array
+    {
+        return [
+            'books' => Book::query()->orderBy('title')->get(['id', 'title'])->mapWithKeys(fn (Book $book): array => ['book:'.$book->id => $book->title])->all(),
+            'watchables' => Watchable::query()->orderBy('title')->get(['id', 'title', 'type'])->mapWithKeys(fn (Watchable $watchable): array => ['watchable:'.$watchable->id => $watchable->title.' ('.mb_strtolower($watchable->type->label()).')'])->all(),
+        ];
+    }
+
     public function render(): mixed
     {
         return $this->view()->title(($this->form->note ? 'Not #'.$this->form->note->id : 'Yeni not').' · Öğrendiklerim');
@@ -109,6 +125,22 @@ new #[Layout('layouts::admin')] class extends Component {
                             <option value="{{ $tagName }}"></option>
                         @endforeach
                     </datalist>
+                    <x-admin.select wire:model="form.source" label="Kaynak" placeholder="Yok" description="Opsiyonel: notu bir kitaptan ya da filmden öğrendiysen. Post-it'te “kaynak” olarak, kitabın ya da filmin sayfasında da görünür.">
+                        @if ($this->sourceOptions['books'])
+                            <optgroup label="Kitaplar">
+                                @foreach ($this->sourceOptions['books'] as $value => $title)
+                                    <option value="{{ $value }}">{{ $title }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                        @if ($this->sourceOptions['watchables'])
+                            <optgroup label="Filmler ve diziler">
+                                @foreach ($this->sourceOptions['watchables'] as $value => $title)
+                                    <option value="{{ $value }}">{{ $title }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                    </x-admin.select>
                     <x-admin.separator />
                     <x-admin.input wire:model="form.published_at" type="datetime-local" label="Tarih" description="Post-it'teki tarih. Boş: taslak. Gelecekte: o an kendiliğinden yayınlanır." />
                     <div class="flex gap-2">

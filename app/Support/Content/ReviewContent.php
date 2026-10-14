@@ -180,6 +180,7 @@ class ReviewContent
             ['posts', $stats['published']['posts'], 'yazı', route('posts.index')],
             ['notes', $stats['published']['notes'], 'not', route('notes.index')],
             ['viewings', $stats['published']['viewings'], 'film / dizi', route('watched.index')],
+            ...(isset($stats['published']['books']) ? [['books', $stats['published']['books'], 'kitap', route('books.index')]] : []),
             ['views', $stats['visitors']['views'], 'sayfa görüntüleme', null],
             ['visits', $stats['visitors']['visits'], 'ziyaret', null],
         ] as [$key, $value, $unit, $url]) {

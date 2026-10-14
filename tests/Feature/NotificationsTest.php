@@ -3,8 +3,10 @@
 use App\Enums\GoalMeasure;
 use App\Enums\NotificationFrequency;
 use App\Enums\ProjectStatus;
+use App\Enums\ReadingStatus;
 use App\Enums\SeriesStatus;
 use App\Mail\NotificationDigest;
+use App\Models\Book;
 use App\Models\Comment;
 use App\Models\Goal;
 use App\Models\MonthlyReview;
@@ -12,6 +14,7 @@ use App\Models\Note;
 use App\Models\NotificationItem;
 use App\Models\Post;
 use App\Models\Project;
+use App\Models\Reading;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\Watchable;
@@ -44,6 +47,17 @@ describe('follow button', function () {
 
         $component->call('toggle');
         expect($film->isFollowedBy($member))->toBeFalse();
+    });
+
+    it('follows a book too', function () {
+        $book = Book::factory()->create();
+        $member = follower();
+        $this->actingAs($member);
+
+        Livewire::test('site.follow-button', ['type' => 'book', 'id' => $book->id])->call('toggle');
+
+        expect($book->isFollowedBy($member))->toBeTrue();
+        $this->get(route('books.show', $book->slug))->assertSeeLivewire('site.follow-button');
     });
 
     it('asks guests to sign in and refuses unverified members', function () {
@@ -112,6 +126,38 @@ describe('moments', function () {
         $this->artisan('notifications:announce');
 
         expect($member->notificationItems()->sole()->title)->toBe('Perfect Days hakkında yorum yazdım');
+    });
+
+    it('announces a book review the same way, once its time came', function () {
+        $book = Book::factory()->create(['title' => 'Körlük', 'review' => 'Güzel.', 'review_published_at' => now()->addHour()]);
+        follow($member = follower(), $book);
+
+        $this->artisan('notifications:announce');
+        expect($member->notificationItems()->count())->toBe(0);
+
+        $this->travel(2)->hours();
+        $this->artisan('notifications:announce');
+        $this->artisan('notifications:announce');
+
+        expect($member->notificationItems()->sole()->title)->toBe('Körlük hakkında yorum yazdım');
+    });
+
+    it('tells followers a book was finished, for the digest only, and nothing about drafts', function () {
+        $book = Book::factory()->create(['title' => 'Saatleri Ayarlama Enstitüsü']);
+        $draft = Book::factory()->draft()->create();
+        follow($member = follower(), $book);
+        follow($member, $draft);
+        $reading = Reading::factory()->reading()->for($book)->create();
+        Reading::factory()->for($draft)->create();
+
+        expect($member->notificationItems()->count())->toBe(0);
+
+        $reading->update(['status' => ReadingStatus::Finished, 'finished_on' => today()]);
+        $reading->update(['progress' => 100]);
+
+        $item = $member->notificationItems()->sole();
+        expect($item->title)->toBe('Saatleri Ayarlama Enstitüsü: bitirdim')
+            ->and($item->digest_only)->toBeTrue();
     });
 
     it('announces new posts to subscribers only', function () {
@@ -340,10 +386,12 @@ describe('account pages', function () {
         follow($user, Goal::factory()->chain()->censored()->create(['title' => 'Gizli zincir']));
         $this->actingAs($user);
 
-        $component = Livewire::test('pages::settings.follows')->assertSee('Shōgun')->assertSee('🔒 ██████')->assertDontSee('Gizli zincir');
+        follow($user, Book::factory()->create(['title' => 'Körlük']));
+
+        $component = Livewire::test('pages::settings.follows')->assertSee('Shōgun')->assertSee('Körlük')->assertSee('Kitap')->assertSee('🔒 ██████')->assertDontSee('Gizli zincir');
         $component->call('unfollow', $user->follows()->first()->id);
 
-        expect($user->follows()->count())->toBe(1);
+        expect($user->follows()->count())->toBe(2);
     });
 
     it('switches the new notes subscription from the board', function () {
