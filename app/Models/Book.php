@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\BookFormat;
 use App\Enums\ReadingStatus;
+use App\Models\Concerns\HasFollowers;
 use App\Models\Concerns\HasPublication;
 use App\Models\Concerns\HasQuotes;
 use App\Models\Concerns\HasSlugRedirects;
@@ -49,6 +50,7 @@ use Illuminate\Support\Str;
  * @property string|null $review
  * @property string|null $review_html
  * @property CarbonImmutable|null $review_published_at
+ * @property CarbonImmutable|null $review_announced_at
  * @property int|null $reading_list_position
  * @property string|null $reading_list_note
  * @property string|null $meta_description
@@ -63,7 +65,7 @@ use Illuminate\Support\Str;
 class Book extends Model
 {
     /** @use HasFactory<BookFactory> */
-    use HasFactory, HasPublication, HasQuotes, IsNoteSource, RendersMarkdown, Sortable;
+    use HasFactory, HasFollowers, HasPublication, HasQuotes, IsNoteSource, RendersMarkdown, Sortable;
 
     use HasSlugRedirects {
         uniqueSlug as numberedSlug;
@@ -241,6 +243,7 @@ class Book extends Model
             'year' => 'integer',
             'reading_list_position' => 'integer',
             'review_published_at' => 'immutable_datetime',
+            'review_announced_at' => 'immutable_datetime',
         ];
     }
 }

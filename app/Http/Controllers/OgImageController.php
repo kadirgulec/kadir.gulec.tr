@@ -6,6 +6,7 @@ use App\Enums\GoalKind;
 use App\Enums\GoalVisibility;
 use App\Enums\Section;
 use App\Enums\WatchableType;
+use App\Models\Book;
 use App\Models\Goal;
 use App\Models\MonthlyReview;
 use App\Models\Note;
@@ -67,6 +68,7 @@ class OgImageController extends Controller
             'note' => $this->note($key),
             'project' => $this->project($key),
             'film', 'dizi' => $this->watchable(WatchableType::fromRouteSegment($kind), $key),
+            'kitap' => $this->book($key),
             'goal' => $this->goal($key),
             'aylik' => $this->monthlyReview($key),
             default => null,
@@ -152,6 +154,27 @@ class OgImageController extends Controller
             'poster' => $watchable->poster_path ? Storage::disk('public')->path(ImageStore::file($watchable->poster_path, 480)) : null,
             'grade' => $watchable->rating,
         ], $watchable->updated_at];
+    }
+
+    /**
+     * @return array{0: Card, 1: ?CarbonInterface}|null
+     */
+    private function book(string $slug): ?array
+    {
+        $book = Book::query()->published()->where('slug', $slug)->first();
+
+        if ($book === null) {
+            return null;
+        }
+
+        return [[
+            'title' => $book->title,
+            'kicker' => 'Okuduklarım',
+            'subtitle' => collect([$book->author, $book->year])->filter()->implode(' · '),
+            'section' => Section::Shelf,
+            'poster' => $book->cover_path ? Storage::disk('public')->path(ImageStore::file($book->cover_path, 480)) : null,
+            'grade' => $book->rating,
+        ], $book->updated_at];
     }
 
     /**

@@ -8,7 +8,7 @@ use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 /*
- * "Takip et" toggle for a film/series, a goal or a project. Guests are
+ * "Takip et" toggle for a film/series, a book, a goal or a project. Guests are
  * asked to sign in; hidden goals cannot be followed.
  */
 new class extends Component {
@@ -19,7 +19,7 @@ new class extends Component {
     public int $id;
 
     /** The followable kinds (morph names). */
-    private const TYPES = ['watchable', 'goal', 'project'];
+    private const TYPES = ['watchable', 'book', 'goal', 'project'];
 
     public function mount(string $type, int $id): void
     {

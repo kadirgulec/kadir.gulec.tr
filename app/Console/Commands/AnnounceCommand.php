@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Book;
 use App\Models\Goal;
 use App\Models\MonthlyReview;
 use App\Models\Note;
@@ -41,6 +42,16 @@ class AnnounceCommand extends Command
             ->each(function (Watchable $watchable) use ($announcements): void {
                 $announcements->review($watchable);
                 $watchable->forceFill(['review_announced_at' => now()])->saveQuietly();
+            });
+
+        Book::query()->published()
+            ->whereNotNull('review_html')
+            ->whereNotNull('review_published_at')
+            ->where('review_published_at', '<=', now())
+            ->whereNull('review_announced_at')
+            ->each(function (Book $book) use ($announcements): void {
+                $announcements->bookReview($book);
+                $book->forceFill(['review_announced_at' => now()])->saveQuietly();
             });
 
         if ($this->option('chain-breaks')) {

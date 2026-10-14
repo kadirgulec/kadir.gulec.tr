@@ -10,6 +10,7 @@ use App\Models\Quote;
 use App\Models\Reading;
 use App\Support\Images\PosterPalette;
 use App\Support\Markdown\Markdown;
+use App\Support\Og\OgUrl;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -26,13 +27,13 @@ use Illuminate\Support\Str;
  * @phpstan-type BookQuote array{text: string, by: ?string, location: ?string}
  * @phpstan-type BookReading array{startedOn: CarbonImmutable, finishedOn: ?CarbonImmutable, status: ReadingStatus, progress: ?int}
  * @phpstan-type BookEntry array{
- *     id: int, slug: string, title: string, originalTitle: ?string, author: string, translator: ?string, publisher: ?string,
+ *     id: int, slug: string, title: string, originalTitle: ?string, author: string, translator: ?string, publisher: ?string, isbn: ?string,
  *     year: ?int, language: string, format: BookFormat, overview: ?string,
  *     coverUrl: ?string, coverColors: array{0: string, 1: string}, accent: string,
  *     rating: ?float, isFavorite: bool, status: ?ReadingStatus, progress: ?int,
  *     startedOn: ?CarbonImmutable, finishedOn: ?CarbonImmutable, readAt: ?CarbonImmutable, isReread: bool, readings: list<BookReading>,
  *     hasReview: bool, reviewHtml: ?HtmlString, reviewExcerpt: ?string, quotes: list<BookQuote>,
- *     url: string, isDraft: bool, metaDescription: string
+ *     url: string, isDraft: bool, metaDescription: string, ogImage: string
  * }
  */
 class BookContent
@@ -144,6 +145,7 @@ class BookContent
             'author' => $book->author,
             'translator' => $book->translator,
             'publisher' => $book->publisher,
+            'isbn' => $book->isbn,
             'year' => $book->year,
             'language' => $book->language,
             'format' => $book->format,
@@ -176,6 +178,7 @@ class BookContent
             'url' => url($book->publicPath()),
             'isDraft' => ! $book->isPublished(),
             'metaDescription' => $book->meta_description ?: Str::limit((string) $book->overview, 155, '…', preserveWords: true),
+            'ogImage' => OgUrl::for('kitap', $book->slug, $book->updated_at),
         ];
     }
 

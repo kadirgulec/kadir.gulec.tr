@@ -21,7 +21,7 @@
     };
 @endphp
 
-<x-layouts::site :section="Section::Shelf" :title="$entry['title']" :accent="$entry['accent']" :draft="$entry['isDraft']" :description="$entry['metaDescription']">
+<x-layouts::site :section="Section::Shelf" :title="$entry['title']" :accent="$entry['accent']" :draft="$entry['isDraft']" :description="$entry['metaDescription']" :og-image="$entry['ogImage']" :structured-data="array_filter([\App\Support\Seo\StructuredData::bookReview($entry)])">
     <a href="{{ route('books.index') }}" class="font-hand text-xl text-ink-soft hover:text-section-ink">← Okuduklarım</a>
 
     <div class="mt-8 grid items-start gap-12 md:grid-cols-[15rem_1fr] md:gap-14">
@@ -98,6 +98,10 @@
             @if ($entry['isFavorite'])
                 <p class="mt-7 font-hand text-2xl text-pen-red">favorilerime girdi! ★</p>
             @endif
+
+            <div class="mt-7">
+                <livewire:site.follow-button type="book" :id="$entry['id']" />
+            </div>
 
         </div>
     </div>
