@@ -23,8 +23,8 @@ it('shows one snippet from every section on the lately board', function () {
     $response->assertSeeTextInOrder([
         'Kuru Otlar Üstüne',
         'Severance',
-        'Her gün 30 dk kod',
         'Yapay zekâyla kod yazarken kendime koyduğum beş kural',
+        'Her gün 30 dk kod',
         'CoMon',
     ]);
 });
