@@ -38,9 +38,9 @@
         </div>
 
         <div class="mt-10">
-            {{-- Two thematic columns on wide screens: the shelf and habits on the left, writing on the right.
+            {{-- Two thematic columns on wide screens: the shelf on the left, writing on the right; habits and the project span both below.
                  Each column is its own block, so the visual order is the reading order on every screen. --}}
-            <div class="grid items-start gap-x-8 md:grid-cols-2">
+            <div class="grid grid-cols-1 items-start gap-x-8 md:grid-cols-2">
                 <div>
                     {{-- Last watched film --}}
                     @if ($lastWatched)
@@ -133,35 +133,6 @@
                         </ul>
                     </x-site.note>
                     @endif
-
-                    {{-- Chains --}}
-                    @if ($chains)
-                    <x-site.note :section="Section::Goals" tilt="-1" tape="right" label="zincirler" :more-href="route('goals.index')" more-label="tüm hedefler →" class="mb-12">
-                        <ul class="flex flex-col gap-5">
-                            @foreach ($chains as $chain)
-                                <li>
-                                    <div class="flex items-baseline justify-between gap-3">
-                                        <span class="font-semibold">
-                                            @if ($chain['title'])
-                                                {{ $chain['title'] }}
-                                            @else
-                                                <span aria-hidden="true">🔒</span>
-                                                <x-site.censored :length="$chain['titleLength']" label="sansürlü zincir" />
-                                            @endif
-                                        </span>
-                                        <span class="shrink-0 font-mono text-sm font-semibold text-section-ink">🔥 {{ $chain['streak'] }} {{ $chain['period']->unit() }}</span>
-                                    </div>
-                                    <x-site.chain :days="$chain['days']" :unit="$chain['period']->unit()" class="mt-2" />
-                                </li>
-                            @endforeach
-                        </ul>
-
-                        <p class="mt-5 flex items-center gap-2 font-hand text-lg text-ink-faint">
-                            <span class="inline-block h-3 w-1.5 rotate-[28deg] bg-ink-faint/55" aria-hidden="true"></span>
-                            bantlı halka = mazeretli
-                        </p>
-                    </x-site.note>
-                    @endif
                 </div>
 
                 <div>
@@ -194,6 +165,35 @@
                     @endif
                 </div>
             </div>
+
+            {{-- Chains --}}
+            @if ($chains)
+            <x-site.note :section="Section::Goals" tilt="0.4" tape="right" label="zincirler" :more-href="route('goals.index')" more-label="tüm hedefler →" class="mb-12">
+                <ul class="grid gap-x-10 gap-y-5 sm:grid-cols-2">
+                    @foreach ($chains as $chain)
+                        <li>
+                            <div class="flex items-baseline justify-between gap-3">
+                                <span class="font-semibold">
+                                    @if ($chain['title'])
+                                        {{ $chain['title'] }}
+                                    @else
+                                        <span aria-hidden="true">🔒</span>
+                                        <x-site.censored :length="$chain['titleLength']" label="sansürlü zincir" />
+                                    @endif
+                                </span>
+                                <span class="shrink-0 font-mono text-sm font-semibold text-section-ink">🔥 {{ $chain['streak'] }} {{ $chain['period']->unit() }}</span>
+                            </div>
+                            <x-site.chain :days="$chain['days']" :unit="$chain['period']->unit()" class="mt-2" />
+                        </li>
+                    @endforeach
+                </ul>
+
+                <p class="mt-5 flex items-center gap-2 font-hand text-lg text-ink-faint">
+                    <span class="inline-block h-3 w-1.5 rotate-[28deg] bg-ink-faint/55" aria-hidden="true"></span>
+                    bantlı halka = mazeretli
+                </p>
+            </x-site.note>
+            @endif
 
             {{-- Featured project --}}
             @if ($featuredProject)
