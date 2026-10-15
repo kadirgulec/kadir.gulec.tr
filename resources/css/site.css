@@ -795,11 +795,12 @@ html.lamp-off::view-transition-old(root) {
         color: var(--color-section-ink);
     }
 
-    .prose-notebook ul,
-    .prose-notebook ol {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
+    /*
+     * Plain block lists, not flex with gap: a flex item wraps its floats,
+     * so a sidenote inside a list item would stretch the item to its height.
+     */
+    .prose-notebook li + li {
+        margin-top: 0.5rem;
     }
 
     .prose-notebook ul > li {
