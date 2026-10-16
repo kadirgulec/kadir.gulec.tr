@@ -62,7 +62,7 @@ return [
     /*
      * Who writes the notebook, for search engines (App\Support\Seo\StructuredData):
      * the Person every page and post points at. "same_as" are Kadir's other
-     * profiles, so the CV site and GitHub are tied to the same person.
+     * profiles, so the CV site, GitHub and LinkedIn are tied to the same person.
      */
     'person' => [
         'name' => 'Kadir Gülec',
@@ -72,6 +72,7 @@ return [
         'same_as' => [
             'https://kadir.guelec.eu',
             'https://github.com/kadirgulec',
+            'https://www.linkedin.com/in/kadirguelec',
         ],
     ],
 ];
