@@ -1,0 +1,79 @@
+# SEO Planı (2. tur): kadir.gulec.tr
+
+Bu dosya, 2026-10-12'deki ilk SEO turundan (JSON-LD, canonical, sitemap, HSTS) sonraki ikinci turun kararlarını, adımlarını ve Kadir'in kendi yapacaklarını tutar. Kaynaklı araştırma `SEO-ARASTIRMA.md` içinde; bu dosyadaki her madde oradaki bir bulguya dayanıyor. Yeni bir oturumda önce bu dosyayı oku, sonra işaretlenmemiş ilk adımdan devam et.
+
+> Kararlar 2026-10-19 tarihli soru-cevap oturumunda alındı. Bütün adımlar `seo-2` dalında, her adım ayrı commit. Kadir adımların hepsinin aralıksız yapılmasını onayladı; sonunda fark ve görünür değişiklikler gösterilir. Aylık değerlendirmenin ilk taslağı 1 Kasım'da geldiği için dal ondan önce merge edilmeli.
+
+---
+
+## 1. Kapsam
+
+Araştırmanın özetindeki 13 madde dört gruba ayrıldı:
+
+- **A. Karar gerektirmeyen düzeltmeler** (bu turda): giriş sayfaları, boş meta description, LCP görseli, `max-image-preview`, PNG favicon, küçük düzeltmeler.
+- **B. Karar gerektiren değişiklikler** (bu turda): site adı, aylık değerlendirme, notların JSON-LD'si, yazar bilgisi.
+- **C. Kadir'in kendisi** (paralel, bkz. bölüm 4): Search Console, Bing, Rich Results Test.
+- **D. Ertelendi**: IndexNow (ayrı, küçük bir özellik; yalnızca Bing/Yandex için) ve `font-display: block` kararının yeniden tartılması (önce Search Console'da alan verisi birikmeli).
+
+## 2. Kararlar
+
+### Site adı
+
+Her yerde **Kadir Gülec**. `WebSite.name` ve `og:site_name` "Kadir Gülec" olur, `kadir.gulec.tr` `alternateName`'e geçer. Title ve manifest zaten "Kadir Gülec" diyor.
+
+### Giriş sayfaları ve robots.txt
+
+`/login`, `/register` ve `/forgot-password` herkese açık linkleniyor (footer, giriş sayfası). Bu üçü `Disallow`'dan çıkar ve bütün auth layout'una `noindex, nofollow` eklenir; Google ancak tarayabildiği sayfadaki `noindex`'i görür. Token ya da oturum isteyen (`/reset-password`, `/two-factor-challenge`), girişe yönlenen (`/admin`, `/hesap`, `/user/`) ve yalnızca e-postadan gelinen (`/bildirimler/`, `/takip/`) yollar engelli kalır.
+
+### Boş meta description
+
+Kitap ve film/dizi sayfalarında sıra: `meta_description` → özet (`overview`) → yorumun spoiler'sız alıntısı → üretilen bir cümle (kitapta yazar, filmde yönetmen ya da yaratıcıyla). Layout da `??` yerine `filled()` ile varsayılana düşer, böylece hiçbir sayfa (hedefler dahil) boş description vermez.
+
+### LCP, görsel önizleme, favicon
+
+- Detay sayfalarının ana görseli (afiş, kitap kapağı, proje görseli, hedef görseli) `loading="eager"` + `fetchpriority="high"`. Listeler lazy kalır.
+- Dizine girebilen her sayfada `max-image-preview:large`.
+- SVG'nin yanına `/icons/icon-192.png` PNG favicon linki (Google'ın favicon belgesi SVG'yi saymıyor).
+
+### Aylık değerlendirme
+
+- `/hedefler/aylik` 302 ile son aya yönlenmeye devam eder; yayında bir değerlendirme varsa sitemap'te yalnızca ay adresleri durur. Altı aydan sonra gerçek bir arşiv sayfası yeniden düşünülebilir.
+- `h1`'in başına ay adı ekran okuyucuya özel (`sr-only`) olarak girer: "Ekim 2026 değerlendirmesi: Her ayın sonunda dürüst bir bakış." Görünüm değişmez (notlardaki sr-only `h1` ile aynı yaklaşım).
+
+### Notlar ve değerlendirmeler için JSON-LD
+
+İkisine de `BlogPosting` (Google'ın rich result'ı yok, amaç sayfanın tarihli ve yazarı belli bir yazı olarak anlaşılması; `DiscussionForumPosting`/`SocialMediaPosting` site sahibinin içeriği için yasak). İkisinde de `og:type="article"` ve `article:published_time`.
+
+### Yazar
+
+- Yazının sonundaki el yazısı "Kadir" imzası `/hakkimda`'ya link olur; altı çizilmez, yalnızca hover rengi.
+- `Person`'a kısa bir `description`.
+- Fotoğraf yok (Kadir şimdilik istemiyor), bu yüzden `image` ve `ProfilePage.dateModified` da yok.
+
+### Küçük düzeltmeler
+
+- `BlogPosting.description` `trim` edilir.
+- `og:image:alt` başlığı değil, görselin içeriğini anlatır.
+- `twitter:image:alt` silinir (X `og:image:alt`'a geri düşüyor).
+- Dışarıda: kitap/film için `og:type=book`/`video.movie` (yalnızca sosyal önizleme) ve Article için çoklu en-boy oranlı görseller.
+
+## 3. Adımlar
+
+- [ ] **Adım 1: robots.txt ve auth `noindex`**
+- [ ] **Adım 2: Meta description geri düşüşleri**
+- [ ] **Adım 3: LCP görseli, `max-image-preview`, PNG favicon**
+- [ ] **Adım 4: Site adı, `og:image:alt`, `twitter:image:alt`, `BlogPosting.description`**
+- [ ] **Adım 5: Notlar ve değerlendirmeler için `BlogPosting`, `og:type`, `published_time`**
+- [ ] **Adım 6: Aylık değerlendirme: sitemap ve sr-only `h1`**
+- [ ] **Adım 7: Yazar imzası ve `Person.description`**
+
+## 4. Kadir'in yapacakları
+
+- [ ] **Google Search Console**: `kadir.gulec.tr` için domain property (DNS TXT kaydıyla doğrulama), `https://kadir.gulec.tr/sitemap.xml` gönderimi. İsteğe bağlı: üç Atom akışı da sitemap olarak gönderilebilir. Haftada bir Page indexing raporuna bakmak.
+- [ ] **Bing Webmaster Tools**: siteyi Search Console'dan içe aktarmak.
+- [ ] **Rich Results Test**: deploy'dan sonra bir dizi sayfasını (`TVSeries` yorumu) test etmek; Google'ın review snippet listesinde `TVSeries` adı geçmiyor.
+- [ ] **Alan verisi**: birkaç hafta sonra Search Console'un Core Web Vitals raporuna bakmak; `font-display` kararı (D grubu) buna göre.
+
+## 5. Uygulama notları
+
+*(Her adımda buraya eklenir.)*
