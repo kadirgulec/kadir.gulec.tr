@@ -91,6 +91,10 @@ class ReviewContent
             'summary' => $review->summary,
             'score' => $review->score,
             'isDraft' => ! $review->isPublished(),
+            'url' => route('goals.reviews.show', $review->monthKey()),
+            'publishedAt' => $review->published_at,
+            // Never "changed" before it was published.
+            'updatedAt' => $review->updated_at?->max($review->published_at ?? $review->updated_at),
             'ogImage' => OgUrl::for('aylik', $review->monthKey(), $review->updated_at),
             'nextMonthIn' => TurkishDate::inMonth($review->month->addMonth()),
             'monthIn' => TurkishDate::inMonth($review->month),

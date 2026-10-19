@@ -321,6 +321,44 @@ describe('structured data', function () {
         $response->assertSee(route('og', ['kind' => 'kitap', 'key' => $book->slug, 'v' => $book->updated_at->getTimestamp()]), false);
     });
 
+    it('describes a note as a dated blog post by Kadir, headed by its opening words', function () {
+        $note = Note::factory()->for(Tag::factory()->state(['name' => 'laravel']))->create([
+            'body' => 'Kuyruk işleri sırayla çalışır.',
+            'published_at' => '2026-10-01 09:00:00',
+        ]);
+
+        $response = $this->get(route('notes.show', $note->id))
+            ->assertSee('<meta property="og:type" content="article" />', false)
+            ->assertSee('<meta property="article:published_time" content="2026-10-01T09:00:00+02:00" />', false);
+        $data = structuredData($response);
+
+        expect($data['BlogPosting'])->toMatchArray([
+            'headline' => 'Kuyruk işleri sırayla çalışır.',
+            'datePublished' => '2026-10-01T09:00:00+02:00',
+            'keywords' => 'laravel',
+            'author' => ['@id' => $data['Person']['@id']],
+        ]);
+    });
+
+    it('describes a monthly review as a dated blog post named after its month', function () {
+        MonthlyReview::factory()->forMonth('2026-09')->create([
+            'summary' => 'Spor oturdu.',
+            'published_at' => '2026-10-01 10:00:00',
+            'updated_at' => '2026-10-02 10:00:00',
+        ]);
+
+        $response = $this->get(route('goals.reviews.show', '2026-09'))
+            ->assertSee('<meta property="og:type" content="article" />', false)
+            ->assertSee('<meta property="article:published_time" content="2026-10-01T10:00:00+02:00" />', false);
+
+        expect(structuredData($response)['BlogPosting'])->toMatchArray([
+            'headline' => 'Eylül 2026 değerlendirmesi',
+            'description' => 'Spor oturdu.',
+            'datePublished' => '2026-10-01T10:00:00+02:00',
+            'dateModified' => '2026-10-02T10:00:00+02:00',
+        ]);
+    });
+
     it('names the site after Kadir, with the domain as its other name', function () {
         $response = $this->get(route('home'))
             ->assertSee('<meta property="og:site_name" content="Kadir Gülec" />', false)

@@ -18,6 +18,10 @@
     :title="$review ? $review['monthName'].' değerlendirmesi' : 'Aylık değerlendirme'"
     :draft="$review['isDraft'] ?? false"
     :og-image="$review['ogImage'] ?? null"
+    :og-type="$review ? 'article' : 'website'"
+    :published-at="$review['publishedAt'] ?? null"
+    :modified-at="$review['updatedAt'] ?? null"
+    :structured-data="$review ? [\App\Support\Seo\StructuredData::reviewPosting($review)] : []"
     :description="$review ? ($review['summary'] ?: $review['monthName'].': ne iyi gitti, nerede zorlandım, gelecek ay ne deneyeceğim.') : 'Her ayın sonunda dürüst bir bakış: ne iyi gitti, nerede zorlandım, gelecek ay neyi değiştireceğim.'"
 >
     <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">
