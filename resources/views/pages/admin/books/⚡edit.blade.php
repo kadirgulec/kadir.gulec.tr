@@ -281,7 +281,7 @@ new #[Layout('layouts::admin')] class extends Component {
                         </datalist>
                     </div>
                     <x-admin.select wire:model="form.format" label="Biçim" :options="BookFormat::cases()" />
-                    <x-admin.textarea wire:model="form.overview" label="Özet" rows="4" class="sm:col-span-2" description="Yorum yoksa sayfada gösterilir." />
+                    <x-admin.textarea wire:model="form.overview" label="Özet" rows="4" class="sm:col-span-2" description="Sayfada yorumun üstünde gösterilir." />
                 </div>
             </x-admin.card>
         </div>

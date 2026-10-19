@@ -85,6 +85,14 @@ describe('show', function () {
             ->assertDontSeeText('Gizli alıntı.');
     });
 
+    it('keeps the overview above the review', function () {
+        $book = Book::factory()->reviewed('Çok sevdim.')->create(['overview' => 'Raif Efendi\'nin defteri.']);
+
+        $this->get(route('books.show', $book->slug))
+            ->assertSeeTextInOrder(['Özet', 'Raif Efendi\'nin defteri.', 'Yorumum', 'Çok sevdim.'])
+            ->assertDontSeeText('Bu kitap hakkında henüz bir şey yazmadım.');
+    });
+
     it('hangs the bookmark with the percentage on a book being read', function () {
         $book = Book::factory()->create();
         Reading::factory()->reading(43)->for($book)->create(['started_on' => '2026-09-28']);
