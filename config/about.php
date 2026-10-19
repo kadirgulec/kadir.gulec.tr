@@ -67,6 +67,7 @@ return [
     'person' => [
         'name' => 'Kadir Gülec',
         'job_title' => 'Yazılım geliştirici',
+        'description' => "Düren'de yaşayan yazılım geliştirici. Laravel, kariyer ve yol üstünde öğrendiği küçük şeyler üzerine yazıyor.",
         'works_for' => 'aks-Service GmbH',
         'home' => 'Düren',
         'same_as' => [

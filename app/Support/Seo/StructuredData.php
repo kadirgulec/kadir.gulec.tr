@@ -73,6 +73,7 @@ class StructuredData
             'name' => config('about.person.name'),
             'url' => route('about'),
             'jobTitle' => config('about.person.job_title'),
+            'description' => config('about.person.description'),
             'worksFor' => ['@type' => 'Organization', 'name' => config('about.person.works_for')],
             'homeLocation' => ['@type' => 'Place', 'name' => config('about.person.home')],
             'sameAs' => config('about.person.same_as'),

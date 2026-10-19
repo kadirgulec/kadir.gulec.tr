@@ -381,6 +381,15 @@ describe('structured data', function () {
         expect(structuredData($this->get(route('posts.show', $post->slug)))['BlogPosting']['description'])->toBe('Hetzner üzerine.');
     });
 
+    it('signs a post with a link to the author and describes him', function () {
+        $post = Post::factory()->create();
+
+        $response = $this->get(route('posts.show', $post->slug))
+            ->assertSee('<a href="'.route('about').'" class="hover:text-section-ink">Kadir</a>', false);
+
+        expect(structuredData($response)['Person']['description'])->toBe(config('about.person.description'));
+    });
+
     it('makes the about page the author profile', function () {
         expect(structuredData($this->get(route('about')))['ProfilePage']['mainEntity'])->toHaveKey('@id');
     });

@@ -65,7 +65,7 @@ Kitap ve film/dizi sayfalarında sıra: `meta_description` → özet (`overview`
 - [x] **Adım 4: Site adı, `og:image:alt`, `twitter:image:alt`, `BlogPosting.description`**
 - [x] **Adım 5: Notlar ve değerlendirmeler için `BlogPosting`, `og:type`, `published_time`**
 - [x] **Adım 6: Aylık değerlendirme: sitemap ve sr-only `h1`**
-- [ ] **Adım 7: Yazar imzası ve `Person.description`**
+- [x] **Adım 7: Yazar imzası ve `Person.description`**
 
 ## 4. Kadir'in yapacakları
 
@@ -84,3 +84,4 @@ Kitap ve film/dizi sayfalarında sıra: `meta_description` → özet (`overview`
 - **Site adı ve görsel metni (4):** `WebSite.name` = `config('about.person.name')` ("Kadir Gülec"), `alternateName` = `kadir.gulec.tr`; `og:site_name` "Kadir Gülec". OG kartında alt satırda alan adı damgası duruyor, ona dokunulmadı. `og:image:alt`: "Defter sayfasına yazılmış “Başlık” başlığı ve kadir.gulec.tr damgası" (not kartı post-it olsa da genel ifade yeterli). `twitter:image:alt` silindi. Yazı açıklaması `PostContent`'te `trim` ediliyor, böylece meta etiketi ve JSON-LD aynı metni taşıyor.
 - **Not ve değerlendirme JSON-LD (5):** `StructuredData::notePosting()` (`@id` `…#not`; `headline` sayfanın `<title>`'ı olan ilk kelimeler, `description` notun metni, `keywords` etiket, `image` OG kartı; notun `updated_at`'i dizide olmadığı için `dateModified` yok) ve `StructuredData::reviewPosting()` (`@id` `…#degerlendirme`; `headline` "Eylül 2026 değerlendirmesi", `description` özet, `datePublished`/`dateModified`). `ReviewContent::toArray()` artık `url`, `publishedAt`, `updatedAt` veriyor; `updatedAt` yazılardaki gibi yayından önceye düşmüyor. Not sayfasında `article:published_time`, değerlendirmede `og:type=article` ve `article:published_time`/`modified_time`. Değerlendirme yokken boş sayfa `website` olarak kalıyor ve düğüm basmıyor.
 - **Değerlendirme sitemap ve `h1` (6):** Sitemap'te yalnızca yayındaki ayların adresleri; `/hedefler/aylik` hiç listelenmiyor (ilk değerlendirmeden önce zaten listelenmiyordu, sonra 302 olacağı için de). Hedefler bölümünün `lastmod`'u ayları kapsamaya devam ediyor. `h1`'in başında `sr-only` "Eylül 2026 değerlendirmesi: "; değerlendirme yokken boş sayfanın başlığı değişmedi.
+- **Yazar (7):** Yazının sonundaki el yazısı "Kadir" `/hakkimda`'ya link; alt çizgi yok, hover'da bölüm rengi. `config('about.person.description')`: "Düren'de yaşayan yazılım geliştirici. Laravel, kariyer ve yol üstünde öğrendiği küçük şeyler üzerine yazıyor." `Person` düğümünde `description` olarak çıkıyor; cümleyi Kadir değiştirebilir.
