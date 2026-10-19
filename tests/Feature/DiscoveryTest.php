@@ -321,6 +321,20 @@ describe('structured data', function () {
         $response->assertSee(route('og', ['kind' => 'kitap', 'key' => $book->slug, 'v' => $book->updated_at->getTimestamp()]), false);
     });
 
+    it('names the site after Kadir, with the domain as its other name', function () {
+        $response = $this->get(route('home'))
+            ->assertSee('<meta property="og:site_name" content="Kadir Gülec" />', false)
+            ->assertDontSee('twitter:image:alt', false);
+
+        expect(structuredData($response)['WebSite'])->toMatchArray(['name' => 'Kadir Gülec', 'alternateName' => 'kadir.gulec.tr']);
+    });
+
+    it('trims the description of a blog post', function () {
+        $post = Post::factory()->create(['meta_description' => ' Hetzner üzerine. ']);
+
+        expect(structuredData($this->get(route('posts.show', $post->slug)))['BlogPosting']['description'])->toBe('Hetzner üzerine.');
+    });
+
     it('makes the about page the author profile', function () {
         expect(structuredData($this->get(route('about')))['ProfilePage']['mainEntity'])->toHaveKey('@id');
     });

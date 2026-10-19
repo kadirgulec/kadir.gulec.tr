@@ -161,7 +161,7 @@ class PostContent
             'isDraft' => ! $post->isPublished(),
             'bodyHtml' => new HtmlString((string) $post->body_html),
             'url' => route('posts.show', $post->slug),
-            'metaDescription' => $post->meta_description ?: $excerpt,
+            'metaDescription' => trim((string) ($post->meta_description ?: $excerpt)),
             'ogImage' => OgUrl::for('post', $post->slug, $post->updated_at),
         ];
     }

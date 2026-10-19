@@ -33,7 +33,7 @@
         <title>{{ $pageTitle }}</title>
         <meta name="description" content="{{ $metaDescription }}" />
         <link rel="canonical" href="{{ $canonical }}" />
-        <meta property="og:site_name" content="kadir.gulec.tr" />
+        <meta property="og:site_name" content="Kadir Gülec" />
         <meta property="og:locale" content="tr_TR" />
         <meta property="og:type" content="{{ $ogType }}" />
         <meta property="og:title" content="{{ $ogTitle }}" />
@@ -42,7 +42,7 @@
         <meta property="og:image" content="{{ $ogImage }}" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="{{ $ogTitle }} · kadir.gulec.tr" />
+        <meta property="og:image:alt" content="Defter sayfasına yazılmış “{{ $ogTitle }}” başlığı ve kadir.gulec.tr damgası" />
         @if ($publishedAt)
             <meta property="article:published_time" content="{{ $publishedAt->toAtomString() }}" />
         @endif
@@ -50,7 +50,6 @@
             <meta property="article:modified_time" content="{{ $modifiedAt->toAtomString() }}" />
         @endif
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image:alt" content="{{ $ogTitle }} · kadir.gulec.tr" />
         @if (Route::has('posts.feed'))
             <link rel="alternate" type="application/atom+xml" title="Kadir Gülec · Yazılar" href="{{ route('posts.feed') }}" />
         @endif

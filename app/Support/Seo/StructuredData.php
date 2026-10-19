@@ -51,8 +51,8 @@ class StructuredData
             '@type' => 'WebSite',
             '@id' => route('home').'#site',
             'url' => route('home'),
-            'name' => 'kadir.gulec.tr',
-            'alternateName' => config('about.person.name'),
+            'name' => config('about.person.name'),
+            'alternateName' => 'kadir.gulec.tr',
             'inLanguage' => 'tr-TR',
             'publisher' => ['@id' => self::personId()],
         ];
