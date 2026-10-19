@@ -60,7 +60,7 @@ Kitap ve film/dizi sayfalarında sıra: `meta_description` → özet (`overview`
 ## 3. Adımlar
 
 - [x] **Adım 1: robots.txt ve auth `noindex`**
-- [ ] **Adım 2: Meta description geri düşüşleri**
+- [x] **Adım 2: Meta description geri düşüşleri**
 - [ ] **Adım 3: LCP görseli, `max-image-preview`, PNG favicon**
 - [ ] **Adım 4: Site adı, `og:image:alt`, `twitter:image:alt`, `BlogPosting.description`**
 - [ ] **Adım 5: Notlar ve değerlendirmeler için `BlogPosting`, `og:type`, `published_time`**
@@ -79,3 +79,4 @@ Kitap ve film/dizi sayfalarında sıra: `meta_description` → özet (`overview`
 *(Her adımda buraya eklenir.)*
 
 - **robots.txt ve auth (1):** `SitemapController::robots()` artık `/login`, `/register`, `/forgot-password` için `Disallow` yazmıyor. Auth layout'u site layout'una `noindex` geçiyor, yani giriş, kayıt, şifre sıfırlama, iki adımlı doğrulama ve e-posta doğrulama sayfalarının hepsi `noindex, nofollow` alıyor ve JSON-LD basmıyor (site layout'undaki mevcut dal). `/passkeys/login/options` bir JSON ucu, linklenmiyor, dokunulmadı.
+- **Meta description (2):** `BookContent::metaDescription()` ve `WatchedContent::metaDescription()`: `meta_description` (kısaltılmadan) → özet → yorumun spoiler'sız alıntısı (ikisi 155 karakterde kesilir) → "Kadir'in okuduklarından bir kitap: Başlık, Yazar." / "Kadir'in izlediklerinden bir film: Başlık (yıl), yönetmen." Yorum alıntısı yalnızca yorum herkese açıksa (ya da Kadir önizliyorsa) girer. Site layout'u `??` yerine `filled()` kullanıyor; boş string gelirse site açıklamasına düşer (ör. `why`'ı boş hedef). Değerlendirmede boş `summary` da ay cümlesine düşüyor. Cümlelerin ifadesi Kadir'le gözden geçirilecek.

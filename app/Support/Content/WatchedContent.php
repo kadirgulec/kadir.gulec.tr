@@ -15,6 +15,7 @@ use App\Support\Og\OgUrl;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -144,6 +145,7 @@ class WatchedContent
     {
         $viewing ??= $watchable->viewings->first();
         $reviewIsPublic = $watchable->hasPublishedReview() || (filled($watchable->review_html) && Gate::allows(Permission::ManageWatched->value));
+        $reviewExcerpt = $reviewIsPublic ? $this->markdown->excerpt($this->withoutSpoilers((string) $watchable->review), 180) : null;
         $currentSeason = $watchable->seasons->firstWhere('number', $watchable->current_season);
 
         return [
@@ -179,7 +181,7 @@ class WatchedContent
             'accent' => $watchable->accent ?? PosterPalette::FALLBACK_ACCENT,
             'hasReview' => $reviewIsPublic,
             'reviewHtml' => $reviewIsPublic ? new HtmlString((string) $watchable->review_html) : null,
-            'reviewExcerpt' => $reviewIsPublic ? $this->markdown->excerpt($this->withoutSpoilers((string) $watchable->review), 180) : null,
+            'reviewExcerpt' => $reviewExcerpt,
             // Only the detail page loads the quotes; lists never show them.
             'quotes' => $watchable->relationLoaded('quotes') ? array_values($watchable->quotes->filter(fn (Quote $quote): bool => $quote->isPublished())->map(fn (Quote $quote): array => [
                 'text' => $quote->body,
@@ -188,7 +190,7 @@ class WatchedContent
             ])->all()) : [],
             'url' => url($watchable->publicPath()),
             'isDraft' => ! $watchable->isPublished(),
-            'metaDescription' => $watchable->meta_description ?: Str::limit((string) $watchable->overview, 155, '…', preserveWords: true),
+            'metaDescription' => $this->metaDescription($watchable, $reviewExcerpt),
             'ogImage' => OgUrl::for($watchable->type->routeSegment(), $watchable->slug, $watchable->updated_at),
         ];
     }
@@ -196,6 +198,30 @@ class WatchedContent
     /**
      * Excerpts must never give away a spoiler.
      */
+    /**
+     * What search results show under the title: Kadir's own description, else
+     * the overview, else the public review, else a sentence built from the facts.
+     */
+    private function metaDescription(Watchable $watchable, ?string $reviewExcerpt): string
+    {
+        if (filled($watchable->meta_description)) {
+            return $watchable->meta_description;
+        }
+
+        $text = Arr::first([$watchable->overview, $reviewExcerpt], fn (?string $text): bool => filled($text));
+
+        if ($text !== null) {
+            return Str::limit(trim($text), 155, '…', preserveWords: true);
+        }
+
+        $facts = implode(', ', array_filter([
+            $watchable->year ? "{$watchable->title} ({$watchable->year})" : $watchable->title,
+            $watchable->creator,
+        ]));
+
+        return "Kadir'in izlediklerinden bir ".Str::lower($watchable->type->label()).": {$facts}.";
+    }
+
     private function withoutSpoilers(string $review): string
     {
         return (string) preg_replace('/^:::[ \t]*(spoiler|replik).*?^:::[ \t]*$/msu', '', $review);

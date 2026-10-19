@@ -18,7 +18,7 @@
     :title="$review ? $review['monthName'].' değerlendirmesi' : 'Aylık değerlendirme'"
     :draft="$review['isDraft'] ?? false"
     :og-image="$review['ogImage'] ?? null"
-    :description="$review ? ($review['summary'] ?? $review['monthName'].': ne iyi gitti, nerede zorlandım, gelecek ay ne deneyeceğim.') : 'Her ayın sonunda dürüst bir bakış: ne iyi gitti, nerede zorlandım, gelecek ay neyi değiştireceğim.'"
+    :description="$review ? ($review['summary'] ?: $review['monthName'].': ne iyi gitti, nerede zorlandım, gelecek ay ne deneyeceğim.') : 'Her ayın sonunda dürüst bir bakış: ne iyi gitti, nerede zorlandım, gelecek ay neyi değiştireceğim.'"
 >
     <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">
         <a href="{{ route('goals.index') }}" class="hover:text-section-ink">Hedefler</a> · aylık değerlendirme

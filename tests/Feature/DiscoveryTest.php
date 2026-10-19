@@ -42,6 +42,24 @@ describe('meta tags', function () {
 
         $this->get(route('posts.show', $post->slug))->assertSee('content="İlk paragraf açıklama olur."', false);
     });
+
+    it('describes a book or film without an overview by its review, else by its facts', function () {
+        $reviewed = Book::factory()->reviewed('Savaşın saçmalığını gülerek anlatıyor.')->create(['overview' => '', 'meta_description' => null]);
+        $bare = Book::factory()->create(['title' => 'Aslan Asker Şvayk', 'author' => 'Jaroslav Hašek', 'overview' => null, 'meta_description' => '']);
+        $film = Watchable::factory()->create(['title' => 'Arrival', 'year' => 2016, 'creator' => 'Denis Villeneuve', 'overview' => null]);
+
+        $this->get(route('books.show', $reviewed->slug))->assertSee('<meta name="description" content="Savaşın saçmalığını gülerek anlatıyor." />', false);
+        $this->get(route('books.show', $bare->slug))
+            ->assertSee('<meta name="description" content="Kadir&#039;in okuduklarından bir kitap: Aslan Asker Şvayk, Jaroslav Hašek." />', false);
+        $this->get(url($film->publicPath()))
+            ->assertSee('<meta property="og:description" content="Kadir&#039;in izlediklerinden bir film: Arrival (2016), Denis Villeneuve." />', false);
+    });
+
+    it('never sends an empty description', function () {
+        $goal = Goal::factory()->longTerm()->create(['why' => null]);
+
+        $this->get(route('goals.show', $goal->slug))->assertDontSee('content=""', false);
+    });
 });
 
 describe('preview images', function () {

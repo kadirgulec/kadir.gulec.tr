@@ -14,7 +14,7 @@
 ])
 
 @php
-    $metaDescription = \Illuminate\Support\Str::limit(trim((string) ($description ?? "Düren'de yazılım geliştirici Kadir Gülec'in dijital defteri: Laravel ve kariyer üzerine yazılar, öğrendiği küçük şeyler, izledikleri, hedefleri ve projeleri.")), 200, '…', preserveWords: true);
+    $metaDescription = \Illuminate\Support\Str::limit(trim(filled($description) ? (string) $description : "Düren'de yazılım geliştirici Kadir Gülec'in dijital defteri: Laravel ve kariyer üzerine yazılar, öğrendiği küçük şeyler, izledikleri, hedefleri ve projeleri."), 200, '…', preserveWords: true);
     $pageTitle = filled($title) ? $title.' · Kadir Gülec' : "Kadir Gülec · Düren'de bir yazılımcının dijital defteri";
     $ogTitle = $title ?? 'Kadir Gülec';
     $ogImage ??= \App\Support\Og\OgUrl::for('page', $section->value);
