@@ -20,7 +20,7 @@
     <x-site.note :section="Section::Projects" tilt="-0.4" label="şu an üzerinde çalıştığım" class="mt-14">
         <div class="grid items-start gap-6 md:grid-cols-[1.2fr_1fr] md:gap-8">
             <a href="{{ $featured['url'] }}" class="block rotate-[-1deg] transition duration-200 hover:rotate-0 motion-reduce:transition-none">
-                <x-site.project-shot :project="$featured" />
+                <x-site.project-shot :project="$featured" priority />
             </a>
 
             <div>

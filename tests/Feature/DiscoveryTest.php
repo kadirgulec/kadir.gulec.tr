@@ -55,6 +55,22 @@ describe('meta tags', function () {
             ->assertSee('<meta property="og:description" content="Kadir&#039;in izlediklerinden bir film: Arrival (2016), Denis Villeneuve." />', false);
     });
 
+    it('lets search show large previews and a favicon it can read, on indexed pages only', function () {
+        $this->get(route('about'))
+            ->assertSee('<meta name="robots" content="max-image-preview:large" />', false)
+            ->assertSee('<link rel="icon" href="/icons/icon-192.png" type="image/png" sizes="192x192">', false);
+
+        $this->get(route('privacy'))->assertDontSee('max-image-preview', false);
+    });
+
+    it('fetches the poster of a film page first instead of lazily', function () {
+        $film = Watchable::factory()->create(['title' => 'Arrival', 'poster_path' => 'posters/arrival.webp']);
+
+        expect($this->get(url($film->publicPath()))->getContent())
+            ->toMatch('/alt="Arrival afişi"[^>]*fetchpriority="high"/u')
+            ->not->toMatch('/alt="Arrival afişi"[^>]*loading="lazy"/u');
+    });
+
     it('never sends an empty description', function () {
         $goal = Goal::factory()->longTerm()->create(['why' => null]);
 

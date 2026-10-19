@@ -34,6 +34,7 @@
                 :colors="$entry['coverColors']"
                 :progress="$entry['status']?->isInProgress() ? $entry['progress'] : null"
                 tilt="-3"
+                priority
             />
 
             @if ($entry['rating'] !== null)

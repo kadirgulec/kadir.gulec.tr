@@ -6,11 +6,13 @@
     'caption' => null,
     'tilt' => -2,
     'framed' => true,
+    'priority' => false,
 ])
 
 {{--
     Film/series poster. Without an image (or before one is fetched) it renders a
     generated poster from two colors, so a card never shows an empty box.
+    "priority" marks the page's main image: fetched first, never lazily.
 --}}
 @php
     $artwork = $imageUrl
@@ -30,7 +32,7 @@
 
     <div class="relative aspect-[2/3] w-full overflow-hidden" @if ($artwork) style="{{ $artwork }}" @endif>
         @if ($imageUrl)
-            <img src="{{ $imageUrl }}" alt="{{ $title }} afişi" class="size-full object-cover" loading="lazy" />
+            <img src="{{ $imageUrl }}" alt="{{ $title }} afişi" class="size-full object-cover" @if ($priority) fetchpriority="high" @else loading="lazy" @endif />
         @else
             <div class="paper absolute inset-0 opacity-25 mix-blend-overlay" aria-hidden="true"></div>
             @if ($framed)

@@ -61,7 +61,7 @@ Kitap ve film/dizi sayfalarında sıra: `meta_description` → özet (`overview`
 
 - [x] **Adım 1: robots.txt ve auth `noindex`**
 - [x] **Adım 2: Meta description geri düşüşleri**
-- [ ] **Adım 3: LCP görseli, `max-image-preview`, PNG favicon**
+- [x] **Adım 3: LCP görseli, `max-image-preview`, PNG favicon**
 - [ ] **Adım 4: Site adı, `og:image:alt`, `twitter:image:alt`, `BlogPosting.description`**
 - [ ] **Adım 5: Notlar ve değerlendirmeler için `BlogPosting`, `og:type`, `published_time`**
 - [ ] **Adım 6: Aylık değerlendirme: sitemap ve sr-only `h1`**
@@ -80,3 +80,4 @@ Kitap ve film/dizi sayfalarında sıra: `meta_description` → özet (`overview`
 
 - **robots.txt ve auth (1):** `SitemapController::robots()` artık `/login`, `/register`, `/forgot-password` için `Disallow` yazmıyor. Auth layout'u site layout'una `noindex` geçiyor, yani giriş, kayıt, şifre sıfırlama, iki adımlı doğrulama ve e-posta doğrulama sayfalarının hepsi `noindex, nofollow` alıyor ve JSON-LD basmıyor (site layout'undaki mevcut dal). `/passkeys/login/options` bir JSON ucu, linklenmiyor, dokunulmadı.
 - **Meta description (2):** `BookContent::metaDescription()` ve `WatchedContent::metaDescription()`: `meta_description` (kısaltılmadan) → özet → yorumun spoiler'sız alıntısı (ikisi 155 karakterde kesilir) → "Kadir'in okuduklarından bir kitap: Başlık, Yazar." / "Kadir'in izlediklerinden bir film: Başlık (yıl), yönetmen." Yorum alıntısı yalnızca yorum herkese açıksa (ya da Kadir önizliyorsa) girer. Site layout'u `??` yerine `filled()` kullanıyor; boş string gelirse site açıklamasına düşer (ör. `why`'ı boş hedef). Değerlendirmede boş `summary` da ay cümlesine düşüyor. Cümlelerin ifadesi Kadir'le gözden geçirilecek.
+- **LCP, önizleme, favicon (3):** `poster`, `book-cover`, `browser-frame` ve `project-shot` bileşenlerinde `priority` prop'u: açıkken `fetchpriority="high"` (tarayıcının varsayılanı zaten `eager`), kapalıyken `loading="lazy"`. Açık olduğu yerler: film/dizi ve kitap detayındaki afiş/kapak, proje detayındaki ekran görüntüsü, Projeler sayfasındaki öne çıkan proje ve hedef detayındaki görsel. Listeler ve ana sayfa lazy kaldı. `max-image-preview:large` site layout'unda JSON-LD ile aynı dalda, yani yalnızca dizine girebilen sayfalarda. PNG favicon (`/icons/icon-192.png`) SVG'den önce listeleniyor; SVG'yi destekleyen tarayıcılar sondakini seçiyor. Admin ve plain layout'larına dokunulmadı (`noindex`).

@@ -27,6 +27,7 @@
                 :image-url="$entry['posterUrl']"
                 :colors="$entry['posterColors']"
                 tilt="-3"
+                priority
             />
 
             @if ($entry['rating'] !== null)

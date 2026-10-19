@@ -63,6 +63,7 @@
         @if ($isIndexed)
             {{-- What the page is, for search engines: App\Support\Seo\StructuredData. --}}
             <script type="application/ld+json">{!! \App\Support\Seo\StructuredData::graph($section, $title, $canonical, $structuredData) !!}</script>
+            <meta name="robots" content="max-image-preview:large" />
         @else
             <meta name="robots" content="noindex, nofollow" />
         @endif
@@ -78,6 +79,8 @@
             })();
         </script>
 
+        {{-- The PNG is for Google's favicon, which does not take SVG; browsers that can, pick the SVG listed after it. --}}
+        <link rel="icon" href="/icons/icon-192.png" type="image/png" sizes="192x192">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
         <meta name="theme-color" content="#fbf7ee" media="(prefers-color-scheme: light)">
