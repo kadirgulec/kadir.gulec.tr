@@ -89,6 +89,24 @@ describe('show', function () {
             ->assertSeeText('TMDB özeti.');
     });
 
+    it('shows an unpublished review to the admin only, labelled as a draft', function () {
+        $film = Watchable::factory()->create(['review' => 'Taslak yorum.']);
+        $url = route('watched.show', ['type' => 'film', 'slug' => $film->slug]);
+
+        $this->get($url)->assertDontSeeText('Taslak yorum.');
+        $this->actingAs(User::factory()->admin()->create())->get($url)
+            ->assertSeeTextInOrder(['Yorumum', 'Taslak yorum · sadece sen görüyorsun', 'Taslak yorum.']);
+    });
+
+    it('does not label a published review as a draft for the admin', function () {
+        $film = Watchable::factory()->reviewed()->create();
+
+        $this->actingAs(User::factory()->admin()->create())
+            ->get(route('watched.show', ['type' => 'film', 'slug' => $film->slug]))
+            ->assertSeeText('Yorumum')
+            ->assertDontSeeText('Taslak yorum · sadece sen görüyorsun');
+    });
+
     it('never puts a spoiler into the diary excerpt', function () {
         Watchable::factory()->reviewed(":::spoiler\nKatil uşak.\n:::\n\nAtmosferi harika.")->hasViewings(1)->create();
 

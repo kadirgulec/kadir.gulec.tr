@@ -129,6 +129,10 @@
                 <x-site.scribble variant="double" class="absolute -bottom-3 left-0 h-3 w-full text-section" />
             </h2>
 
+            @if ($entry['isReviewDraft'])
+                <p role="status" class="mt-6 inline-block -rotate-1 rounded-sm bg-highlighter px-3 py-1 font-mono text-xs font-semibold tracking-wide text-[#2b2420] uppercase shadow-sm">Taslak yorum · sadece sen görüyorsun</p>
+            @endif
+
             <div class="prose-notebook prose-review mt-10">{{ $entry['reviewHtml'] }}</div>
 
             <div class="mt-12 flex items-center gap-4">

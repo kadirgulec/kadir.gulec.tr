@@ -33,7 +33,7 @@ use Illuminate\Support\Str;
  *     coverUrl: ?string, coverColors: array{0: string, 1: string}, accent: string,
  *     rating: ?float, isFavorite: bool, status: ?ReadingStatus, progress: ?int,
  *     startedOn: ?CarbonImmutable, finishedOn: ?CarbonImmutable, readAt: ?CarbonImmutable, isReread: bool, readings: list<BookReading>,
- *     hasReview: bool, reviewHtml: ?HtmlString, reviewExcerpt: ?string, quotes: list<BookQuote>,
+ *     hasReview: bool, isReviewDraft: bool, reviewHtml: ?HtmlString, reviewExcerpt: ?string, quotes: list<BookQuote>,
  *     url: string, isDraft: bool, metaDescription: string, ogImage: string
  * }
  */
@@ -170,6 +170,8 @@ class BookContent
                 'progress' => $other->progress,
             ])->all()),
             'hasReview' => $reviewIsPublic,
+            // Kadir previews an unpublished review; the page labels it so it is not mistaken for a published one.
+            'isReviewDraft' => $reviewIsPublic && ! $book->hasPublishedReview(),
             'reviewHtml' => $reviewIsPublic ? new HtmlString((string) $book->review_html) : null,
             'reviewExcerpt' => $reviewExcerpt,
             'quotes' => array_values($book->quotes->filter(fn (Quote $quote): bool => $quote->isPublished())->map(fn (Quote $quote): array => [

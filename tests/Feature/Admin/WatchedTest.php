@@ -128,6 +128,20 @@ it('saves the rating, favorite, review and series progress', function () {
         ->and($series->review_html)->toContain('data-spoiler');
 });
 
+it('keeps a review without a publication time as a draft', function () {
+    $film = Watchable::factory()->create();
+
+    Livewire::test('pages::admin.watched.edit', ['watchable' => $film])
+        ->set('form.review', 'Henüz taslak.')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect($film->refresh()->review_published_at)->toBeNull();
+    auth()->logout();
+    $this->get(route('watched.show', ['type' => 'film', 'slug' => $film->slug]))
+        ->assertDontSeeText('Henüz taslak.');
+});
+
 it('rejects a rating that is not a half step out of ten', function (string $rating) {
     Livewire::test('pages::admin.watched.edit', ['watchable' => Watchable::factory()->create()])
         ->set('form.rating', $rating)

@@ -31,7 +31,7 @@ use Illuminate\Support\Str;
  *     status: ?SeriesStatus, season: ?int, episode: ?int, episodeCount: ?int,
  *     seasons: list<array{number: int, episodeCount: int, rating: ?float, note: ?string}>,
  *     posterUrl: ?string, posterColors: array{0: string, 1: string}, accent: string,
- *     hasReview: bool, reviewHtml: ?HtmlString, reviewExcerpt: ?string, quotes: list<array{text: string, by: ?string, location: ?string}>,
+ *     hasReview: bool, isReviewDraft: bool, reviewHtml: ?HtmlString, reviewExcerpt: ?string, quotes: list<array{text: string, by: ?string, location: ?string}>,
  *     url: string, isDraft: bool, metaDescription: string, ogImage: string
  * }
  */
@@ -180,6 +180,8 @@ class WatchedContent
             'posterColors' => $watchable->posterPalette(),
             'accent' => $watchable->accent ?? PosterPalette::FALLBACK_ACCENT,
             'hasReview' => $reviewIsPublic,
+            // Kadir previews an unpublished review; the page labels it so it is not mistaken for a published one.
+            'isReviewDraft' => $reviewIsPublic && ! $watchable->hasPublishedReview(),
             'reviewHtml' => $reviewIsPublic ? new HtmlString((string) $watchable->review_html) : null,
             'reviewExcerpt' => $reviewExcerpt,
             // Only the detail page loads the quotes; lists never show them.

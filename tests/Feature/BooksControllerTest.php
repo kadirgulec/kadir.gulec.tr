@@ -93,6 +93,14 @@ describe('show', function () {
             ->assertDontSeeText('Bu kitap hakkında henüz bir şey yazmadım.');
     });
 
+    it('shows an unpublished review to the admin only, labelled as a draft', function () {
+        $book = Book::factory()->create(['review' => 'Taslak yorum.']);
+
+        $this->get(route('books.show', $book->slug))->assertDontSeeText('Taslak yorum.');
+        $this->actingAs(User::factory()->admin()->create())->get(route('books.show', $book->slug))
+            ->assertSeeTextInOrder(['Yorumum', 'Taslak yorum · sadece sen görüyorsun', 'Taslak yorum.']);
+    });
+
     it('hangs the bookmark with the percentage on a book being read', function () {
         $book = Book::factory()->create();
         Reading::factory()->reading(43)->for($book)->create(['started_on' => '2026-09-28']);
