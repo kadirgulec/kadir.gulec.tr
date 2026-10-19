@@ -120,7 +120,7 @@ Detay sayfaları: `/izlediklerim/film/{slug}`, `/izlediklerim/dizi/{slug}`, `/ya
 - **Detay sayfası (tek şablon):**
   - Afiş, bantla yapıştırılmış polaroid gibi hafif eğik. Yanında el yazısı bilgiler (yıl, yönetmen, nerede/ne zaman izlendi). Puan dairesi köşede.
   - Her filmin vurgu rengi afişinden çıkarılır (düzen aynı, renk filme özel).
-  - **Yorumlu:** Çizgili kâğıt hissiyle yorum metni + spoiler blokları (siyah markörle kapatılmış, tıklayınca açılır) + replik kutuları (post-it).
+  - **Yorumlu:** Özet (varsa) yorumun üstünde kalır (2026-10-19). Çizgili kâğıt hissiyle yorum metni + spoiler blokları (siyah markörle kapatılmış, tıklayınca açılır) + replik kutuları (post-it).
   - **Yorumsuz:** Aynı şablon, yorum yerine özet, tür, yıl, oyuncular, puan ve izleme tarihi.
 
 ### Hedefler

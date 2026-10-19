@@ -107,6 +107,20 @@
         </div>
     </div>
 
+    {{-- The overview stays above the review, so a reader knows what it is about --}}
+    @if ($entry['overview'] || ! $entry['hasReview'])
+        <section class="mt-20 max-w-2xl" aria-labelledby="ozet">
+            <h2 id="ozet" class="font-display text-2xl font-semibold">Özet</h2>
+            @if ($entry['overview'])
+                <p class="mt-4 text-lg leading-relaxed text-ink-soft">{{ $entry['overview'] }}</p>
+            @endif
+
+            @unless ($entry['hasReview'])
+                <p class="mt-8 font-hand text-2xl text-section-ink">Bu kitap hakkında henüz bir şey yazmadım.</p>
+            @endunless
+        </section>
+    @endif
+
     @if ($entry['hasReview'])
         {{-- Review on lined paper --}}
         <section class="mt-20 max-w-2xl" aria-labelledby="yorumum">
@@ -126,15 +140,6 @@
                     @endif
                 </p>
             </div>
-        </section>
-    @else
-        <section class="mt-20 max-w-2xl" aria-labelledby="ozet">
-            <h2 id="ozet" class="font-display text-2xl font-semibold">Özet</h2>
-            @if ($entry['overview'])
-                <p class="mt-4 text-lg leading-relaxed text-ink-soft">{{ $entry['overview'] }}</p>
-            @endif
-
-            <p class="mt-8 font-hand text-2xl text-section-ink">Bu kitap hakkında henüz bir şey yazmadım.</p>
         </section>
     @endif
 

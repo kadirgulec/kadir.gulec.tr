@@ -66,7 +66,7 @@ Kadir kitapları çoğunlukla **e-kitap** olarak (Kindle) okuyor. Bu yüzden say
 ### Sayfalar
 
 - **Liste (`/okuduklarim`):** Üstte "Son okuduklarım" kapak şeridi (İzlediklerim'in afiş şeridi gibi), "şu an okuyorum", yıllara göre gruplanmış günlük. "2026: 14 kitap" satırı; o yılın kitap hedefi varsa "14 / 20" ve hedefe link. Filtre yok (yazar, dil, puan filtreleri sonraya).
-- **Detay (`/okuduklarim/{slug}`):** İzlediklerim'in şablonu. Polaroid yerine bantla yapıştırılmış kapak, yanında el yazısı bilgiler (yazar, çevirmen, dil, biçim, okuma tarihleri). "Okuyorum" durumunda kapaktan sarkan **kitap ayracı şeridi** yüzdeyi gösterir. Puan dairesi, favori yıldızı, yorum, alıntı koleksiyonu, "bu kitaptan notlarım". Yorumsuz kitapta yorum yerine özet.
+- **Detay (`/okuduklarim/{slug}`):** İzlediklerim'in şablonu. Polaroid yerine bantla yapıştırılmış kapak, yanında el yazısı bilgiler (yazar, çevirmen, dil, biçim, okuma tarihleri). "Okuyorum" durumunda kapaktan sarkan **kitap ayracı şeridi** yüzdeyi gösterir. Puan dairesi, favori yıldızı, yorum, alıntı koleksiyonu, "bu kitaptan notlarım". Özet (varsa) yorumun üstünde, yorumsuz kitapta özet ve "henüz bir şey yazmadım" (2026-10-19).
 - **Yorum yok** (İzlediklerim'le tutarlı). Rafım için ayrı RSS yok.
 
 ## 5. Alıntılar (kitap ve film/dizi ortak)

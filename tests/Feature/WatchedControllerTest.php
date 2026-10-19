@@ -105,6 +105,22 @@ describe('show', function () {
             ->assertDontSeeText('Yorumum');
     });
 
+    it('keeps the overview above the review', function () {
+        $film = Watchable::factory()->reviewed('Kızlarım sevmedi.')->create(['overview' => 'Ormanda bir okul.']);
+
+        $this->get(route('watched.show', ['type' => 'film', 'slug' => $film->slug]))
+            ->assertSeeTextInOrder(['Özet', 'Ormanda bir okul.', 'Yorumum', 'Kızlarım sevmedi.'])
+            ->assertDontSeeText('Bu film hakkında henüz bir şey yazmadım.');
+    });
+
+    it('leaves out an empty overview section next to a review', function () {
+        $film = Watchable::factory()->reviewed()->create(['overview' => null]);
+
+        $this->get(route('watched.show', ['type' => 'film', 'slug' => $film->slug]))
+            ->assertSeeText('Yorumum')
+            ->assertDontSee('id="ozet"', false);
+    });
+
     it('lists the seasons of a series with their progress, marks and notes', function () {
         $series = Watchable::factory()->series(SeriesStatus::Dropped)->create(['current_season' => 3, 'current_episode' => 7]);
         $series->seasons()->createMany([

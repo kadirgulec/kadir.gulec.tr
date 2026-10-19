@@ -315,7 +315,7 @@ new #[Layout('layouts::admin')] class extends Component {
                         <x-admin.input wire:model="form.runtime_minutes" type="number" label="Süre (dk)" />
                     </div>
                     <x-admin.combobox wire:model="form.genres" :options="[]" label="Türler" class="sm:col-span-2" />
-                    <x-admin.textarea wire:model="form.overview" label="Özet" rows="4" class="sm:col-span-2" description="Yorum yoksa sayfada gösterilir." />
+                    <x-admin.textarea wire:model="form.overview" label="Özet" rows="4" class="sm:col-span-2" description="Sayfada yorumun üstünde gösterilir." />
                     <x-admin.textarea wire:model="form.castText" label="Oyuncular" rows="5" mono class="sm:col-span-2" description="Her satıra bir kişi: Ad — Rol" />
                 </div>
             </x-admin.card>
