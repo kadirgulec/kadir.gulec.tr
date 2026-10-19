@@ -80,15 +80,16 @@ class SitemapController extends Controller
         return ['loc' => url($path), 'lastmod' => $lastmod];
     }
 
+    /**
+     * The sign-in pages linked from every page stay crawlable: Google only
+     * honours their noindex if it may fetch them.
+     */
     public function robots(): Response
     {
         $lines = [
             'User-agent: *',
             'Disallow: /admin',
             'Disallow: /hesap',
-            'Disallow: /login',
-            'Disallow: /register',
-            'Disallow: /forgot-password',
             'Disallow: /reset-password',
             'Disallow: /two-factor-challenge',
             'Disallow: /user/',

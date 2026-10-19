@@ -59,7 +59,7 @@ Kitap ve film/dizi sayfalarında sıra: `meta_description` → özet (`overview`
 
 ## 3. Adımlar
 
-- [ ] **Adım 1: robots.txt ve auth `noindex`**
+- [x] **Adım 1: robots.txt ve auth `noindex`**
 - [ ] **Adım 2: Meta description geri düşüşleri**
 - [ ] **Adım 3: LCP görseli, `max-image-preview`, PNG favicon**
 - [ ] **Adım 4: Site adı, `og:image:alt`, `twitter:image:alt`, `BlogPosting.description`**
@@ -77,3 +77,5 @@ Kitap ve film/dizi sayfalarında sıra: `meta_description` → özet (`overview`
 ## 5. Uygulama notları
 
 *(Her adımda buraya eklenir.)*
+
+- **robots.txt ve auth (1):** `SitemapController::robots()` artık `/login`, `/register`, `/forgot-password` için `Disallow` yazmıyor. Auth layout'u site layout'una `noindex` geçiyor, yani giriş, kayıt, şifre sıfırlama, iki adımlı doğrulama ve e-posta doğrulama sayfalarının hepsi `noindex, nofollow` alıyor ve JSON-LD basmıyor (site layout'undaki mevcut dal). `/passkeys/login/options` bir JSON ucu, linklenmiyor, dokunulmadı.

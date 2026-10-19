@@ -224,6 +224,20 @@ describe('sitemap and robots', function () {
             ->assertSeeText('Disallow: /hesap')
             ->assertSeeText('Sitemap: '.route('sitemap'));
     });
+
+    it('lets crawlers reach the sign-in pages so they can see their noindex', function () {
+        $this->get('/robots.txt')
+            ->assertDontSeeText('Disallow: /login')
+            ->assertDontSeeText('Disallow: /register')
+            ->assertDontSeeText('Disallow: /forgot-password')
+            ->assertSeeText('Disallow: /reset-password');
+
+        foreach ([route('login'), route('register'), route('password.request')] as $url) {
+            $this->get($url)->assertOk()
+                ->assertSee('<meta name="robots" content="noindex, nofollow" />', false)
+                ->assertDontSee('application/ld+json', false);
+        }
+    });
 });
 
 describe('structured data', function () {
