@@ -30,6 +30,10 @@
 
     <div class="mt-3 grid items-end gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <h1 class="font-display text-5xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl">
+            {{-- The slogan is the same every month; the month is what the page is about. --}}
+            @if ($review)
+                <span class="sr-only">{{ $review['monthName'] }} değerlendirmesi: </span>
+            @endif
             Her ayın sonunda
             <span class="relative inline-block">
                 dürüst bir bakış.

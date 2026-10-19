@@ -36,11 +36,8 @@ class SitemapController extends Controller
 
         $reviews = MonthlyReview::query()->published()->get(['month', 'updated_at'])->map(fn (MonthlyReview $review): array => $this->entry($review->publicPath(), $review->updated_at));
 
-        if ($reviews->isNotEmpty()) {
-            $entries[Section::Goals->value] = $entries[Section::Goals->value]->toBase()
-                ->push($this->entry(route('goals.reviews.index', absolute: false), $reviews->max('lastmod')))
-                ->merge($reviews);
-        }
+        // Only the months: /hedefler/aylik redirects to the latest one.
+        $entries[Section::Goals->value] = $entries[Section::Goals->value]->toBase()->merge($reviews);
 
         $everything = collect($entries)->flatten(1);
 

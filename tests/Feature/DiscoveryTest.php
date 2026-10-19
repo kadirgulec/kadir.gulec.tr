@@ -184,14 +184,22 @@ describe('monthly reviews', function () {
             ->toContain('<h3>Zorlandığım</h3><ul><li><p>Az yazı</p></li></ul>');
     });
 
-    it('are in the sitemap once published', function () {
+    it('are in the sitemap once published, without the address that redirects to the latest', function () {
         MonthlyReview::factory()->forMonth('2026-09')->create();
         MonthlyReview::factory()->forMonth('2026-08')->draft()->create();
 
         $xml = $this->get(route('sitemap'))->assertOk()->getContent();
 
         expect($xml)->toContain(route('goals.reviews.show', '2026-09'))->not->toContain('2026-08')
-            ->toContain('<loc>'.route('goals.reviews.index').'</loc>');
+            ->not->toContain('<loc>'.route('goals.reviews.index').'</loc>');
+    });
+
+    it('name the month in the heading for screen readers and search engines', function () {
+        MonthlyReview::factory()->forMonth('2026-09')->create();
+
+        $this->get(route('goals.reviews.show', '2026-09'))
+            ->assertSee('<span class="sr-only">Eylül 2026 değerlendirmesi: </span>', false);
+        $this->get(route('goals.reviews.index'))->assertRedirect(route('goals.reviews.show', '2026-09'));
     });
 });
 
