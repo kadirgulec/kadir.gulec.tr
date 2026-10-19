@@ -42,6 +42,40 @@ describe('meta tags', function () {
 
         $this->get(route('posts.show', $post->slug))->assertSee('content="İlk paragraf açıklama olur."', false);
     });
+
+    it('describes a book or film without an overview by its review, else by its facts', function () {
+        $reviewed = Book::factory()->reviewed('Savaşın saçmalığını gülerek anlatıyor.')->create(['overview' => '', 'meta_description' => null]);
+        $bare = Book::factory()->create(['title' => 'Aslan Asker Şvayk', 'author' => 'Jaroslav Hašek', 'overview' => null, 'meta_description' => '']);
+        $film = Watchable::factory()->create(['title' => 'Arrival', 'year' => 2016, 'creator' => 'Denis Villeneuve', 'overview' => null]);
+
+        $this->get(route('books.show', $reviewed->slug))->assertSee('<meta name="description" content="Savaşın saçmalığını gülerek anlatıyor." />', false);
+        $this->get(route('books.show', $bare->slug))
+            ->assertSee('<meta name="description" content="Kadir&#039;in okuduklarından bir kitap: Aslan Asker Şvayk, Jaroslav Hašek." />', false);
+        $this->get(url($film->publicPath()))
+            ->assertSee('<meta property="og:description" content="Kadir&#039;in izlediklerinden bir film: Arrival (2016), Denis Villeneuve." />', false);
+    });
+
+    it('lets search show large previews and a favicon it can read, on indexed pages only', function () {
+        $this->get(route('about'))
+            ->assertSee('<meta name="robots" content="max-image-preview:large" />', false)
+            ->assertSee('<link rel="icon" href="/icons/icon-192.png" type="image/png" sizes="192x192">', false);
+
+        $this->get(route('privacy'))->assertDontSee('max-image-preview', false);
+    });
+
+    it('fetches the poster of a film page first instead of lazily', function () {
+        $film = Watchable::factory()->create(['title' => 'Arrival', 'poster_path' => 'posters/arrival.webp']);
+
+        expect($this->get(url($film->publicPath()))->getContent())
+            ->toMatch('/alt="Arrival afişi"[^>]*fetchpriority="high"/u')
+            ->not->toMatch('/alt="Arrival afişi"[^>]*loading="lazy"/u');
+    });
+
+    it('never sends an empty description', function () {
+        $goal = Goal::factory()->longTerm()->create(['why' => null]);
+
+        $this->get(route('goals.show', $goal->slug))->assertDontSee('content=""', false);
+    });
 });
 
 describe('preview images', function () {
@@ -150,14 +184,22 @@ describe('monthly reviews', function () {
             ->toContain('<h3>Zorlandığım</h3><ul><li><p>Az yazı</p></li></ul>');
     });
 
-    it('are in the sitemap once published', function () {
+    it('are in the sitemap once published, without the address that redirects to the latest', function () {
         MonthlyReview::factory()->forMonth('2026-09')->create();
         MonthlyReview::factory()->forMonth('2026-08')->draft()->create();
 
         $xml = $this->get(route('sitemap'))->assertOk()->getContent();
 
         expect($xml)->toContain(route('goals.reviews.show', '2026-09'))->not->toContain('2026-08')
-            ->toContain('<loc>'.route('goals.reviews.index').'</loc>');
+            ->not->toContain('<loc>'.route('goals.reviews.index').'</loc>');
+    });
+
+    it('name the month in the heading for screen readers and search engines', function () {
+        MonthlyReview::factory()->forMonth('2026-09')->create();
+
+        $this->get(route('goals.reviews.show', '2026-09'))
+            ->assertSee('<span class="sr-only">Eylül 2026 değerlendirmesi: </span>', false);
+        $this->get(route('goals.reviews.index'))->assertRedirect(route('goals.reviews.show', '2026-09'));
     });
 });
 
@@ -224,6 +266,20 @@ describe('sitemap and robots', function () {
             ->assertSeeText('Disallow: /hesap')
             ->assertSeeText('Sitemap: '.route('sitemap'));
     });
+
+    it('lets crawlers reach the sign-in pages so they can see their noindex', function () {
+        $this->get('/robots.txt')
+            ->assertDontSeeText('Disallow: /login')
+            ->assertDontSeeText('Disallow: /register')
+            ->assertDontSeeText('Disallow: /forgot-password')
+            ->assertSeeText('Disallow: /reset-password');
+
+        foreach ([route('login'), route('register'), route('password.request')] as $url) {
+            $this->get($url)->assertOk()
+                ->assertSee('<meta name="robots" content="noindex, nofollow" />', false)
+                ->assertDontSee('application/ld+json', false);
+        }
+    });
 });
 
 describe('structured data', function () {
@@ -271,6 +327,67 @@ describe('structured data', function () {
             ->and($review['reviewRating'])->toMatchArray(['ratingValue' => 8.5, 'bestRating' => 10]);
 
         $response->assertSee(route('og', ['kind' => 'kitap', 'key' => $book->slug, 'v' => $book->updated_at->getTimestamp()]), false);
+    });
+
+    it('describes a note as a dated blog post by Kadir, headed by its opening words', function () {
+        $note = Note::factory()->for(Tag::factory()->state(['name' => 'laravel']))->create([
+            'body' => 'Kuyruk işleri sırayla çalışır.',
+            'published_at' => '2026-10-01 09:00:00',
+        ]);
+
+        $response = $this->get(route('notes.show', $note->id))
+            ->assertSee('<meta property="og:type" content="article" />', false)
+            ->assertSee('<meta property="article:published_time" content="2026-10-01T09:00:00+02:00" />', false);
+        $data = structuredData($response);
+
+        expect($data['BlogPosting'])->toMatchArray([
+            'headline' => 'Kuyruk işleri sırayla çalışır.',
+            'datePublished' => '2026-10-01T09:00:00+02:00',
+            'keywords' => 'laravel',
+            'author' => ['@id' => $data['Person']['@id']],
+        ]);
+    });
+
+    it('describes a monthly review as a dated blog post named after its month', function () {
+        MonthlyReview::factory()->forMonth('2026-09')->create([
+            'summary' => 'Spor oturdu.',
+            'published_at' => '2026-10-01 10:00:00',
+            'updated_at' => '2026-10-02 10:00:00',
+        ]);
+
+        $response = $this->get(route('goals.reviews.show', '2026-09'))
+            ->assertSee('<meta property="og:type" content="article" />', false)
+            ->assertSee('<meta property="article:published_time" content="2026-10-01T10:00:00+02:00" />', false);
+
+        expect(structuredData($response)['BlogPosting'])->toMatchArray([
+            'headline' => 'Eylül 2026 değerlendirmesi',
+            'description' => 'Spor oturdu.',
+            'datePublished' => '2026-10-01T10:00:00+02:00',
+            'dateModified' => '2026-10-02T10:00:00+02:00',
+        ]);
+    });
+
+    it('names the site after Kadir, with the domain as its other name', function () {
+        $response = $this->get(route('home'))
+            ->assertSee('<meta property="og:site_name" content="Kadir Gülec" />', false)
+            ->assertDontSee('twitter:image:alt', false);
+
+        expect(structuredData($response)['WebSite'])->toMatchArray(['name' => 'Kadir Gülec', 'alternateName' => 'kadir.gulec.tr']);
+    });
+
+    it('trims the description of a blog post', function () {
+        $post = Post::factory()->create(['meta_description' => ' Hetzner üzerine. ']);
+
+        expect(structuredData($this->get(route('posts.show', $post->slug)))['BlogPosting']['description'])->toBe('Hetzner üzerine.');
+    });
+
+    it('signs a post with a link to the author and describes him', function () {
+        $post = Post::factory()->create();
+
+        $response = $this->get(route('posts.show', $post->slug))
+            ->assertSee('<a href="'.route('about').'" class="hover:text-section-ink">Kadir</a>', false);
+
+        expect(structuredData($response)['Person']['description'])->toBe(config('about.person.description'));
     });
 
     it('makes the about page the author profile', function () {

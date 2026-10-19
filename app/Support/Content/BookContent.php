@@ -14,6 +14,7 @@ use App\Support\Og\OgUrl;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -136,6 +137,7 @@ class BookContent
     {
         $reading ??= $book->readings->first();
         $reviewIsPublic = $book->hasPublishedReview() || (filled($book->review_html) && Gate::allows(Permission::ManageBooks->value));
+        $reviewExcerpt = $reviewIsPublic ? $this->markdown->excerpt($this->withoutSpoilers((string) $book->review), 180) : null;
 
         return [
             'id' => $book->id,
@@ -169,7 +171,7 @@ class BookContent
             ])->all()),
             'hasReview' => $reviewIsPublic,
             'reviewHtml' => $reviewIsPublic ? new HtmlString((string) $book->review_html) : null,
-            'reviewExcerpt' => $reviewIsPublic ? $this->markdown->excerpt($this->withoutSpoilers((string) $book->review), 180) : null,
+            'reviewExcerpt' => $reviewExcerpt,
             'quotes' => array_values($book->quotes->filter(fn (Quote $quote): bool => $quote->isPublished())->map(fn (Quote $quote): array => [
                 'text' => $quote->body,
                 'by' => $quote->said_by,
@@ -177,7 +179,7 @@ class BookContent
             ])->all()),
             'url' => url($book->publicPath()),
             'isDraft' => ! $book->isPublished(),
-            'metaDescription' => $book->meta_description ?: Str::limit((string) $book->overview, 155, '…', preserveWords: true),
+            'metaDescription' => $this->metaDescription($book, $reviewExcerpt),
             'ogImage' => OgUrl::for('kitap', $book->slug, $book->updated_at),
         ];
     }
@@ -209,6 +211,23 @@ class BookContent
     /**
      * Excerpts must never give away a spoiler, nor start with a quote block.
      */
+    /**
+     * What search results show under the title: Kadir's own description, else
+     * the overview, else the public review, else a sentence built from the facts.
+     */
+    private function metaDescription(Book $book, ?string $reviewExcerpt): string
+    {
+        if (filled($book->meta_description)) {
+            return $book->meta_description;
+        }
+
+        $text = Arr::first([$book->overview, $reviewExcerpt], fn (?string $text): bool => filled($text));
+
+        return $text !== null
+            ? Str::limit(trim($text), 155, '…', preserveWords: true)
+            : "Kadir'in okuduklarından bir kitap: {$book->title}, {$book->author}.";
+    }
+
     private function withoutSpoilers(string $review): string
     {
         return (string) preg_replace('/^:::[ \t]*(spoiler|alıntı).*?^:::[ \t]*$/msu', '', $review);

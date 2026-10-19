@@ -29,7 +29,7 @@
             <div class="mt-16 flex flex-wrap items-center gap-4">
                 <x-site.logo class="stamp size-16 -rotate-12 text-section-ink" />
                 <p class="font-hand text-xl leading-tight text-ink-soft">
-                    Kadir<br>
+                    <a href="{{ route('about') }}" class="hover:text-section-ink">Kadir</a><br>
                     {{ $post['publishedAt']->locale('tr')->translatedFormat('j F Y') }}
                 </p>
                 <x-site.share-button label="beğendiysen paylaş →" class="ml-auto" />

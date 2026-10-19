@@ -22,7 +22,7 @@
     </div>
 
     @if ($goal['imageUrl'])
-        <img src="{{ $goal['imageUrl'] }}" alt="" class="mt-10 max-w-xl rotate-[1deg] bg-[#fffdf7] p-2.5 shadow-[0_8px_18px_-8px_rgb(60_40_20/0.5)] dark:bg-[#2e2a25]" loading="lazy" />
+        <img src="{{ $goal['imageUrl'] }}" alt="" class="mt-10 max-w-xl rotate-[1deg] bg-[#fffdf7] p-2.5 shadow-[0_8px_18px_-8px_rgb(60_40_20/0.5)] dark:bg-[#2e2a25]" fetchpriority="high" />
     @endif
 
     {{-- Small steps serving this goal --}}

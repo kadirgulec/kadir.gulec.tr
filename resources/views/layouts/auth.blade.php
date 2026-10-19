@@ -9,7 +9,7 @@
     'description' => null,
 ])
 
-<x-layouts::site :section="\App\Enums\Section::Home" :title="$title">
+<x-layouts::site :section="\App\Enums\Section::Home" :title="$title" noindex>
     <div class="mx-auto max-w-md py-4 sm:py-10">
         <x-site.note tape="center" class="space-y-6 !p-6 !pt-9 sm:!p-9 sm:!pt-11">
             @if ($heading)

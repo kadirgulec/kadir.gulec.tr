@@ -1,4 +1,4 @@
-@props(['project'])
+@props(['project', 'priority' => false])
 
 {{-- The project's screenshot in a browser window, or a sketched placeholder when there is none. --}}
 @if ($project['imageUrl'])
@@ -7,6 +7,7 @@
         :image-url="$project['imageUrl']"
         :srcset="$project['imageSrcset'] ?? null"
         :alt="$project['name'].' ekran görüntüsü'"
+        :priority="$priority"
         {{ $attributes }}
     />
 @else

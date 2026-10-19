@@ -5,17 +5,21 @@ namespace App\Support\Seo;
 use App\Enums\Section;
 use App\Enums\WatchableType;
 use App\Support\Content\BookContent;
+use App\Support\Content\NoteContent;
 use App\Support\Content\PostContent;
 use App\Support\Content\WatchedContent;
+use Carbon\CarbonInterface;
 
 /**
  * schema.org data (JSON-LD) that tells search engines what a page is: the
  * site and its author on every page, the breadcrumb trail, and the page's own
- * node (a blog post, a film or book review, the about page).
+ * node (a blog post, a note, a monthly review, a film or book review, the
+ * about page).
  *
  * The site layout prints graph(); pages hand their own nodes to the layout.
  *
  * @phpstan-import-type PostData from PostContent
+ * @phpstan-import-type NoteData from NoteContent
  * @phpstan-import-type WatchedEntry from WatchedContent
  * @phpstan-import-type BookEntry from BookContent
  */
@@ -51,8 +55,8 @@ class StructuredData
             '@type' => 'WebSite',
             '@id' => route('home').'#site',
             'url' => route('home'),
-            'name' => 'kadir.gulec.tr',
-            'alternateName' => config('about.person.name'),
+            'name' => config('about.person.name'),
+            'alternateName' => 'kadir.gulec.tr',
             'inLanguage' => 'tr-TR',
             'publisher' => ['@id' => self::personId()],
         ];
@@ -69,6 +73,7 @@ class StructuredData
             'name' => config('about.person.name'),
             'url' => route('about'),
             'jobTitle' => config('about.person.job_title'),
+            'description' => config('about.person.description'),
             'worksFor' => ['@type' => 'Organization', 'name' => config('about.person.works_for')],
             'homeLocation' => ['@type' => 'Place', 'name' => config('about.person.home')],
             'sameAs' => config('about.person.same_as'),
@@ -127,6 +132,56 @@ class StructuredData
             'publisher' => ['@id' => self::personId()],
             'inLanguage' => 'tr-TR',
             'keywords' => implode(', ', $post['tags']),
+        ], filled(...));
+    }
+
+    /**
+     * A note has no title, so its opening words are the headline. No rich
+     * result exists for it; the node tells search engines it is a dated piece
+     * by Kadir (Google forbids forum or social posting types for this).
+     *
+     * @param  NoteData  $note
+     * @return array<string, mixed>
+     */
+    public static function notePosting(array $note, string $headline, string $image): array
+    {
+        return array_filter([
+            '@type' => 'BlogPosting',
+            '@id' => $note['url'].'#not',
+            'mainEntityOfPage' => $note['url'],
+            'url' => $note['url'],
+            'headline' => $headline,
+            'description' => $note['text'],
+            'image' => $image,
+            'datePublished' => $note['publishedAt']->toAtomString(),
+            'author' => ['@id' => self::personId()],
+            'publisher' => ['@id' => self::personId()],
+            'inLanguage' => 'tr-TR',
+            'keywords' => $note['tagName'],
+        ], filled(...));
+    }
+
+    /**
+     * A monthly review, as a dated piece by Kadir.
+     *
+     * @param  array{monthName: string, summary: ?string, url: string, ogImage: string, publishedAt: ?CarbonInterface, updatedAt: ?CarbonInterface}  $review
+     * @return array<string, mixed>
+     */
+    public static function reviewPosting(array $review): array
+    {
+        return array_filter([
+            '@type' => 'BlogPosting',
+            '@id' => $review['url'].'#degerlendirme',
+            'mainEntityOfPage' => $review['url'],
+            'url' => $review['url'],
+            'headline' => $review['monthName'].' değerlendirmesi',
+            'description' => $review['summary'],
+            'image' => $review['ogImage'],
+            'datePublished' => $review['publishedAt']?->toAtomString(),
+            'dateModified' => $review['updatedAt']?->toAtomString(),
+            'author' => ['@id' => self::personId()],
+            'publisher' => ['@id' => self::personId()],
+            'inLanguage' => 'tr-TR',
         ], filled(...));
     }
 

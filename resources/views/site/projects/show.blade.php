@@ -34,7 +34,7 @@
     </header>
 
     <div class="mt-12 max-w-3xl rotate-[-0.6deg]">
-        <x-site.project-shot :project="$project" />
+        <x-site.project-shot :project="$project" priority />
     </div>
 
     @if ($project['bodyHtml'])

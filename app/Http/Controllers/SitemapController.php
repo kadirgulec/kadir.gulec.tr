@@ -36,11 +36,8 @@ class SitemapController extends Controller
 
         $reviews = MonthlyReview::query()->published()->get(['month', 'updated_at'])->map(fn (MonthlyReview $review): array => $this->entry($review->publicPath(), $review->updated_at));
 
-        if ($reviews->isNotEmpty()) {
-            $entries[Section::Goals->value] = $entries[Section::Goals->value]->toBase()
-                ->push($this->entry(route('goals.reviews.index', absolute: false), $reviews->max('lastmod')))
-                ->merge($reviews);
-        }
+        // Only the months: /hedefler/aylik redirects to the latest one.
+        $entries[Section::Goals->value] = $entries[Section::Goals->value]->toBase()->merge($reviews);
 
         $everything = collect($entries)->flatten(1);
 
@@ -80,15 +77,16 @@ class SitemapController extends Controller
         return ['loc' => url($path), 'lastmod' => $lastmod];
     }
 
+    /**
+     * The sign-in pages linked from every page stay crawlable: Google only
+     * honours their noindex if it may fetch them.
+     */
     public function robots(): Response
     {
         $lines = [
             'User-agent: *',
             'Disallow: /admin',
             'Disallow: /hesap',
-            'Disallow: /login',
-            'Disallow: /register',
-            'Disallow: /forgot-password',
             'Disallow: /reset-password',
             'Disallow: /two-factor-challenge',
             'Disallow: /user/',

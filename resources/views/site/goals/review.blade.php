@@ -18,7 +18,11 @@
     :title="$review ? $review['monthName'].' değerlendirmesi' : 'Aylık değerlendirme'"
     :draft="$review['isDraft'] ?? false"
     :og-image="$review['ogImage'] ?? null"
-    :description="$review ? ($review['summary'] ?? $review['monthName'].': ne iyi gitti, nerede zorlandım, gelecek ay ne deneyeceğim.') : 'Her ayın sonunda dürüst bir bakış: ne iyi gitti, nerede zorlandım, gelecek ay neyi değiştireceğim.'"
+    :og-type="$review ? 'article' : 'website'"
+    :published-at="$review['publishedAt'] ?? null"
+    :modified-at="$review['updatedAt'] ?? null"
+    :structured-data="$review ? [\App\Support\Seo\StructuredData::reviewPosting($review)] : []"
+    :description="$review ? ($review['summary'] ?: $review['monthName'].': ne iyi gitti, nerede zorlandım, gelecek ay ne deneyeceğim.') : 'Her ayın sonunda dürüst bir bakış: ne iyi gitti, nerede zorlandım, gelecek ay neyi değiştireceğim.'"
 >
     <p class="font-mono text-xs tracking-widest text-ink-faint uppercase">
         <a href="{{ route('goals.index') }}" class="hover:text-section-ink">Hedefler</a> · aylık değerlendirme
@@ -26,6 +30,10 @@
 
     <div class="mt-3 grid items-end gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <h1 class="font-display text-5xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl">
+            {{-- The slogan is the same every month; the month is what the page is about. --}}
+            @if ($review)
+                <span class="sr-only">{{ $review['monthName'] }} değerlendirmesi: </span>
+            @endif
             Her ayın sonunda
             <span class="relative inline-block">
                 dürüst bir bakış.

@@ -1,6 +1,6 @@
 @use('App\Enums\Section')
 
-<x-layouts::site :section="Section::Notes" :title="$title" :draft="$note['isDraft']" :description="$note['text']" :og-image="$ogImage" og-type="article">
+<x-layouts::site :section="Section::Notes" :title="$title" :draft="$note['isDraft']" :description="$note['text']" :og-image="$ogImage" og-type="article" :published-at="$note['publishedAt']" :structured-data="[\App\Support\Seo\StructuredData::notePosting($note, $title, $ogImage)]">
     <a href="{{ route('notes.index') }}" class="font-hand text-xl text-ink-soft hover:text-section-ink">← Panom</a>
 
     <div class="mx-auto mt-14 max-w-xl">

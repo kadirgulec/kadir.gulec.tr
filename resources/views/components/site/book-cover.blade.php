@@ -7,6 +7,7 @@
     'tilt' => -2,
     'framed' => true,
     'progress' => null,
+    'priority' => false,
 ])
 
 {{--
@@ -16,6 +17,7 @@
     sized to the cover's width (container query units) and to its longest word,
     so "Tutunamayanlar" still fits a small cover in one piece. "progress"
     (0–100) hangs a bookmark ribbon over the cover for a book being read.
+    "priority" marks the page's main image: fetched first, never lazily.
 --}}
 @php
     $artwork = $imageUrl
@@ -48,7 +50,7 @@
             @if ($artwork) style="{{ $artwork }}" @endif
         >
             @if ($imageUrl)
-                <img src="{{ $imageUrl }}" alt="{{ $title }} kapağı" class="size-full object-cover" loading="lazy" />
+                <img src="{{ $imageUrl }}" alt="{{ $title }} kapağı" class="size-full object-cover" @if ($priority) fetchpriority="high" @else loading="lazy" @endif />
             @else
                 <div class="paper absolute inset-0 opacity-25 mix-blend-overlay" aria-hidden="true"></div>
                 @if ($framed)
