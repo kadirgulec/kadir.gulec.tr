@@ -19,16 +19,25 @@ use Illuminate\Http\UploadedFile;
  * Records which file input the page asks the browser to open, instead of
  * opening a native dialog that a headless browser cannot answer, and every
  * Livewire upload that starts: its property and file names.
+ *
+ * Waits for the load event first: visit() returns while the document is still
+ * loading, before Alpine has bound the drop zones, so a drop sent right away
+ * is lost on a slow machine (CI).
  */
 const RECORD_UPLOADS = <<<'JS'
-    window.openedPicker = null;
-    window.startedUploads = [];
-    HTMLInputElement.prototype.click = function () {
-        if (this.type === 'file') { window.openedPicker = { accept: this.accept, multiple: this.multiple }; }
-    };
-    document.addEventListener('livewire-upload-start', (event) => {
-        window.startedUploads.push({ property: event.detail.property, files: [...event.target.files].map(file => file.name) });
-    });
+    (async () => {
+        if (document.readyState !== 'complete') {
+            await new Promise(resolve => addEventListener('load', resolve, { once: true }));
+        }
+        window.openedPicker = null;
+        window.startedUploads = [];
+        HTMLInputElement.prototype.click = function () {
+            if (this.type === 'file') { window.openedPicker = { accept: this.accept, multiple: this.multiple }; }
+        };
+        document.addEventListener('livewire-upload-start', (event) => {
+            window.startedUploads.push({ property: event.detail.property, files: [...event.target.files].map(file => file.name) });
+        });
+    })()
 JS;
 
 /** The upload field (label, drop zone, input) whose text contains the given marker. */
