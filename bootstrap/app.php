@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAdminAccess;
+use App\Http\Middleware\EnsureSectionIsOpen;
 use App\Http\Middleware\RecordPageView;
 use App\Http\Middleware\StrictTransportSecurity;
 use App\Models\Redirect;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => EnsureAdminAccess::class,
             'page-view' => RecordPageView::class,
+            'section' => EnsureSectionIsOpen::class,
         ]);
 
         $middleware->append(StrictTransportSecurity::class);

@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('yazilar/rss', [FeedController::class, 'posts'])->name('posts.feed');
 Route::get('ogrendiklerim/rss', [FeedController::class, 'notes'])->name('notes.feed');
-Route::get('hedefler/aylik/rss', [FeedController::class, 'reviews'])->name('goals.reviews.feed');
+Route::get('hedefler/aylik/rss', [FeedController::class, 'reviews'])->middleware('section:goals')->name('goals.reviews.feed');
 Route::get('sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 Route::get('manifest.webmanifest', ManifestController::class)->name('manifest');
@@ -42,12 +42,15 @@ Route::middleware('page-view')->group(function () {
         ->name('watched.show');
     Route::get('okuduklarim', [BooksController::class, 'index'])->name('books.index');
     Route::get('okuduklarim/{slug}', [BooksController::class, 'show'])->name('books.show');
-    Route::get('hedefler', [GoalsController::class, 'index'])->name('goals.index');
-    // Before hedefler/{slug}: "aylik" would be taken for a goal's address.
-    Route::get('hedefler/aylik', [MonthlyReviewsController::class, 'index'])->name('goals.reviews.index');
-    Route::get('hedefler/aylik/{month}', [MonthlyReviewsController::class, 'show'])->where('month', '\\d{4}-\\d{2}')->name('goals.reviews.show');
-    Route::get('hedefler/zincir/{slug}', [GoalsController::class, 'chain'])->name('goals.chain');
-    Route::get('hedefler/{slug}', [GoalsController::class, 'show'])->name('goals.show');
+    // Kadir can close the section from the admin panel (EnsureSectionIsOpen).
+    Route::middleware('section:goals')->group(function () {
+        Route::get('hedefler', [GoalsController::class, 'index'])->name('goals.index');
+        // Before hedefler/{slug}: "aylik" would be taken for a goal's address.
+        Route::get('hedefler/aylik', [MonthlyReviewsController::class, 'index'])->name('goals.reviews.index');
+        Route::get('hedefler/aylik/{month}', [MonthlyReviewsController::class, 'show'])->where('month', '\\d{4}-\\d{2}')->name('goals.reviews.show');
+        Route::get('hedefler/zincir/{slug}', [GoalsController::class, 'chain'])->name('goals.chain');
+        Route::get('hedefler/{slug}', [GoalsController::class, 'show'])->name('goals.show');
+    });
     Route::get('projeler', [ProjectsController::class, 'index'])->name('projects.index');
     Route::get('projeler/{slug}', [ProjectsController::class, 'show'])->name('projects.show');
     Route::get('hakkimda', AboutController::class)->name('about');

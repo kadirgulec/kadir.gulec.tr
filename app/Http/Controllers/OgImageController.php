@@ -27,8 +27,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Serves link preview images. Each one is drawn once, on its first request,
  * and kept on the public disk until its content changes. Always drawn as a
- * visitor would see the page: drafts and hidden goals have none, censored
- * goals stay censored.
+ * visitor would see the page: drafts, hidden goals and closed sections have
+ * none, censored goals stay censored.
  *
  * @phpstan-import-type Card from OgImage
  */
@@ -69,8 +69,8 @@ class OgImageController extends Controller
             'project' => $this->project($key),
             'film', 'dizi' => $this->watchable(WatchableType::fromRouteSegment($kind), $key),
             'kitap' => $this->book($key),
-            'goal' => $this->goal($key),
-            'aylik' => $this->monthlyReview($key),
+            'goal' => Section::Goals->isOpen() ? $this->goal($key) : null,
+            'aylik' => Section::Goals->isOpen() ? $this->monthlyReview($key) : null,
             default => null,
         };
     }
@@ -82,7 +82,7 @@ class OgImageController extends Controller
     {
         $section = Section::tryFrom($key);
 
-        if ($section === null) {
+        if ($section === null || ! $section->isOpen()) {
             return null;
         }
 

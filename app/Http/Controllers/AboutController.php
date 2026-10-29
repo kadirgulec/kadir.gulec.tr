@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Section;
 use App\Enums\ToolboxGroup;
 use App\Models\Technology;
 use App\Support\Content\BookContent;
@@ -18,6 +19,8 @@ class AboutController extends Controller
      */
     public function __invoke(ProjectContent $projects, PostContent $posts, WatchedContent $watched, BookContent $books, GoalContent $goals): View
     {
+        $goalsAreOpen = Section::Goals->isOpen();
+
         return view('site.about', [
             'stops' => config('about.stops'),
             'toolbox' => $this->toolbox(),
@@ -25,9 +28,9 @@ class AboutController extends Controller
                 'project' => $projects->featured(),
                 'series' => $watched->currentlyWatching()[0] ?? null,
                 'book' => $books->currentlyReading()[0] ?? null,
-                'chain' => $goals->firstPublicChain(),
+                'chain' => $goalsAreOpen ? $goals->firstPublicChain() : null,
                 'post' => $posts->latest(),
-                'books' => $goals->readingGoal(),
+                'books' => $goalsAreOpen ? $goals->readingGoal() : null,
             ],
         ]);
     }

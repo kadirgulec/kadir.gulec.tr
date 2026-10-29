@@ -21,7 +21,9 @@
     // Without the query string, so ?etiket=… and tracking parameters point at the plain page.
     // A later page of a list is more than a filter: it passes its own address.
     $canonical ??= url()->current();
-    $isIndexed = ! $draft && ! $noindex;
+    // Only whoever manages a closed section gets this far (EnsureSectionIsOpen).
+    $isClosed = ! $section->isOpen();
+    $isIndexed = ! $draft && ! $noindex && ! $isClosed;
 @endphp
 
 <!DOCTYPE html>
@@ -56,7 +58,7 @@
         @if (Route::has('notes.feed'))
             <link rel="alternate" type="application/atom+xml" title="Kadir Gülec · Öğrendiklerim" href="{{ route('notes.feed') }}" />
         @endif
-        @if (Route::has('goals.reviews.feed'))
+        @if (Route::has('goals.reviews.feed') && \App\Enums\Section::Goals->isOpen())
             <link rel="alternate" type="application/atom+xml" title="Kadir Gülec · Aylık değerlendirme" href="{{ route('goals.reviews.feed') }}" />
         @endif
         @if ($isIndexed)
@@ -128,6 +130,10 @@
 
                         @if ($draft)
                             <p role="status" class="mt-5 -rotate-1 self-start rounded-sm bg-highlighter px-3 py-1 font-mono text-xs font-semibold tracking-wide text-[#2b2420] uppercase shadow-sm">Taslak · sadece sen görüyorsun</p>
+                        @endif
+
+                        @if ($isClosed)
+                            <p role="status" class="mt-5 -rotate-1 self-start rounded-sm bg-highlighter px-3 py-1 font-mono text-xs font-semibold tracking-wide text-[#2b2420] uppercase shadow-sm">{{ $section->label() }} kapalı · sadece sen görüyorsun</p>
                         @endif
 
                         <main id="icerik" class="vt-page flex-1 py-8 sm:py-10">

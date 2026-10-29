@@ -1,9 +1,9 @@
 @props(['current'])
 
-{{-- Desktop: colored divider tabs sticking out of the page's right edge. --}}
+{{-- Desktop: colored divider tabs sticking out of the page's right edge. A closed section has no tab. --}}
 <nav aria-label="Bölümler" class="absolute top-0 left-full hidden h-full lg:block">
     <ul class="sticky top-10 flex flex-col gap-2 pt-20">
-        @foreach (\App\Enums\Section::cases() as $item)
+        @foreach (\App\Enums\Section::openCases() as $item)
             @php($isCurrent = $item === $current)
 
             <li data-section="{{ $item->value }}">

@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\Goals\CopyYearlyGoals;
+use App\Actions\Goals\SetGoalsSectionOpen;
 use App\Enums\GoalKind;
 use App\Enums\GoalMeasure;
 use App\Enums\GoalVisibility;
@@ -21,9 +22,19 @@ new #[Layout('layouts::admin'), Title('Hedefler')] class extends Component {
     /** @var list<int> */
     public array $copyIds = [];
 
+    public bool $isOpen = true;
+
     public function mount(): void
     {
         $this->year = $this->year ?: now()->year;
+        $this->isOpen = Section::Goals->isOpen();
+    }
+
+    public function updatedIsOpen(): void
+    {
+        app(SetGoalsSectionOpen::class)->handle($this->isOpen);
+
+        $this->dispatch('toast', text: $this->isOpen ? 'Hedefler sitede yeniden açık.' : 'Hedefler sitede kapatıldı.');
     }
 
     /**
@@ -108,6 +119,14 @@ new #[Layout('layouts::admin'), Title('Hedefler')] class extends Component {
             </x-admin.dropdown>
         </x-slot:actions>
     </x-admin.page-header>
+
+    <x-admin.card>
+        <x-admin.switch
+            wire:model.live="isOpen"
+            label="Hedefler sitede açık"
+            description="Kapatınca bölüm ziyaretçiler için yokmuş gibi olur: sekmesi, ana sayfadaki zincirler kartı ve diğer sayfalardaki hedef bağlantıları kalkar, adresleri 404 verir, takipçilere bildirim gitmez. Sen sayfaları yine görürsün; zincir hatırlatmaların ve aylık değerlendirme e-postan gelmeye devam eder."
+        />
+    </x-admin.card>
 
     {{-- Chains --}}
     <section class="space-y-3">

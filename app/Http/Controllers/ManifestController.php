@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Permission;
+use App\Enums\Section;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -51,7 +52,7 @@ class ManifestController extends Controller
     {
         $shortcuts = [
             ['name' => 'Panom', 'url' => route('notes.index', absolute: false)],
-            ['name' => 'Hedefler', 'url' => route('goals.index', absolute: false)],
+            ...Section::Goals->isOpen() ? [['name' => 'Hedefler', 'url' => route('goals.index', absolute: false)]] : [],
             ['name' => 'Yazılar', 'url' => route('posts.index', absolute: false)],
             ['name' => 'Rafım', 'url' => route('shelf.index', absolute: false)],
         ];

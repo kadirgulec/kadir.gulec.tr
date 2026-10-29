@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Enums\GoalKind;
 use App\Enums\GoalVisibility;
+use App\Enums\Section;
 use App\Models\Goal;
 use App\Models\Post;
 use App\Models\Project;
@@ -65,11 +66,11 @@ class NotFoundSuggestion
             ->merge(Post::query()->published()->get()->map(fn (Post $post) => $entry($post->title, $post->slug, $post->publicPath())))
             ->merge(Project::query()->published()->get()->map(fn (Project $project) => $entry($project->name, $project->slug, $project->publicPath())))
             ->merge(Watchable::query()->published()->get()->map(fn (Watchable $watchable) => $entry($watchable->title, $watchable->slug, $watchable->publicPath())))
-            ->merge(Goal::query()
+            ->when(Section::Goals->isOpen(), fn (Collection $candidates) => $candidates->merge(Goal::query()
                 ->where('visibility', GoalVisibility::Public)
                 ->whereIn('kind', [GoalKind::Chain, GoalKind::LongTerm])
                 ->get()
-                ->map(fn (Goal $goal) => $entry($goal->title, $goal->slug, $goal->publicPath())));
+                ->map(fn (Goal $goal) => $entry($goal->title, $goal->slug, $goal->publicPath()))));
     }
 
     /**

@@ -39,9 +39,10 @@ class SitemapController extends Controller
         // Only the months: /hedefler/aylik redirects to the latest one.
         $entries[Section::Goals->value] = $entries[Section::Goals->value]->toBase()->merge($reviews);
 
-        $everything = collect($entries)->flatten(1);
+        // A closed section is a 404 for search engines too.
+        $everything = collect($entries)->filter(fn (Collection $urls, string $section): bool => Section::from($section)->isOpen())->flatten(1);
 
-        $sections = collect(Section::cases())->map(fn (Section $section): array => [
+        $sections = collect(Section::openCases())->map(fn (Section $section): array => [
             'loc' => $section->url(),
             'lastmod' => match ($section) {
                 Section::Home => $everything->max('lastmod'),

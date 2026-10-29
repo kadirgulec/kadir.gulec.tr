@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Section;
 use App\Support\Content\BookContent;
 use App\Support\Content\GoalContent;
 use App\Support\Content\NoteContent;
@@ -20,7 +21,7 @@ class BooksController extends Controller
 
         return view('site.books.index', [
             'finishedThisYear' => $this->books->finishedCountIn(now()->year),
-            'readingGoal' => $goals->readingGoal(),
+            'readingGoal' => Section::Goals->isOpen() ? $goals->readingGoal() : null,
             'recent' => $this->books->recent(6),
             'currentlyReading' => $this->books->currentlyReading(),
             'toRead' => $this->books->toRead(),

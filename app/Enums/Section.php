@@ -2,6 +2,9 @@
 
 namespace App\Enums;
 
+use App\Models\ClosedSection;
+use App\Models\User;
+
 /**
  * The public sections of the site. Each section is a notebook tab with its own
  * accent color, which the CSS picks up through the `data-section` attribute.
@@ -63,6 +66,51 @@ enum Section: string
     public function url(): string
     {
         return route($this->routeName());
+    }
+
+    /**
+     * Whether Kadir can close the section from the admin panel. Only Goals for now.
+     */
+    public function isClosable(): bool
+    {
+        return $this === self::Goals;
+    }
+
+    /**
+     * Open to visitors. A closed section has no tab and no mentions on other
+     * pages, and its pages answer 404 except to whoever may preview it.
+     */
+    public function isOpen(): bool
+    {
+        return ! in_array($this, ClosedSection::sections(), true);
+    }
+
+    /**
+     * Whether this person may read the section's pages: anyone while it is
+     * open, only those who manage it while it is closed.
+     */
+    public function isReadableBy(?User $user): bool
+    {
+        if ($this->isOpen()) {
+            return true;
+        }
+
+        $permission = match ($this) {
+            self::Goals => Permission::ManageGoals,
+            default => null,
+        };
+
+        return $permission !== null && $user?->can($permission->value) === true;
+    }
+
+    /**
+     * The sections open to visitors, in tab order.
+     *
+     * @return list<self>
+     */
+    public static function openCases(): array
+    {
+        return array_values(array_filter(self::cases(), fn (self $section): bool => $section->isOpen()));
     }
 
     /**

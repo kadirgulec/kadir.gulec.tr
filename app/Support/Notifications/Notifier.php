@@ -2,8 +2,10 @@
 
 namespace App\Support\Notifications;
 
+use App\Enums\Section;
 use App\Models\Follow;
 use App\Models\Goal;
+use App\Models\MonthlyReview;
 use App\Models\NotificationItem;
 use App\Models\User;
 use Closure;
@@ -12,8 +14,10 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Turns something that happened into notification items, one per member.
  * Members who get no e-mail (unverified, blocked, "never") get no items;
- * hidden goals tell nobody anything. The message is written per member,
- * so a censored goal keeps its secret from members who may not read it.
+ * hidden goals tell nobody anything, and neither do goals and monthly
+ * reviews while the Goals section is closed (Kadir's own chain reminders
+ * and review mails do not come through here). The message is written per
+ * member, so a censored goal keeps its secret from members who may not read it.
  */
 class Notifier
 {
@@ -23,7 +27,7 @@ class Notifier
      */
     public function toFollowers(Model $subject, string $key, Closure $message, bool $digestOnly = false): void
     {
-        if ($subject instanceof Goal && ! $subject->visibility->isVisible()) {
+        if (($subject instanceof Goal && ! $subject->visibility->isVisible()) || $this->isInClosedSection($subject)) {
             return;
         }
 
@@ -44,7 +48,7 @@ class Notifier
      */
     public function toUser(User $user, ?Model $subject, string $key, array $message, bool $digestOnly = false): void
     {
-        if (! $user->receivesNotifications()) {
+        if (! $user->receivesNotifications() || $this->isInClosedSection($subject)) {
             return;
         }
 
@@ -64,6 +68,14 @@ class Notifier
         }
 
         $item->save();
+    }
+
+    /**
+     * Goals and monthly reviews belong to the Goals section.
+     */
+    private function isInClosedSection(?Model $subject): bool
+    {
+        return ($subject instanceof Goal || $subject instanceof MonthlyReview) && ! Section::Goals->isOpen();
     }
 
     /**

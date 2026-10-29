@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Section;
 use App\Models\Goal;
 use App\Support\Content\GoalContent;
 use App\Support\Content\ProjectContent;
@@ -37,7 +38,7 @@ class ProjectsController extends Controller
 
         return view('site.projects.show', [
             'project' => $project,
-            'goal' => $this->goals->chip($project['goalId'] ? Goal::query()->find($project['goalId']) : null, onGoalsPage: false),
+            'goal' => $project['goalId'] && Section::Goals->isOpen() ? $this->goals->chip(Goal::query()->find($project['goalId']), onGoalsPage: false) : null,
         ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Section;
 use App\Support\Content\BookContent;
 use App\Support\Content\GoalContent;
 use App\Support\Content\NoteContent;
@@ -23,7 +24,7 @@ class HomeController extends Controller
             'lastWatched' => $watched->lastWatched(),
             'currentlyWatching' => $watched->currentlyWatching(),
             'currentlyReading' => $books->currentlyReading(),
-            'chains' => $goals->chains(14),
+            'chains' => Section::Goals->isOpen() ? $goals->chains(14) : [],
             'featuredProject' => $projects->featured(),
         ]);
     }

@@ -1,9 +1,11 @@
 @props(['current'])
 
-{{-- Mobile: the divider tabs become a colored tab bar at the bottom. Home and About have no tab here (see Section::isInMobileBar()). --}}
+{{-- Mobile: the divider tabs become a colored tab bar at the bottom. Home and About have no tab here (see Section::isInMobileBar()), nor has a closed section. --}}
+@php($items = array_filter(\App\Enums\Section::openCases(), fn (\App\Enums\Section $section): bool => $section->isInMobileBar()))
+
 <nav aria-label="Bölümler" class="vt-bar fixed inset-x-0 bottom-0 z-30 border-t border-rule bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm lg:hidden">
-    <ul class="mx-auto grid max-w-lg grid-cols-5">
-        @foreach (array_filter(\App\Enums\Section::cases(), fn (\App\Enums\Section $section): bool => $section->isInMobileBar()) as $item)
+    <ul @class(['mx-auto grid max-w-lg', 'grid-cols-5' => count($items) === 5, 'grid-cols-4' => count($items) === 4])>
+        @foreach ($items as $item)
             @php($isCurrent = $item === $current)
 
             <li data-section="{{ $item->value }}">

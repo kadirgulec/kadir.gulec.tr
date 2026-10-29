@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Section;
 use App\Models\Book;
 use App\Models\Follow;
 use App\Models\Goal;
@@ -44,7 +45,7 @@ new #[Layout('layouts::account'), Title('Takip ettiklerim')] class extends Compo
                 'name' => app(Notifier::class)->goalTitle($followable, auth()->user()),
                 'kind' => $followable->kind->label(),
                 'url' => url($followable->publicPath($followable->slugFor(auth()->user()))),
-                'muted' => ! $followable->visibility->isVisible(),
+                'muted' => ! $followable->visibility->isVisible() || ! Section::Goals->isOpen(),
             ],
             default => ['name' => 'Kayıt', 'kind' => '', 'url' => null, 'muted' => false],
         };
