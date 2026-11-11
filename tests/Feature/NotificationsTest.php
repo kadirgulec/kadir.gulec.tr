@@ -310,7 +310,7 @@ describe('sending', function () {
     it('sends instant members one e-mail with their items and marks them sent', function () {
         Mail::fake();
         $instant = follower(attributes: ['notification_frequency' => NotificationFrequency::Instant]);
-        $daily = follower();
+        $daily = follower(attributes: ['notification_frequency' => NotificationFrequency::Daily]);
         foreach ([$instant, $daily] as $user) {
             NotificationItem::create(['user_id' => $user->id, 'key' => 'k1', 'title' => 'Bir şey oldu', 'url' => 'https://example.test']);
         }
@@ -359,7 +359,7 @@ describe('sending', function () {
         $url = URL::signedRoute('notifications.unsubscribe', ['user' => $user->id]);
 
         $this->get($url)->assertOk()->assertSeeText('Evet, bırak');
-        expect($user->fresh()->notification_frequency)->toBe(NotificationFrequency::Daily);
+        expect($user->fresh()->notification_frequency)->toBe(NotificationFrequency::Weekly);
 
         $this->post($url)->assertOk();
         expect($user->fresh()->notification_frequency)->toBe(NotificationFrequency::Never);

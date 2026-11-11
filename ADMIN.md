@@ -108,7 +108,7 @@ Bu dosya, admin paneli ve üyelik aşamasının kararlarını, adımlarını ve 
   | Proje | Yeni devlog, durum değişikliği |
   | Yazılar | Yeni yazı (tek abonelik), yorumuna cevap |
 
-  Olaylar biriktirilir; tercih: anında / günlük özet (varsayılan) / haftalık özet. Kuyruk + zamanlanmış komut. İmzalı tek tık abonelikten çıkma, `List-Unsubscribe`. Defter havasında sade HTML e-posta.
+  Olaylar biriktirilir; tercih: anında / günlük özet / haftalık özet (varsayılan; 2026-11-11 öncesi günlüktü, mevcut üyeler kendi tercihini korur). Kuyruk + zamanlanmış komut. İmzalı tek tık abonelikten çıkma, `List-Unsubscribe`. Defter havasında sade HTML e-posta.
 - **Gizlilik ve künye:** `/gizlilik` ve `/kunye`, taslak metinleri Claude yazar, Kadir kontrol ettirir. Analitik/izleme çerezi yok, çerez bandı yok. Yorumlarda IP saklanmaz.
 - **Hesap silme:** Yorumlar anonimleşir ("silinmiş üye"). Profilde "verilerimi indir" (JSON).
 

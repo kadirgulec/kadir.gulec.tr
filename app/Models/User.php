@@ -49,7 +49,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      * @var array<string, mixed>
      */
     protected $attributes = [
-        'notification_frequency' => 'daily',
+        'notification_frequency' => 'weekly',
         'notify_new_posts' => false,
         'notify_new_notes' => false,
         'notify_monthly_reviews' => false,
