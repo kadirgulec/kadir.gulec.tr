@@ -95,3 +95,17 @@ describe('show', function () {
             ->assertSeeText('Taslak · sadece sen görüyorsun');
     });
 });
+
+describe('old blog addresses', function () {
+    it('sends old category and archive pages to their successor for good', function (string $old, string $new) {
+        $this->get($old)->assertStatus(301)->assertRedirect($new);
+    })->with([
+        'tecrübe category' => ['/yazilar/category/turkish/tecrube', '/yazilar?etiket=tecrube'],
+        'Turkish category' => ['/yazilar/category/turkish', '/yazilar'],
+        'January 2024 archive' => ['/yazilar/2024/01', '/yazilar'],
+    ]);
+
+    it('keeps the other old pages a 404', function (string $old) {
+        $this->get($old)->assertNotFound();
+    })->with(['/yazilar/category/english', '/yazilar/beispiel-seite']);
+});

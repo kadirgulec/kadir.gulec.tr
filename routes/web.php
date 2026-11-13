@@ -28,6 +28,12 @@ Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 Route::get('manifest.webmanifest', ManifestController::class)->name('manifest');
 Route::get('og/{kind}/{key}.png', OgImageController::class)->where('key', '[a-z0-9-]+')->name('og');
 
+// The old WordPress blog (blog.kadirguelec.de) forwards every path to /yazilar/<path>.
+// These old category and archive pages have a real successor here; the rest stay 404.
+Route::permanentRedirect('yazilar/category/turkish/tecrube', '/yazilar?etiket=tecrube');
+Route::permanentRedirect('yazilar/category/turkish', '/yazilar');
+Route::permanentRedirect('yazilar/2024/01', '/yazilar');
+
 // The pages people read are counted for the visit statistics (RecordPageView).
 Route::middleware('page-view')->group(function () {
     Route::get('/', HomeController::class)->name('home');
